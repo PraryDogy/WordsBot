@@ -22,6 +22,7 @@ def new_user(msg_user_id: int, msg_user_name: str):
 
 
 def update_name(input_user_id, new_user_name):
+    print('update name')
     vals = {'user_name': new_user_name}
     new_name = sqlalchemy.update(Users).where(
         Users.user_id==input_user_id).values(vals)
