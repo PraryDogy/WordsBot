@@ -11,8 +11,24 @@ def get_words(text: str):
 
 
 
-def write_db(info: tuple):
-    id, name, words = info
+def write_db(msg_user_id, msg_user_name, msg_words):
+    words = get_words(msg_words)
+
+    query = sqlalchemy.select(Words.word, Words.count).where(Words.user_id==msg_user_id)
+    db_user_words = Dbase.conn.execute(query).fetchall()
+
+    print(words)
+    print(db_user_words)
+
+
+def users_list(data):
+    user_ids = []
+    users = []
+    for id, name, _ in tuple(reversed(data)):
+        if id not in user_ids:
+            user_ids.append(id)
+            users.append((id, name))
+    return users
 
 
 def new_user(msg_user_id: int, msg_user_name: str):

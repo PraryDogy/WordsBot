@@ -47,9 +47,12 @@ class Words(Dbase.base):
     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.user_id'))
 
 
+# Dbase.base.metadata.drop_all(Dbase.conn)
 # Dbase.base.metadata.create_all(Dbase.conn)
 
 # query = sqlalchemy.select(Users.user_id, Users.user_name).filter(Users.user_id == 666)
 # res = Dbase.conn.execute(query).first()
 
-# print(res)
+# vals = {'word': 'second word', 'count': 3, 'user_id': 248208655}
+# new_user = sqlalchemy.insert(Words).values(vals)
+# Dbase.conn.execute(new_user)
