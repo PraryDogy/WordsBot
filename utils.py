@@ -17,8 +17,19 @@ def write_db(msg_user_id, msg_user_name, msg_words):
     query = sqlalchemy.select(Words.word, Words.count).where(Words.user_id==msg_user_id)
     db_user_words = Dbase.conn.execute(query).fetchall()
 
-    print(words)
-    print(db_user_words)
+    db_words = [i[0] for i in db_user_words]
+    db_counts = [i[1] for i in db_user_words]
+
+    for w in words:
+        if w not in db_words:
+            vals = {'word': 'second word', 'count': 1, 'user_id': msg_user_id}
+            q = sqlalchemy.insert(Words).values(vals)
+            Dbase.conn.execute(q)
+
+        else:
+            ind = db_words.index(w)
+            db_counts[ind] += 1
+
 
 
 def users_list(data):
