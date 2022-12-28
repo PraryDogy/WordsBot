@@ -10,26 +10,30 @@ def get_words(text: str):
     return tuple(i for i in rem_whitespaces if len(i) > 2)
 
 
-
 def write_db(msg_user_id, msg_user_name, msg_words):
     words = get_words(msg_words)
 
-    query = sqlalchemy.select(Words.word, Words.count).where(Words.user_id==msg_user_id)
+    query = sqlalchemy.select(Words.id, Words.word, Words.count).where(Words.user_id==msg_user_id)
     db_user_words = Dbase.conn.execute(query).fetchall()
 
-    db_words = [i[0] for i in db_user_words]
-    db_counts = [i[1] for i in db_user_words]
+    db_ids = [i[0] for i in db_user_words]
+    db_words = [i[1] for i in db_user_words]
+    db_counts = [i[2] for i in db_user_words]
 
     for w in words:
         if w not in db_words:
-            vals = {'word': 'second word', 'count': 1, 'user_id': msg_user_id}
+            vals = {'word': w, 'count': 1, 'user_id': msg_user_id}
             q = sqlalchemy.insert(Words).values(vals)
             Dbase.conn.execute(q)
 
         else:
-            ind = db_words.index(w)
-            db_counts[ind] += 1
+            get_db_index = db_words.index(w)
+            db_counts[get_db_index] += 1
+            db_word_id = db_ids[get_db_index]
 
+            vals = {'count': db_counts[get_db_index]}
+            q = sqlalchemy.update(Words).where(Words.id==db_word_id).values(vals)
+            Dbase.conn.execute(q)
 
 
 def users_list(data):
