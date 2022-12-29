@@ -45,14 +45,12 @@ class Words(Dbase.base):
     word = sqlalchemy.Column(sqlalchemy.Text)
     count = sqlalchemy.Column(sqlalchemy.Integer)
     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.user_id'))
+    chat_id = sqlalchemy.Column(sqlalchemy.Integer)
 
 
 # Dbase.base.metadata.drop_all(Dbase.conn)
 # Dbase.base.metadata.create_all(Dbase.conn)
 
-# query = sqlalchemy.select(Users.user_id, Users.user_name).filter(Users.user_id == 666)
+# query = sqlalchemy.select(Words.id).where(Words.word=='это', Words.user_id==5717544572, Words.chat_id==-1001297579871)
 # res = Dbase.conn.execute(query).first()
-
-# vals = {'word': 'second word', 'count': 3, 'user_id': 248208655}
-# new_user = sqlalchemy.insert(Words).values(vals)
-# Dbase.conn.execute(new_user)
+# print(res)

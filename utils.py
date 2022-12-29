@@ -2,37 +2,63 @@ import string
 import sqlalchemy
 from database import Dbase, Users, Words
 
+
+def sort_words(input: tuple):
+    unic_words = set(i[0] for i in input)
+    result = []
+    for word in unic_words:
+        counter = 0
+        for w, c in input:
+            counter += c if word == w else False
+        result.append((word, counter))
+    return tuple(reversed(sorted(result, key=lambda x: x[1])))
+
+
+def my_words(msg_user_id, msg_chat_id):
+    q = sqlalchemy.select(Words.word, Words.count).where(
+        Words.user_id==msg_user_id, Words.chat_id==msg_chat_id).order_by(-Words.count)
+    db_words = Dbase.conn.execute(q).fetchall()[:10]
+    rowed = ''.join([f'{word}: {count}\n' for word, count in db_words])
+    return 'Ваш топ 10 слов:\n\n' + rowed
+
+
+def chat_words(msg_chat_id):
+    q = sqlalchemy.select(Words.word, Words.count).where(
+        Words.chat_id==msg_chat_id).order_by(-Words.count)
+    db_words = Dbase.conn.execute(q).fetchall()
+    sorted = sort_words(db_words)[:10]
+    rowed = ''.join([f'{word}: {count}\n' for word, count in sorted])
+    return 'Топ 10 слов чата\n\n' + rowed
+
+
 def get_words(text: str):
     new = text.translate(text.maketrans('', '', string.punctuation))
     new = new.replace('\n', ' ')
     whitespaces_split = new.split(' ')
     rem_whitespaces = [i.replace(' ', '') for i in whitespaces_split]
-    return tuple(i for i in rem_whitespaces if len(i) > 2)
+    lower_cases = [i.lower() for i in rem_whitespaces]
+    return tuple(i for i in lower_cases if len(i) > 2)
 
 
-def write_db(msg_user_id, msg_user_name, msg_words):
-    words = get_words(msg_words)
+def write_db(msg_user_id, msg_chat_id, msg_words):
+    msg_words = get_words(msg_words)
 
-    query = sqlalchemy.select(Words.id, Words.word, Words.count).where(Words.user_id==msg_user_id)
+    query = sqlalchemy.select(Words.word, Words.chat_id).where(Words.user_id==msg_user_id)
     db_user_words = Dbase.conn.execute(query).fetchall()
 
-    db_ids = [i[0] for i in db_user_words]
-    db_words = [i[1] for i in db_user_words]
-    db_counts = [i[2] for i in db_user_words]
-
-    for w in words:
-        if w not in db_words:
-            vals = {'word': w, 'count': 1, 'user_id': msg_user_id}
+    for word in msg_words:
+        if (word, msg_chat_id) not in db_user_words:
+            vals = {'word': word, 'count': 1, 'user_id': msg_user_id, 'chat_id': msg_chat_id}
             q = sqlalchemy.insert(Words).values(vals)
             Dbase.conn.execute(q)
-
         else:
-            get_db_index = db_words.index(w)
-            db_counts[get_db_index] += 1
-            db_word_id = db_ids[get_db_index]
+            q = sqlalchemy.select(Words.count).where(
+                Words.word==word, Words.user_id==msg_user_id, Words.chat_id==msg_chat_id)
+            db_word_count = Dbase.conn.execute(q).first()[0]
 
-            vals = {'count': db_counts[get_db_index]}
-            q = sqlalchemy.update(Words).where(Words.id==db_word_id).values(vals)
+            vals = {'count': db_word_count+1}
+            q = sqlalchemy.update(Words).where(
+                Words.word==word, Words.user_id==msg_user_id, Words.chat_id==msg_chat_id).values(vals)
             Dbase.conn.execute(q)
 
 
@@ -66,7 +92,6 @@ def check_user(msg_user_id: int, msg_user_name: str):
     db_user = Dbase.conn.execute(get_user).first()
     
     if db_user is not None:
-
         db_usr_id, db_usr_name = db_user
         if db_usr_name != msg_user_name:
             update_name(db_usr_id, msg_user_name)
