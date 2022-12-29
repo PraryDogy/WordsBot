@@ -31,13 +31,30 @@ def chat_words(msg_chat_id):
     return 'Топ 10 слов чата\n\n' + rowed
 
 
+def remove_restricted(input):
+    restricted = (
+        'это', 'что', 'так', 'все', 'как', 'там', 'меня', 'уже', 'вот', 
+        'где', 'если', 'есть', 'раз', 'нет', 'мне', 'для', 
+        'кто', 'они', 'она', 'тоже', 'чем', 'тебя',
+        'его', 'зачем', 'топ', 'или', 
+        'ещё', 'тут', 'был', 'нас',  'про', 'еще', 'вас', 'чего'
+    )
+
+    new_words = []
+    for word in input:
+        new_words.append(word) if word not in restricted else False
+    
+    return new_words
+
+
 def get_words(text: str):
     new = text.translate(text.maketrans('', '', string.punctuation))
     new = new.replace('\n', ' ')
     whitespaces_split = new.split(' ')
     rem_whitespaces = [i.replace(' ', '') for i in whitespaces_split]
     lower_cases = [i.lower() for i in rem_whitespaces]
-    return tuple(i for i in lower_cases if len(i) > 2)
+    restricted = remove_restricted(lower_cases)
+    return tuple(i for i in restricted if len(i) > 2)
 
 
 def write_db(msg_user_id, msg_chat_id, msg_words):
