@@ -84,11 +84,15 @@ def write_db(msg_user_id, msg_chat_id, msg_words):
 
     query = sqlalchemy.select(Words.word, Words.chat_id).where(Words.user_id==msg_user_id)
     db_user_words = list(Dbase.conn.execute(query).fetchall())
+    new_words = []
 
     for word in msg_words:
-        if (word, msg_chat_id) not in db_user_words:
+        if (
+            (word, msg_chat_id) not in db_user_words
+            and
+            (word, msg_chat_id) not in new_words):
 
-            db_user_words.append((word, msg_chat_id))
+            new_words.append((word, msg_chat_id))
 
             vals = {'word': word, 'count': 1, 'user_id': msg_user_id, 'chat_id': msg_chat_id}
             q = sqlalchemy.insert(Words).values(vals)
