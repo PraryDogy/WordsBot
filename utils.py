@@ -52,6 +52,7 @@ def lemmatize_text(tokens):
     return lem_words
 
 
+stop_words = stopwords.words('russian') + ['это']
 def words_convert(text: str):
     """
     Converts telegram message to words list
@@ -69,7 +70,7 @@ def words_convert(text: str):
     
     lemm_words = lemmatize_text(lower_cases)
 
-    stop_words = stopwords.words('russian')
+    
     return tuple(i for i in lemm_words if i not in stop_words)
 
 

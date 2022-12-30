@@ -10,13 +10,13 @@ count = 0
 @dp.message_handler(commands=['my_words'])
 async def send_my_words(message: types.Message):
     top = my_words(message.from_user.id, message.chat.id)
-    await message.reply('я занят')
+    await message.reply(top)
 
 
 @dp.message_handler(commands=['chat_words'])
 async def send_chat_words(message: types.Message):
-    # top = chat_words(message.chat.id)
-    await message.reply('я занят')
+    top = chat_words(message.chat.id)
+    await message.reply(top)
 
 
 @dp.message_handler()
