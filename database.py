@@ -48,8 +48,8 @@ class Words(Dbase.base):
     chat_id = sqlalchemy.Column(sqlalchemy.Integer)
 
 
-# Dbase.base.metadata.drop_all(Dbase.conn)
-# Dbase.base.metadata.create_all(Dbase.conn)
+Dbase.base.metadata.drop_all(Dbase.conn)
+Dbase.base.metadata.create_all(Dbase.conn)
 
 # query = sqlalchemy.select(Words.id).where(Words.word=='это', Words.user_id==5717544572, Words.chat_id==-1001297579871)
 # res = Dbase.conn.execute(query).first()

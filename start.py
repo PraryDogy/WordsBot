@@ -10,20 +10,20 @@ count = 0
 @dp.message_handler(commands=['my_words'])
 async def send_my_words(message: types.Message):
     top = my_words(message.from_user.id, message.chat.id)
-    await message.reply(top)
+    await message.reply('я занят')
 
 
 @dp.message_handler(commands=['chat_words'])
 async def send_chat_words(message: types.Message):
-    top = chat_words(message.chat.id)
-    await message.reply(top)
+    # top = chat_words(message.chat.id)
+    await message.reply('я занят')
 
 
 @dp.message_handler()
 async def echo(message: types.Message):
     global count
     count += 1
-    print(f'message {count}')
+    print(message.text)
 
     check_user(message.from_user.id, message.from_user.full_name)
     write_db(message.from_user.id, message.chat.id, message.text)

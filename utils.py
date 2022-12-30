@@ -1,9 +1,15 @@
 import string
 import sqlalchemy
 from database import Dbase, Users, Words
+from nltk.corpus import stopwords
+import pymorphy2
 
 
-def sort_words(input: tuple):
+def summarize_words(input: tuple):
+    """
+    Summarizes count of same words
+    Returns list of unique words with new count
+    """
     unic_words = set(i[0] for i in input)
     result = []
     for word in unic_words:
@@ -15,6 +21,9 @@ def sort_words(input: tuple):
 
 
 def my_words(msg_user_id, msg_chat_id):
+    """
+    For command /my_words
+    """
     q = sqlalchemy.select(Words.word, Words.count).where(
         Words.user_id==msg_user_id, Words.chat_id==msg_chat_id).order_by(-Words.count)
     db_words = Dbase.conn.execute(q).fetchall()[:10]
@@ -23,51 +32,68 @@ def my_words(msg_user_id, msg_chat_id):
 
 
 def chat_words(msg_chat_id):
+    """
+    For command /chat_words
+    """
     q = sqlalchemy.select(Words.word, Words.count).where(
         Words.chat_id==msg_chat_id).order_by(-Words.count)
     db_words = Dbase.conn.execute(q).fetchall()
-    sorted = sort_words(db_words)[:10]
+    sorted = summarize_words(db_words)[:10]
     rowed = ''.join([f'{word}: {count}\n' for word, count in sorted])
     return 'Топ 10 слов чата\n\n' + rowed
 
 
-def remove_restricted(input):
-    restricted = (
-        'это', 'что', 'так', 'все', 'как', 'там', 'меня', 'уже', 'вот', 
-        'где', 'если', 'есть', 'раз', 'нет', 'мне', 'для', 
-        'кто', 'они', 'она', 'тоже', 'чем', 'тебя',
-        'его', 'зачем', 'топ', 'или', 
-        'ещё', 'тут', 'был', 'нас',  'про', 'еще', 'вас', 'чего'
-    )
+lemmatizer = pymorphy2.MorphAnalyzer()
+def lemmatize_text(tokens):
+    stopwords.words('russian')
+    lem_words = []
+    for word in tokens:
+        lem_words.append(lemmatizer.parse(word)[0].normal_form)
+    return lem_words
 
-    new_words = []
-    for word in input:
-        new_words.append(word) if word not in restricted else False
+
+def words_convert(text: str):
+    """
+    Converts telegram message to words list
+    - removes puntkuation, whitespaces and newlines
+    - all words are lowercase
+    - removes stop words
+    - lemmatize words
+    """
+    remove_punktuation = text.translate(text.maketrans('', '', string.punctuation))
+    remove_newlines = remove_punktuation.replace('\n', ' ')
     
-    return new_words
-
-
-def get_words(text: str):
-    new = text.translate(text.maketrans('', '', string.punctuation))
-    new = new.replace('\n', ' ')
-    whitespaces_split = new.split(' ')
-    rem_whitespaces = [i.replace(' ', '') for i in whitespaces_split]
+    words_list = remove_newlines.split(' ')
+    rem_whitespaces = [i.replace(' ', '') for i in words_list]
     lower_cases = [i.lower() for i in rem_whitespaces]
-    restricted = remove_restricted(lower_cases)
-    return tuple(i for i in restricted if len(i) > 2)
+    
+    lemm_words = lemmatize_text(lower_cases)
+
+    stop_words = stopwords.words('russian')
+    return tuple(i for i in lemm_words if i not in stop_words)
 
 
 def write_db(msg_user_id, msg_chat_id, msg_words):
-    msg_words = get_words(msg_words)
+    """
+    Gets all user's words with all chats ids  from database
+    If word from input words list not in database words list - adds new row
+    If word in database words list but has other chat id - adds new row
+    If word in database words list and has the same chat id - updates word counter
+    """
+    msg_words = words_convert(msg_words)
 
     query = sqlalchemy.select(Words.word, Words.chat_id).where(Words.user_id==msg_user_id)
-    db_user_words = Dbase.conn.execute(query).fetchall()
+    db_user_words = list(Dbase.conn.execute(query).fetchall())
 
     for word in msg_words:
         if (word, msg_chat_id) not in db_user_words:
+
+            db_user_words.append((word, msg_chat_id))
+
             vals = {'word': word, 'count': 1, 'user_id': msg_user_id, 'chat_id': msg_chat_id}
             q = sqlalchemy.insert(Words).values(vals)
             Dbase.conn.execute(q)
+
         else:
             q = sqlalchemy.select(Words.count).where(
                 Words.word==word, Words.user_id==msg_user_id, Words.chat_id==msg_chat_id)
