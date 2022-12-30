@@ -1,6 +1,8 @@
-import string
 import sqlalchemy
 from database import Dbase, Users, Words
+from nltk.corpus import stopwords
+import pymorphy2
+
 
 def sort_words(input: tuple):
     unic_words = set(i[0] for i in input)
@@ -13,23 +15,29 @@ def sort_words(input: tuple):
     return tuple(reversed(sorted(result, key=lambda x: x[1])))
 
 
-def chat_words(msg_chat_id):
+def chat_words():
     q = sqlalchemy.select(Words.word, Words.count).where(
         Words.chat_id==-1001297579871).order_by(-Words.count)
     db_words = Dbase.conn.execute(q).fetchall()
-    sorted = sort_words(db_words)[:150]
+    sorted = sort_words(db_words)
     return list(i[0] for i in sorted)
 
-restricted = (
-    'это', 'что', 'так', 'все', 'как', 'там', 'меня', 'уже', 'вот', 
-    'где', 'если', 'есть', 'раз', 'нет', 'мне', 'для', 
-    'кто', 'они', 'она', 'тоже', 'чем', 'тебя',
-    'его', 'зачем', 'топ', 'или', 
-    'ещё', 'тут', 'был', 'нас', 
-    'про', 'еще', 'вас', 'чего'
-    )
+
+def download_ntlk(module: str):
+    import nltk
+    import ssl
+    try:
+        _create_unverified_https_context = ssl._create_unverified_context
+    except AttributeError:
+        pass
+    else:
+        ssl._create_default_https_context = _create_unverified_https_context
+    nltk.download(module)
 
 
-for i in restricted:
-    q = sqlalchemy.delete(Words).where(Words.word==i)
-    Dbase.conn.execute(q)
+def lemmatize_text(tokens):
+    lemmatizer = pymorphy2.MorphAnalyzer()
+    lem_words = []
+    for word in tokens:
+        lem_words.append(lemmatizer.parse(word)[0].normal_form)
+    return lem_words
