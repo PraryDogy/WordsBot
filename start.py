@@ -1,11 +1,20 @@
 from aiogram import Bot, Dispatcher, executor, types
 import cfg
 from utils import write_db, check_user, my_words, chat_words
-
+from PIL import Image
+import json
 
 bot = Bot(token=cfg.TOKEN)
 dp = Dispatcher(bot)
 count = 0
+
+@dp.message_handler(commands=['test'])
+async def get_awatar(message: types.Message):
+    user_id = 536755681
+    a = await bot.get_user_profile_photos(user_id=user_id, limit=2)
+    
+    print(a['photos'])
+
 
 @dp.message_handler(commands=['my_words'])
 async def send_my_words(message: types.Message):
