@@ -1,13 +1,10 @@
 import string
 import sqlalchemy
 from database import Dbase, Users, Words
-from nltk.corpus import stopwords
 import pymorphy2
-import ssl
-import nltk
 import cv2
 import numpy as np
-
+from stop_words import stop_words
 
 def summarize_words(input: tuple):
     """
@@ -48,15 +45,16 @@ def chat_words(msg_chat_id):
 
 
 lemmatizer = pymorphy2.MorphAnalyzer()
+stop_words = stop_words + ['это']
+
+
 def lemmatize_text(tokens):
-    stopwords.words('russian')
     lem_words = []
     for word in tokens:
         lem_words.append(lemmatizer.parse(word)[0].normal_form)
     return lem_words
 
 
-stop_words = stopwords.words('russian') + ['это']
 def words_convert(text: str):
     """
     Converts telegram message to words list
@@ -74,7 +72,6 @@ def words_convert(text: str):
     
     lemm_words = lemmatize_text(lower_cases)
 
-    
     return tuple(i for i in lemm_words if i not in stop_words)
 
 
@@ -136,6 +133,8 @@ def check_user(msg_user_id: int, msg_user_name: str):
 
 
 def nltk_download(module: str):
+    import ssl
+    import nltk
     try:
         _create_unverified_https_context = ssl._create_unverified_context
     except AttributeError:
@@ -144,6 +143,7 @@ def nltk_download(module: str):
         ssl._create_default_https_context = _create_unverified_https_context
 
     nltk.download('stopwords')
+
 
 
 def den_light(input):
