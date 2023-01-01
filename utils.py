@@ -148,10 +148,10 @@ def nltk_download(module: str):
 
 def den_light(input):
 
-    c120 = '/Users/Morkowik/Desktop/Evgeny/WordsBot/candles/120.jpg'
-    c100 = '/Users/Morkowik/Desktop/Evgeny/WordsBot/candles/100.jpg'
-    c80 = '/Users/Morkowik/Desktop/Evgeny/WordsBot/candles/80.jpg'
-    c60 = '/Users/Morkowik/Desktop/Evgeny/WordsBot/candles/60.jpg'
+    c120 = './candles/120.jpg'
+    c100 = './candles/100.jpg'
+    c80 = './candles/80.jpg'
+    c60 = './candles/60.jpg'
 
     img = cv2.imread(input,0)
     templates = tuple(cv2.imread(im,0) for im in (c120, c100, c80, c60))
