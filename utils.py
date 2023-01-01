@@ -3,6 +3,10 @@ import sqlalchemy
 from database import Dbase, Users, Words
 from nltk.corpus import stopwords
 import pymorphy2
+import ssl
+import nltk
+import cv2
+import numpy as np
 
 
 def summarize_words(input: tuple):
@@ -131,3 +135,35 @@ def check_user(msg_user_id: int, msg_user_name: str):
         Dbase.conn.execute(new_user)
 
 
+def nltk_download(module: str):
+    try:
+        _create_unverified_https_context = ssl._create_unverified_context
+    except AttributeError:
+        pass
+    else:
+        ssl._create_default_https_context = _create_unverified_https_context
+
+    nltk.download('stopwords')
+
+
+def den_light(input):
+
+    c120 = '/Users/Morkowik/Desktop/Evgeny/WordsBot/candles/120.jpg'
+    c100 = '/Users/Morkowik/Desktop/Evgeny/WordsBot/candles/100.jpg'
+    c80 = '/Users/Morkowik/Desktop/Evgeny/WordsBot/candles/80.jpg'
+    c60 = '/Users/Morkowik/Desktop/Evgeny/WordsBot/candles/60.jpg'
+
+    img = cv2.imread(input,0)
+    templates = tuple(cv2.imread(im,0) for im in (c120, c100, c80, c60))
+
+    for im, tmp in zip((c120, c100, c80, c60) ,templates):
+        res = cv2.matchTemplate(img, tmp, cv2.TM_CCOEFF_NORMED)
+        threshold = 0.9
+        loc = np.where(res >= threshold)
+        print(im.split('/')[-1])
+
+        if loc[::-1][1].size > 0:
+            print('true')
+            return True
+
+    return False
