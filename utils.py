@@ -145,25 +145,19 @@ def nltk_download(module: str):
     nltk.download('stopwords')
 
 
-
 def den_light(input):
+    """
+    True = no light
+    """
+    candle_piece = cv2.imread('./candles/candle_piece_640.png', 0)
+    img = cv2.imread(input, 0)
 
-    c120 = './candles/120.jpg'
-    c100 = './candles/100.jpg'
-    c80 = './candles/80.jpg'
-    c60 = './candles/60.jpg'
+    res = cv2.matchTemplate(img, candle_piece, cv2.TM_CCOEFF_NORMED)
+    threshold = 0.95
+    loc = np.where(res >= threshold)
 
-    img = cv2.imread(input,0)
-    templates = tuple(cv2.imread(im,0) for im in (c120, c100, c80, c60))
-
-    for im, tmp in zip((c120, c100, c80, c60) ,templates):
-        res = cv2.matchTemplate(img, tmp, cv2.TM_CCOEFF_NORMED)
-        threshold = 0.9
-        loc = np.where(res >= threshold)
-        print(im.split('/')[-1])
-
-        if loc[::-1][1].size > 0:
-            print('true')
-            return True
+    if loc[::-1][1].size > 0:
+        print('true')
+        return True
 
     return False
