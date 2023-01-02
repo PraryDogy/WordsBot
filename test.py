@@ -28,3 +28,6 @@ def den_light(input):
         return True
 
     return False
+
+
+den_light('./test img/off.png')
