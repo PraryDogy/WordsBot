@@ -10,47 +10,43 @@ dp = Dispatcher(bot)
 
 @dp.message_handler(commands=['my_words'])
 async def send_my_words(message: types.Message):
-    # await message.reply('фигушки')
-    # return
     top = my_words(message.from_user.id, message.chat.id)
     await message.reply(top)
 
 
 @dp.message_handler(commands=['chat_words'])
 async def send_chat_words(message: types.Message):
-    # await message.reply('фигушки')
-    # return
     top = chat_words(message.chat.id)
     await message.reply(top)
 
 
-# @dp.message_handler(commands=['gde_svet_denis'])
-# async def get_ava(message: types.Message):
-#     feu = 536755681
-#     user_photos = await bot.get_user_profile_photos(user_id=feu)
-#     last_photo = dict((user_photos.photos[0][-1])).get("file_id")
+@dp.message_handler(commands=['gde_svet_denis'])
+async def get_ava(message: types.Message):
+    feu = 536755681
+    counter = 0
+    while counter < 5:
 
-#     counter = 0
-#     while counter < 5:
-#         try:
-#             user_photos = await bot.get_user_profile_photos(user_id=feu, limit=1)
-#             last_photo = dict((user_photos.photos[0][-1])).get("file_id")
-#             file = await bot.get_file(last_photo)
-#         except utils.exceptions.BadRequest:
-#             await sleep(1)
-#             user_photos = await bot.get_user_profile_photos(user_id=feu, limit=1)
-#             last_photo = dict((user_photos.photos[0][-1])).get("file_id")
-#             print(last_photo)
-#             counter += 1
+        try:
+            user_photos = await bot.get_user_profile_photos(user_id=feu, limit=1)
+            last_photo = dict((user_photos.photos[0][-1])).get("file_id")
+            file = await bot.get_file(last_photo)
+            counter = 6
 
-#     if counter == 5:
-#         return
+        except utils.exceptions.BadRequest:
+            await sleep(1)
+            user_photos = await bot.get_user_profile_photos(user_id=feu, limit=1)
+            last_photo = dict((user_photos.photos[0][-1])).get("file_id")
+            print(last_photo)
+            counter += 1
 
-#     ava = await bot.download_file(file.file_path, 'ava.png')
-#     if den_light(ava.name):
-#         await bot.send_message(chat_id=message.chat.id, text='Света нет :(')
-#     else:
-#         await bot.send_message(chat_id=message.chat.id, text='Свет есть!)')
+    if counter == 5:
+        return
+
+    ava = await bot.download_file(file.file_path, 'ava.png')
+    if den_light(ava.name):
+        await bot.send_message(chat_id=message.chat.id, text='Света нет :(')
+    else:
+        await bot.send_message(chat_id=message.chat.id, text='Свет есть!)')
 
 
 @dp.message_handler()

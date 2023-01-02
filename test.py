@@ -30,5 +30,3 @@ def db_libera(msg_user_id):
             vals = {'percent':percent, 'time': now}
             q = sqlalchemy.update(Libera).where(Libera.user_id==msg_user_id).values(vals)
             Dbase.conn.execute(q)
-
-db_libera(666)
