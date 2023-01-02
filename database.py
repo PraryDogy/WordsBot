@@ -53,3 +53,8 @@ class Words(Dbase.base):
 
 # query = sqlalchemy.delete(Words).where(Words.word=='')
 # res = Dbase.conn.execute(query)
+
+q = sqlalchemy.select(Words.id).where(Words.word=='')
+res = Dbase.conn.execute(q).fetchall()
+
+print(res)
