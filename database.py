@@ -48,11 +48,18 @@ class Words(Dbase.base):
     chat_id = sqlalchemy.Column(sqlalchemy.Integer)
 
 
-# Dbase.base.metadata.drop_all(Dbase.conn)
-# Dbase.base.metadata.create_all(Dbase.conn)
+class Libera(Dbase.base):
+    __tablename__ = 'libera'
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
+    percent = sqlalchemy.Column(sqlalchemy.Integer)
+    time = sqlalchemy.Column(sqlalchemy.Integer)
+    user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.user_id'))
 
-# query = sqlalchemy.delete(Words).where(Words.word=='')
-# res = Dbase.conn.execute(query)
+
+def reset_db():
+    # Dbase.base.metadata.drop_all(Dbase.conn)
+    Dbase.base.metadata.create_all(Dbase.conn)
+
 
 def rem_words(word: str):
     q = sqlalchemy.select(Words.id).where(Words.word==word)
@@ -62,4 +69,3 @@ def rem_words(word: str):
     for i in ids:
         q = sqlalchemy.delete(Words).where(Words.id==i)
         Dbase.conn.execute(q)
-
