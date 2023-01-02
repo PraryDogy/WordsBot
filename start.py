@@ -8,25 +8,6 @@ dp = Dispatcher(bot)
 count = 0
 
 
-
-@dp.message_handler(commands=['test'])
-async def get_ava(message: types.Message):
-    # feu = 536755681
-    feu = 5562601689
-
-    user_photos = await bot.get_user_profile_photos(user_id=feu, limit=2)
-    if len(user_photos.photos[0]) == 0:
-        return
-
-    last_photo = dict((user_photos.photos[0][-1])).get("file_id")
-    file = await bot.get_file(last_photo)
-    ava = await bot.download_file(file.file_path, 'ava.png')
-
-    if den_light(ava.name):
-        print('no light')
-    else:
-        print('light')
-
 @dp.message_handler(commands=['my_words'])
 async def send_my_words(message: types.Message):
     # await message.reply('фигушки')

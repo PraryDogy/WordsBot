@@ -54,7 +54,12 @@ class Words(Dbase.base):
 # query = sqlalchemy.delete(Words).where(Words.word=='')
 # res = Dbase.conn.execute(query)
 
-q = sqlalchemy.select(Words.id).where(Words.word=='')
-res = Dbase.conn.execute(q).fetchall()
+def rem_words(word: str):
+    q = sqlalchemy.select(Words.id).where(Words.word==word)
+    res = Dbase.conn.execute(q).fetchall()
+    ids = tuple(i[0] for i in res)
 
-print(res)
+    for i in ids:
+        q = sqlalchemy.delete(Words).where(Words.id==i)
+        Dbase.conn.execute(q)
+
