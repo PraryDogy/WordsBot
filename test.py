@@ -1,5 +1,6 @@
-from database import Dbase, Users, Words
-import sqlalchemy
-import treetaggerwrapper
+import time
 
-tagger = treetaggerwrapper
+
+print(time.time())
+
+oldtime = 1672755353
