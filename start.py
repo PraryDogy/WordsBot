@@ -1,6 +1,7 @@
 from asyncio import sleep
 
 from aiogram import Bot, Dispatcher, executor, types, utils
+from aiogram.types.input_file import InputFile
 
 import cfg
 from utils import *
@@ -68,7 +69,12 @@ async def echo(message: types.Message):
 
     pres = president(words_list)
     if pres:
-        await bot.send_photo(message.chat.id, photo=open(pres, 'rb'))
+        stick = InputFile(pres)
+        await bot.send_sticker(
+            message.chat.id,
+            sticker=stick,
+            reply_to_message_id=message.message_id
+            )
 
     write_db(message.from_user.id, message.chat.id, words_list)
 
