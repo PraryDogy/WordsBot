@@ -52,7 +52,6 @@ def chat_words(msg_chat_id, msg_username):
 
 
 lemmatizer = pymorphy2.MorphAnalyzer()
-
 def lemmatize_text(tokens):
     lem_words = []
     for word in tokens:
@@ -80,20 +79,18 @@ def words_convert(text: str):
     return tuple(i for i in lemm_words if i not in stop_words)
 
 
-def write_db(msg_user_id, msg_chat_id, msg_words):
+def write_db(msg_user_id, msg_chat_id, words_list: words_convert):
     """
     Gets all user's words with all chats ids  from database
     If word from input words list not in database words list - adds new row
     If word in database words list but has other chat id - adds new row
     If word in database words list and has the same chat id - updates word counter
     """
-    msg_words = words_convert(msg_words)
-
     query = sqlalchemy.select(Words.word, Words.chat_id).where(Words.user_id==msg_user_id)
     db_user_words = list(Dbase.conn.execute(query).fetchall())
     new_words = []
 
-    for word in msg_words:
+    for word in words_list:
         if (
             (word, msg_chat_id) not in db_user_words
             and
@@ -116,23 +113,20 @@ def write_db(msg_user_id, msg_chat_id, msg_words):
             Dbase.conn.execute(q)
 
 
-def check_user(msg_user_id: int, msg_user_name: str):
+def check_user(msg_user_id: int, msg_username: str):
     get_user = sqlalchemy.select(
         Users.user_id, Users.user_name).filter(Users.user_id == msg_user_id)
     db_user = Dbase.conn.execute(get_user).first()
     
     if db_user is not None:
+        db_id, db_name = db_user
+        if msg_username != db_name:
+            vals = {'user_name': msg_username}
+            update_user = sqlalchemy.update(Users).where(Users.user_id==msg_user_id).values(vals)
+            Dbase.conn.execute(update_user)
 
-        db_usr_id, db_usr_name = db_user
-
-        if db_usr_name != msg_user_name:
-
-            vals = {'user_name': msg_user_name}
-            new_name = sqlalchemy.update(Users).where(
-                Users.user_id==db_usr_id).values(vals)
-            Dbase.conn.execute(new_name)
-    else:
-        vals = {'user_id': msg_user_id, 'user_name': msg_user_name}
+    if db_user is None:
+        vals = {'user_id': msg_user_id, 'user_name': msg_username}
         new_user = sqlalchemy.insert(Users).values(vals)
         Dbase.conn.execute(new_user)
 
@@ -227,3 +221,11 @@ def libera_func(msg_user_id, msg_username):
                 f'\n{libera_words(usr_percent)}'
                 f'\nОбновить можно {today_tomorr} в {future_t}'
                 )
+
+
+def zelek(words_list: words_convert):
+    zelen = 'зеленск'
+    for w in words_list:
+        if zelen in w:
+            return True
+    return False

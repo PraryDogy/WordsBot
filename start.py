@@ -1,8 +1,10 @@
-from aiogram import Bot, Dispatcher, executor, types, utils
-import cfg
-from utils import write_db, check_user, my_words, chat_words, den_light, libera_func
 from asyncio import sleep
 
+from aiogram import Bot, Dispatcher, executor, types, utils
+
+import cfg
+from utils import (chat_words, check_user, den_light, libera_func, my_words,
+                   words_convert, write_db, zelek)
 
 bot = Bot(token=cfg.TOKEN)
 dp = Dispatcher(bot)
@@ -43,7 +45,6 @@ async def get_ava(message: types.Message):
             await sleep(1)
             user_photos = await bot.get_user_profile_photos(user_id=feu, limit=1)
             last_photo = dict((user_photos.photos[0][-1])).get("file_id")
-            print(last_photo)
             counter += 1
 
     if counter == 5:
@@ -58,8 +59,14 @@ async def get_ava(message: types.Message):
 
 @dp.message_handler()
 async def echo(message: types.Message):
-    check_user(message.from_user.id, message.from_user.full_name)
-    write_db(message.from_user.id, message.chat.id, message.text)
+    check_user(message.from_user.id, message.from_user.username)
+    words_list = words_convert(message.text)
+
+    if zelek(words_list):
+        zel = open('./img/zelek.jpg', "rb")
+        await bot.send_photo(message.chat.id, photo=zel)
+
+    write_db(message.from_user.id, message.chat.id, words_list)
 
 
 if __name__ == '__main__':
