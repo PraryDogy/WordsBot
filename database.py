@@ -69,3 +69,7 @@ def rem_words(word: str):
     for i in ids:
         q = sqlalchemy.delete(Words).where(Words.id==i)
         Dbase.conn.execute(q)
+
+
+def upload_db():
+    ''

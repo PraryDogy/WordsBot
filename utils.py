@@ -211,7 +211,7 @@ def libera_func(msg_user_id):
             if midnight - future_t < 0:
                 today_tomorr = 'завтра'
             else:
-                today_tomorr = 'завтра'
+                today_tomorr = 'сегодня'
 
             future_t = datetime.fromtimestamp(future_t)
             future_t = future_t.strftime('%H:%M')
