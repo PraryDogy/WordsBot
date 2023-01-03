@@ -3,8 +3,7 @@ from asyncio import sleep
 from aiogram import Bot, Dispatcher, executor, types, utils
 
 import cfg
-from utils import (chat_words, check_user, den_light, libera_func, my_words,
-                   words_convert, write_db, zelek)
+from utils import *
 
 bot = Bot(token=cfg.TOKEN)
 dp = Dispatcher(bot)
@@ -28,6 +27,11 @@ async def libera_test(message: types.Message):
     await bot.send_message(chat_id=message.chat.id, text=msg)
 
 
+@dp.message_handler(commands=['top_slovobludov'])
+async def libera_test(message: types.Message):
+    msg = top_boltunov(message.chat.id, message.from_user.username)
+    await bot.send_message(chat_id=message.chat.id, text=msg)
+
 
 @dp.message_handler(commands=['gde_svet_denis'])
 async def get_ava(message: types.Message):
@@ -50,7 +54,7 @@ async def get_ava(message: types.Message):
     if counter == 5:
         return
 
-    ava = await bot.download_file(file.file_path, 'ava.png')
+    ava = await bot.download_file(file.file_path, './img/ava.png')
     if den_light(ava.name):
         await bot.send_message(chat_id=message.chat.id, text='Света нет :(')
     else:
@@ -62,9 +66,9 @@ async def echo(message: types.Message):
     check_user(message.from_user.id, message.from_user.username)
     words_list = words_convert(message.text)
 
-    if zelek(words_list):
-        zel = open('./img/zelek.jpg', "rb")
-        await bot.send_photo(message.chat.id, photo=zel)
+    pres = president(words_list)
+    if pres:
+        await bot.send_photo(message.chat.id, photo=open(pres, 'rb'))
 
     write_db(message.from_user.id, message.chat.id, words_list)
 

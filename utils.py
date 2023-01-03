@@ -149,7 +149,7 @@ def den_light(input):
     """
     True = no light
     """
-    candle_piece = cv2.imread('./candles/candle_piece_640.png', 0)
+    candle_piece = cv2.imread('./img/candle_piece_640.png', 0)
     img = cv2.imread(input, 0)
 
     res = cv2.matchTemplate(img, candle_piece, cv2.TM_CCOEFF_NORMED)
@@ -223,9 +223,33 @@ def libera_func(msg_user_id, msg_username):
                 )
 
 
-def zelek(words_list: words_convert):
+def president(words_list: words_convert):
     zelen = 'зеленск'
+    putin = 'путин'
     for w in words_list:
         if zelen in w:
-            return True
+            return './img/zelek.jpg'
+        elif putin in w:
+            return './img/putin.jpg'
     return False
+
+
+def top_boltunov(msg_chat_id, msg_username):
+    q = sqlalchemy.select(Users.user_id, Users.user_name)
+    db_users = Dbase.conn.execute(q).fetchall()
+
+    user_words = []
+
+    for db_id, db_user_name in db_users:
+        q = sqlalchemy.select(Words.count).where(Words.chat_id==msg_chat_id, Words.user_id==db_id)
+        words_count = sum(i[0] for i in Dbase.conn.execute(q).fetchall())
+        user_words.append((db_user_name, words_count))
+
+    user_words = sorted(user_words, key=lambda x: x[1])
+    user_words.reverse()
+    user_words = user_words[:10]
+    user_words = '\n'.join(f'{i[0]}: {i[1]} слов' for i in user_words)
+    return (
+        f'@{msg_username}, топ словоблудов:\n\n'
+        f'{user_words}'
+        )
