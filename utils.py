@@ -71,10 +71,10 @@ def words_convert(text: str):
     remove_newlines = remove_punktuation.replace('\n', ' ')
     
     words_list = remove_newlines.split(' ')
-    rem_whitespaces = [i.replace(' ', '') for i in words_list]
-    lower_cases = [i.lower() for i in rem_whitespaces]
-    
-    lemm_words = lemmatize_text(lower_cases)
+    rem_whitespaces = tuple(i.replace(' ', '') for i in words_list)
+    lower_cases = tuple(i.lower() for i in rem_whitespaces)
+    link_rem = tuple(i for i in lower_cases if 'http' not in i)
+    lemm_words = lemmatize_text(link_rem)
 
     return tuple(i for i in lemm_words if i not in stop_words)
 
