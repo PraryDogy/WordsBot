@@ -256,16 +256,16 @@ def top_boltunov(msg_chat_id, msg_username):
         unique.append((db_user_name, words_count)) if words_count != 0 else False
 
     res = []
-    for i in (user_words, unique):
-        i = sorted(user_words, key=lambda x: x[1])
-        i.reverse()
-        i = user_words[:10]
-        i = '\n'.join(f'{i[0]}: {i[1]} слов' for i in user_words)
-        res.append(i)
+    for lst in (user_words, unique):
+        tmp = sorted(lst, key=lambda x: x[1])
+        tmp.reverse()
+        tmp = tmp[:10]
+        tmp = '\n'.join(f'{i[0]}: {i[1]} слов' for i in tmp)
+        res.append(tmp)
 
     return (
         f'@{msg_username}, топ 10 пиздюшек:\n\n'
-        f'{res[0]}\n'
-        'топ 10 по уникальным словам:\n\n'
+        f'{res[0]}\n\n'
+        'Топ 10 по уникальным словам:\n\n'
         f'{res[1]}\n'
         )

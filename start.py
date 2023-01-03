@@ -28,7 +28,7 @@ async def libera_test(message: types.Message):
     await bot.send_message(chat_id=message.chat.id, text=msg)
 
 
-@dp.message_handler(commands=['top_slovobludov'])
+@dp.message_handler(commands=['top_boltunov'])
 async def top_slovobludov(message: types.Message):
     msg = top_boltunov(message.chat.id, message.from_user.username)
     await bot.send_message(chat_id=message.chat.id, text=msg)
