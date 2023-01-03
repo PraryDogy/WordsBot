@@ -1,10 +1,17 @@
+import random
 import string
-import sqlalchemy
-from database import Dbase, Users, Words
-import pymorphy2
+import time
+from datetime import datetime
+from datetime import time as dtime
+
 import cv2
 import numpy as np
-from stop_words import stop_words
+import pymorphy2
+import sqlalchemy
+
+from database import Dbase, Libera, Users, Words
+from dicts import stop_words, libera, no_libera
+
 
 def summarize_words(input: tuple):
     """
@@ -21,7 +28,7 @@ def summarize_words(input: tuple):
     return tuple(reversed(sorted(result, key=lambda x: x[1])))
 
 
-def my_words(msg_user_id, msg_chat_id):
+def my_words(msg_user_id, msg_chat_id, msg_username):
     """
     For command /my_words
     """
@@ -29,10 +36,10 @@ def my_words(msg_user_id, msg_chat_id):
         Words.user_id==msg_user_id, Words.chat_id==msg_chat_id).order_by(-Words.count)
     db_words = Dbase.conn.execute(q).fetchall()[:10]
     rowed = ''.join([f'{word}: {count}\n' for word, count in db_words])
-    return 'Ваш топ 10 слов:\n\n' + rowed
+    return f'@{msg_username}, ваш топ 10 слов в чате\n\n' + rowed
 
 
-def chat_words(msg_chat_id):
+def chat_words(msg_chat_id, msg_username):
     """
     For command /chat_words
     """
@@ -41,12 +48,10 @@ def chat_words(msg_chat_id):
     db_words = Dbase.conn.execute(q).fetchall()
     sorted = summarize_words(db_words)[:10]
     rowed = ''.join([f'{word}: {count}\n' for word, count in sorted])
-    return 'Топ 10 слов чата\n\n' + rowed
+    return f'@{msg_username}, топ 10 слов всех участников в чате\n\n' + rowed
 
 
 lemmatizer = pymorphy2.MorphAnalyzer()
-stop_words = stop_words + ['это']
-
 
 def lemmatize_text(tokens):
     lem_words = []
@@ -134,6 +139,7 @@ def check_user(msg_user_id: int, msg_user_name: str):
 
 def nltk_download(module: str):
     import ssl
+
     import nltk
     try:
         _create_unverified_https_context = ssl._create_unverified_context
@@ -161,3 +167,63 @@ def den_light(input):
         return True
 
     return False
+
+
+def libera_words(percent):
+    if percent >= 50:
+        return random.choice(libera)
+    else:
+        return random.choice(no_libera)
+
+
+def libera_func(msg_user_id, msg_username):
+    hours24 = 86400
+    now = int(time.time())
+
+    percent = random.randint(0, 100)
+
+    q = sqlalchemy.select(Libera).where(Libera.user_id==msg_user_id)
+    usr_check = bool(Dbase.conn.execute(q).first())
+    if not usr_check:
+
+        vals = {'percent':percent, 'time': now, 'user_id': msg_user_id}
+        q = sqlalchemy.insert(Libera).values(vals)
+        Dbase.conn.execute(q)
+        return (
+            f'Вы, @{msg_username}, либеральны на {percent}%'
+            f'\n{libera_words(percent)}'
+            )
+
+    else:
+
+        q = sqlalchemy.select(Libera.time).where(Libera.user_id==msg_user_id)
+        db_usr_time = Dbase.conn.execute(q).first()[0]
+        if db_usr_time + hours24 < now:
+
+            vals = {'percent':percent, 'time': now}
+            q = sqlalchemy.update(Libera).where(Libera.user_id==msg_user_id).values(vals)
+            Dbase.conn.execute(q)
+            return (
+                f'Вы, @{msg_username}, либеральны на {percent}%'
+                f'\n{libera_words(percent)}'
+                )
+
+        else:
+            q = sqlalchemy.select(Libera.percent).where(Libera.user_id==msg_user_id)
+            usr_percent = Dbase.conn.execute(q).first()[0]
+
+            future_t = db_usr_time + hours24
+            midnight = datetime.combine(datetime.today(), dtime.max).timestamp()
+            if midnight - future_t < 0:
+                today_tomorr = 'завтра'
+            else:
+                today_tomorr = 'завтра'
+
+            future_t = datetime.fromtimestamp(future_t)
+            future_t = future_t.strftime('%H:%M')
+
+            return (
+                f'Вы, @{msg_username}, либеральны на {usr_percent}%'
+                f'\n{libera_words(usr_percent)}'
+                f'\nОбновить можно {today_tomorr} в {future_t}'
+                )

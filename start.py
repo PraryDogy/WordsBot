@@ -1,6 +1,6 @@
 from aiogram import Bot, Dispatcher, executor, types, utils
 import cfg
-from utils import write_db, check_user, my_words, chat_words, den_light
+from utils import write_db, check_user, my_words, chat_words, den_light, libera_func
 from asyncio import sleep
 
 
@@ -10,14 +10,21 @@ dp = Dispatcher(bot)
 
 @dp.message_handler(commands=['my_words'])
 async def send_my_words(message: types.Message):
-    top = my_words(message.from_user.id, message.chat.id)
-    await message.reply(top)
+    top = my_words(message.from_user.id, message.chat.id, message.from_user.username)
+    await bot.send_message(chat_id=message.chat.id, text=top)
 
 
 @dp.message_handler(commands=['chat_words'])
 async def send_chat_words(message: types.Message):
-    top = chat_words(message.chat.id)
-    await message.reply(top)
+    top = chat_words(message.chat.id, message.from_user.username)
+    await bot.send_message(chat_id=message.chat.id, text=top)
+
+
+@dp.message_handler(commands=['libera_test'])
+async def libera_test(message: types.Message):
+    msg = libera_func(message.from_user.id, message.from_user.username)
+    await bot.send_message(chat_id=message.chat.id, text=msg)
+
 
 
 @dp.message_handler(commands=['gde_svet_denis'])
