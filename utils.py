@@ -170,7 +170,7 @@ def libera_words(percent):
         return random.choice(no_libera)
 
 
-def libera_func(msg_user_id, msg_username):
+def libera_func(msg_user_id):
     hours24 = 86400
     now = int(time.time())
 
@@ -184,7 +184,7 @@ def libera_func(msg_user_id, msg_username):
         q = sqlalchemy.insert(Libera).values(vals)
         Dbase.conn.execute(q)
         return (
-            f'Вы, @{msg_username}, либеральны на {percent}%'
+            f'Я либерал на {percent}%'
             f'\n{libera_words(percent)}'
             )
 
@@ -198,7 +198,7 @@ def libera_func(msg_user_id, msg_username):
             q = sqlalchemy.update(Libera).where(Libera.user_id==msg_user_id).values(vals)
             Dbase.conn.execute(q)
             return (
-                f'Вы, @{msg_username}, либеральны на {percent}%'
+                f'Я либерал на {percent}%'
                 f'\n{libera_words(percent)}'
                 )
 
@@ -217,7 +217,7 @@ def libera_func(msg_user_id, msg_username):
             future_t = future_t.strftime('%H:%M')
 
             return (
-                f'Вы, @{msg_username}, либеральны на {usr_percent}%'
+                f'Я либерал на {usr_percent}%'
                 f'\n{libera_words(usr_percent)}'
                 f'\nОбновить можно {today_tomorr} в {future_t}'
                 )

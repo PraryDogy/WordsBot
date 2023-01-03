@@ -1,6 +1,9 @@
+import hashlib
 from asyncio import sleep
 
 from aiogram import Bot, Dispatcher, executor, types, utils
+from aiogram.types import (InlineQuery, InlineQueryResultArticle,
+                           InputTextMessageContent)
 from aiogram.types.input_file import InputFile
 
 import cfg
@@ -22,10 +25,21 @@ async def send_chat_words(message: types.Message):
     await bot.send_message(chat_id=message.chat.id, text=top)
 
 
-@dp.message_handler(commands=['libera_test'])
-async def libera_test(message: types.Message):
-    msg = libera_func(message.from_user.id, message.from_user.username)
-    await bot.send_message(chat_id=message.chat.id, text=msg)
+@dp.inline_handler()
+async def inline_echo(inline_query: InlineQuery):
+
+    header = 'Насколько я либерал'
+    result_id: str = hashlib.md5(header.encode()).hexdigest()
+    msg = InputTextMessageContent(libera_func(inline_query.from_user.id))
+
+    item = InlineQueryResultArticle(
+                id=result_id,
+                title=f'{header}',
+                input_message_content=msg,
+                thumb_url=cfg.PUTIN_IMG
+                )
+
+    await bot.answer_inline_query(inline_query.id, results=[item], cache_time=1)
 
 
 @dp.message_handler(commands=['top_boltunov'])
