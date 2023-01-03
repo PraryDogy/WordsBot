@@ -237,22 +237,29 @@ def president(words_list: words_convert):
     return False
 
 
-def top_boltunov(msg_chat_id, msg_username):
+def top_boltunov(msg_chat_id, msg_username, unique: bool):
     q = sqlalchemy.select(Users.user_id, Users.user_name)
     db_users = Dbase.conn.execute(q).fetchall()
 
     user_words = []
 
     for db_id, db_user_name in db_users:
-        q = sqlalchemy.select(Words.count).where(Words.chat_id==msg_chat_id, Words.user_id==db_id)
-        words_count = sum(i[0] for i in Dbase.conn.execute(q).fetchall())
-        user_words.append((db_user_name, words_count)) if words_count != 0 else False
+        if not unique:
+            q = sqlalchemy.select(Words.count).where(Words.chat_id==msg_chat_id, Words.user_id==db_id)
+            words_count = sum(i[0] for i in Dbase.conn.execute(q).fetchall())
+            user_words.append((db_user_name, words_count)) if words_count != 0 else False
+        else:
+            q = sqlalchemy.select(Words.word).where(Words.chat_id==msg_chat_id, Words.user_id==db_id)
+            words_count = set(i[0] for i in Dbase.conn.execute(q).fetchall())
+            words_count = len(words_count)
+            user_words.append((db_user_name, words_count)) if words_count != 0 else False
 
     user_words = sorted(user_words, key=lambda x: x[1])
     user_words.reverse()
     user_words = user_words[:10]
     user_words = '\n'.join(f'{i[0]}: {i[1]} слов' for i in user_words)
+    pizdushki = 'пиздюшек' if not unique else 'уникальных слов'
     return (
-        f'@{msg_username}, топ пиздюшек:\n\n'
+        f'@{msg_username}, топ {pizdushki}:\n\n'
         f'{user_words}'
         )
