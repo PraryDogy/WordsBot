@@ -1,5 +1,4 @@
 aiogram==2.23.1
-nltk==3.8
 numpy==1.21.6
 opencv-python==3.4.16.59
 Pillow==9.3.0
