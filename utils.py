@@ -10,7 +10,7 @@ import pymorphy2
 import sqlalchemy
 
 from database import Dbase, Libera, Users, Words
-from dicts import stop_words, libera, no_libera
+from dicts import stop_words
 
 
 def summarize_words(input: tuple):
@@ -163,47 +163,69 @@ def den_light(input):
     return False
 
 
-def libera_words(percent):
+def good_bad_phrases(percent: int, good_phrases: tuple, bad_phrases: tuple):
+    """
+    *`good_phrases`: if percent > 50
+    *`bad_phrases`: if percent < 50
+    """
     if percent >= 50:
-        return random.choice(libera)
+        return random.choice(good_phrases)
     else:
-        return random.choice(no_libera)
+        return random.choice(bad_phrases)
 
 
-def libera_func(msg_user_id):
+def inline_test(**kw):
+    """
+    *`model`: sqlalchemy declarative base model
+    *`msg_user_id`: user id from tg message
+    *`good_phrases`: tuple with phrases if percent > 50
+    *`bad_phrases`: tuple with phrases if percent < 50
+    *`say`: this phrase add to percent
+
+    ```
+    <<< inline_test(
+        model = Libera, msg_user_id = 12345,
+        good_phrases = ["I'm pretty well", "I'm the best"],
+        bad_phrases = ["I'm so sad", "I'm sick"],
+        say = "I'm sick"
+    
+    >>> "I'm sick on 56%"
+    >>> "I'm so sad"
+    ```
+    """
+
     hours24 = 86400
     now = int(time.time())
-
     percent = random.randint(0, 100)
 
-    q = sqlalchemy.select(Libera).where(Libera.user_id==msg_user_id)
+    q = sqlalchemy.select(kw['model']).where(kw['model'].user_id==kw['msg_user_id'])
     usr_check = bool(Dbase.conn.execute(q).first())
     if not usr_check:
 
-        vals = {'percent':percent, 'time': now, 'user_id': msg_user_id}
-        q = sqlalchemy.insert(Libera).values(vals)
+        vals = {'percent':percent, 'time': now, 'user_id': kw['msg_user_id']}
+        q = sqlalchemy.insert(kw['model']).values(vals)
         Dbase.conn.execute(q)
         return (
-            f'Я либерал на {percent}%'
-            f'\n{libera_words(percent)}'
+            f'{kw["say"]} {percent}%'
+            f'\n{good_bad_phrases(percent, kw["good_phrases"], kw["bad_phrases"])}'
             )
 
     else:
 
-        q = sqlalchemy.select(Libera.time).where(Libera.user_id==msg_user_id)
+        q = sqlalchemy.select(kw['model'].time).where(kw['model'].user_id==kw['msg_user_id'])
         db_usr_time = Dbase.conn.execute(q).first()[0]
         if db_usr_time + hours24 < now:
 
-            vals = {'percent':percent, 'time': now}
-            q = sqlalchemy.update(Libera).where(Libera.user_id==msg_user_id).values(vals)
+            vals = {'percent': percent, 'time': now}
+            q = sqlalchemy.update(kw['model']).where(kw['model'].user_id==kw['msg_user_id']).values(vals)
             Dbase.conn.execute(q)
             return (
-                f'Я либерал на {percent}%'
-                f'\n{libera_words(percent)}'
+                f'{kw["say"]} {percent}%'
+                f'\n{good_bad_phrases(percent, kw["good_phrases"], kw["bad_phrases"])}'
                 )
 
         else:
-            q = sqlalchemy.select(Libera.percent).where(Libera.user_id==msg_user_id)
+            q = sqlalchemy.select(kw['model'].percent).where(kw['model'].user_id==kw['msg_user_id'])
             usr_percent = Dbase.conn.execute(q).first()[0]
 
             future_t = db_usr_time + hours24
@@ -217,8 +239,8 @@ def libera_func(msg_user_id):
             future_t = future_t.strftime('%H:%M')
 
             return (
-                f'Я либерал на {usr_percent}%'
-                f'\n{libera_words(usr_percent)}'
+                f'{kw["say"]} {usr_percent}%'
+                f'\n{good_bad_phrases(usr_percent, kw["good_phrases"], kw["bad_phrases"])}'
                 f'\nОбновить можно {today_tomorr} в {future_t}'
                 )
 

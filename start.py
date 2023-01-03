@@ -7,7 +7,10 @@ from aiogram.types import (InlineQuery, InlineQueryResultArticle,
 from aiogram.types.input_file import InputFile
 
 import cfg
-from utils import *
+from database import Fat, Libera
+from dicts import libera, no_libera, you_fat, you_not_fat
+from utils import (chat_words, check_user, den_light, inline_test, my_words,
+                   president, top_boltunov, words_convert, write_db)
 
 bot = Bot(token=cfg.TOKEN)
 dp = Dispatcher(bot)
@@ -26,19 +29,73 @@ async def send_chat_words(message: types.Message):
 
 
 @dp.inline_handler()
-async def inline_echo(inline_query: InlineQuery):
+async def inline_libera(inline_query: InlineQuery):
 
-    header = 'Насколько я либерал'
+    libera_head = 'Насколько я либерал'
+    libera_head_id: str = hashlib.md5(libera_head.encode()).hexdigest()
+
+    libera_test_res = inline_test(
+        model = Libera,
+        msg_user_id = inline_query.from_user.id,
+        say='Я либерал на',
+        good_phrases=libera,
+        bad_phrases=no_libera
+        )
+
+    libera_msg = InputTextMessageContent(libera_test_res)
+
+    libera_item = InlineQueryResultArticle(
+                id=libera_head_id,
+                title=f'{libera_head}',
+                input_message_content=libera_msg,
+                thumb_url=cfg.PUTIN_IMG
+                )
+
+    fat_head = 'Насколько я жирный'
+    fat_head_res: str = hashlib.md5(fat_head.encode()).hexdigest()
+
+    fat_test_res = inline_test(
+        model = Fat,
+        msg_user_id = inline_query.from_user.id,
+        say='Я жирный на',
+        good_phrases=you_fat,
+        bad_phrases=you_not_fat
+        )
+    fat_msg = InputTextMessageContent(fat_test_res)
+
+    fat_item = InlineQueryResultArticle(
+                id=fat_head_res,
+                title=f'{fat_head}',
+                input_message_content=fat_msg,
+                thumb_url=cfg.FAT_IMG
+                )
+
+    items = [libera_item, fat_item]
+
+    await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
+
+
+@dp.inline_handler()
+async def inline_fat(inline_query: InlineQuery):
+
+    header = 'Насколько я жирный'
     result_id: str = hashlib.md5(header.encode()).hexdigest()
-    msg = InputTextMessageContent(libera_func(inline_query.from_user.id))
+    
+    test = inline_test(
+        model = Fat,
+        msg_user_id = inline_query.from_user.id,
+        say='Я жирный на',
+        good_phrases=you_fat,
+        bad_phrases=you_not_fat
+        )
+    msg = InputTextMessageContent(test)
 
     item = InlineQueryResultArticle(
                 id=result_id,
                 title=f'{header}',
                 input_message_content=msg,
-                thumb_url=cfg.PUTIN_IMG
+                thumb_url=cfg.FAT_IMG
                 )
-
     await bot.answer_inline_query(inline_query.id, results=[item], cache_time=1)
 
 

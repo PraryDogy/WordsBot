@@ -56,6 +56,14 @@ class Libera(Dbase.base):
     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.user_id'))
 
 
+class Fat(Dbase.base):
+    __tablename__ = 'fat'
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
+    percent = sqlalchemy.Column(sqlalchemy.Integer)
+    time = sqlalchemy.Column(sqlalchemy.Integer)
+    user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.user_id'))
+
+
 def reset_db():
     # Dbase.base.metadata.drop_all(Dbase.conn)
     Dbase.base.metadata.create_all(Dbase.conn)
