@@ -3,34 +3,20 @@ import string
 import time
 from datetime import datetime
 from datetime import time as dtime
-
+import cfg
 import cv2
 import numpy as np
 import pymorphy2
 import sqlalchemy
 
-from database import Dbase, Libera, Users, Words
+from database import Dbase, LiberaModel, Users, Words
 from dicts import stop_words
-
-
-def summarize_words(input: tuple):
-    """
-    Summarizes count of same words
-    Returns list of unique words with new count
-    """
-    unic_words = set(i[0] for i in input)
-    result = []
-    for word in unic_words:
-        counter = 0
-        for w, c in input:
-            counter += c if word == w else False
-        result.append((word, counter))
-    return tuple(reversed(sorted(result, key=lambda x: x[1])))
 
 
 def my_words(msg_user_id, msg_chat_id, msg_username):
     """
-    For command /my_words
+    Telegram `/my_words`. 
+    Returns text with top 10 words of current user in current chat.
     """
     q = sqlalchemy.select(Words.word, Words.count).where(
         Words.user_id==msg_user_id, Words.chat_id==msg_chat_id).order_by(-Words.count)
@@ -41,13 +27,24 @@ def my_words(msg_user_id, msg_chat_id, msg_username):
 
 def chat_words(msg_chat_id, msg_username):
     """
-    For command /chat_words
+    Telegram `/chat_words`. 
+    Returns text with top 10 words in current chat.
     """
     q = sqlalchemy.select(Words.word, Words.count).where(
         Words.chat_id==msg_chat_id).order_by(-Words.count)
     db_words = Dbase.conn.execute(q).fetchall()
-    sorted = summarize_words(db_words)[:10]
-    rowed = ''.join([f'{word}: {count}\n' for word, count in sorted])
+
+    unic_words = set(i[0] for i in db_words)
+    result = []
+
+    for u_word in unic_words:
+        u_count = 0
+        for db_word, db_count in db_words:
+            u_count += db_count if u_word == db_word else False
+        result.append((u_word, u_count))
+
+    result = tuple(reversed(sorted(result, key=lambda x: x[1])))[:10]
+    rowed = ''.join([f'{word}: {count}\n' for word, count in result])
     return f'@{msg_username}, топ 10 слов всех участников в чате\n\n' + rowed
 
 
@@ -114,6 +111,10 @@ def write_db(msg_user_id, msg_chat_id, words_list: words_convert):
 
 
 def check_user(msg_user_id: int, msg_username: str):
+    """
+    Checks database `Users` table for user by `user_id` from message.
+    Creates new record if now exists.
+    """
     get_user = sqlalchemy.select(
         Users.user_id, Users.user_name).filter(Users.user_id == msg_user_id)
     db_user = Dbase.conn.execute(get_user).first()
@@ -131,135 +132,44 @@ def check_user(msg_user_id: int, msg_username: str):
         Dbase.conn.execute(new_user)
 
 
-def nltk_download(module: str):
-    import ssl
-
-    import nltk
-    try:
-        _create_unverified_https_context = ssl._create_unverified_context
-    except AttributeError:
-        pass
-    else:
-        ssl._create_default_https_context = _create_unverified_https_context
-
-    nltk.download('stopwords')
-
-
-def den_light(input):
+def detect_candle(input):
     """
-    True = no light
+    Returns `True` if candle image detected in current user profile picture.
+    Returns `False` if not.
     """
-    candle_piece = cv2.imread('./img/candle_piece_640.png', 0)
-    img = cv2.imread(input, 0)
+    candle_img = cv2.imread(cfg.candle_img_path, 0)
+    usr_picture = cv2.imread(input, 0)
 
-    res = cv2.matchTemplate(img, candle_piece, cv2.TM_CCOEFF_NORMED)
+    res = cv2.matchTemplate(usr_picture, candle_img, cv2.TM_CCOEFF_NORMED)
     threshold = 0.95
     loc = np.where(res >= threshold)
 
     if loc[::-1][1].size > 0:
-        print('true')
         return True
-
     return False
 
 
-def good_bad_phrases(percent: int, good_phrases: tuple, bad_phrases: tuple):
+def president_word(words_list: words_convert):
     """
-    *`good_phrases`: if percent > 50
-    *`bad_phrases`: if percent < 50
+    Returns `image path` if name of Zelensky, Putin or Biden in any word.
+    Returns `False` if not found.
+    *`word_list`: list of words from `words_convert`
     """
-    if percent >= 50:
-        return random.choice(good_phrases)
-    else:
-        return random.choice(bad_phrases)
-
-
-def inline_test(**kw):
-    """
-    *`model`: sqlalchemy declarative base model
-    *`msg_user_id`: user id from tg message
-    *`good_phrases`: tuple with phrases if percent > 50
-    *`bad_phrases`: tuple with phrases if percent < 50
-    *`say`: this phrase add to percent
-
-    ```
-    <<< inline_test(
-        model = Libera, msg_user_id = 12345,
-        good_phrases = ["I'm pretty well", "I'm the best"],
-        bad_phrases = ["I'm so sad", "I'm sick"],
-        say = "I'm sick"
-    
-    >>> "I'm sick on 56%"
-    >>> "I'm so sad"
-    ```
-    """
-
-    hours24 = 86400
-    now = int(time.time())
-    percent = random.randint(0, 100)
-
-    q = sqlalchemy.select(kw['model']).where(kw['model'].user_id==kw['msg_user_id'])
-    usr_check = bool(Dbase.conn.execute(q).first())
-    if not usr_check:
-
-        vals = {'percent':percent, 'time': now, 'user_id': kw['msg_user_id']}
-        q = sqlalchemy.insert(kw['model']).values(vals)
-        Dbase.conn.execute(q)
-        return (
-            f'{kw["say"]} {percent}%'
-            f'\n{good_bad_phrases(percent, kw["good_phrases"], kw["bad_phrases"])}'
-            )
-
-    else:
-
-        q = sqlalchemy.select(kw['model'].time).where(kw['model'].user_id==kw['msg_user_id'])
-        db_usr_time = Dbase.conn.execute(q).first()[0]
-        if db_usr_time + hours24 < now:
-
-            vals = {'percent': percent, 'time': now}
-            q = sqlalchemy.update(kw['model']).where(kw['model'].user_id==kw['msg_user_id']).values(vals)
-            Dbase.conn.execute(q)
-            return (
-                f'{kw["say"]} {percent}%'
-                f'\n{good_bad_phrases(percent, kw["good_phrases"], kw["bad_phrases"])}'
-                )
-
-        else:
-            q = sqlalchemy.select(kw['model'].percent).where(kw['model'].user_id==kw['msg_user_id'])
-            usr_percent = Dbase.conn.execute(q).first()[0]
-
-            future_t = db_usr_time + hours24
-            midnight = datetime.combine(datetime.today(), dtime.max).timestamp()
-            if midnight - future_t < 0:
-                today_tomorr = 'завтра'
-            else:
-                today_tomorr = 'сегодня'
-
-            future_t = datetime.fromtimestamp(future_t)
-            future_t = future_t.strftime('%H:%M')
-
-            return (
-                f'{kw["say"]} {usr_percent}%'
-                f'\n{good_bad_phrases(usr_percent, kw["good_phrases"], kw["bad_phrases"])}'
-                f'\nОбновить можно {today_tomorr} в {future_t}'
-                )
-
-
-def president(words_list: words_convert):
-    zelen = 'зеленск'
-    putin = 'путин'
-    biden = 'байден'
-    for w in words_list:
-        if zelen in w:
-            return './img/zelek.jpg'
-        elif putin in w:
-            return './img/putin.jpg'
-        elif biden in w:
-            return './img/biden.jpg'
+    for word in words_list:
+        if cfg.zelensky_name in word:
+            return cfg.zelensky_path
+        elif cfg.putin_name in word:
+            return cfg.putin_path
+        elif cfg.biden_name in word:
+            return cfg.biden_path
     return False
 
 
 def top_boltunov(msg_chat_id, msg_username):
+    """
+    Returns `text` with top 10 users by words count and top 10 users by unique
+    words count.
+    """
     q = sqlalchemy.select(Users.user_id, Users.user_name)
     db_users = Dbase.conn.execute(q).fetchall()
 
@@ -291,3 +201,16 @@ def top_boltunov(msg_chat_id, msg_username):
         'Топ 10 по уникальным словам:\n\n'
         f'{res[1]}\n'
         )
+
+
+# unused
+def nltk_download(module: str):
+    import ssl
+    import nltk
+    try:
+        _create_unverified_https_context = ssl._create_unverified_context
+    except AttributeError:
+        pass
+    else:
+        ssl._create_default_https_context = _create_unverified_https_context
+    nltk.download(module)

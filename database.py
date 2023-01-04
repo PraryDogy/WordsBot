@@ -1,6 +1,6 @@
 import sqlite3
-import sqlalchemy
 import sqlalchemy.ext.declarative
+from sqlalchemy import create_engine, Column, Integer, Text, ForeignKey, select, delete
 import cfg
 
 
@@ -23,7 +23,7 @@ class Dbase():
     *var conn: database connection
     *var base: declatative_base for models and actions
     """
-    __engine = sqlalchemy.create_engine(
+    __engine = create_engine(
         'sqlite:///' + cfg.DATABASE,
         connect_args={'check_same_thread':False,},
         echo= False
@@ -34,34 +34,36 @@ class Dbase():
 
 class Users(Dbase.base):
     __tablename__ = 'users'
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    user_id = sqlalchemy.Column(sqlalchemy.Integer)
-    user_name = sqlalchemy.Column(sqlalchemy.Text)
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer)
+    user_name = Column(Text)
 
 
 class Words(Dbase.base):
     __tablename__ = 'words'
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    word = sqlalchemy.Column(sqlalchemy.Text)
-    count = sqlalchemy.Column(sqlalchemy.Integer)
-    user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.user_id'))
-    chat_id = sqlalchemy.Column(sqlalchemy.Integer)
+    id = Column(Integer, primary_key=True)
+    word = Column(Text)
+    count = Column(Integer)
+    user_id = Column(Integer, ForeignKey('users.user_id'))
+    chat_id = Column(Integer)
 
 
-class Libera(Dbase.base):
+class InlineBasemodel(Dbase.base):
+    __abstract__ = True
+    id = Column(Integer, primary_key=True)
+    percent = Column(Integer)
+    time = Column(Integer)
+    user_id = Column(Integer)
+
+
+class LiberaModel(InlineBasemodel):
     __tablename__ = 'libera'
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    percent = sqlalchemy.Column(sqlalchemy.Integer)
-    time = sqlalchemy.Column(sqlalchemy.Integer)
-    user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.user_id'))
+    user_id = Column(Integer, ForeignKey('users.user_id'))
 
 
-class Fat(Dbase.base):
+class FatModel(InlineBasemodel):
     __tablename__ = 'fat'
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    percent = sqlalchemy.Column(sqlalchemy.Integer)
-    time = sqlalchemy.Column(sqlalchemy.Integer)
-    user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.user_id'))
+    user_id = Column(Integer, ForeignKey('users.user_id'))
 
 
 def reset_db():
@@ -70,12 +72,12 @@ def reset_db():
 
 
 def rem_words(word: str):
-    q = sqlalchemy.select(Words.id).where(Words.word==word)
+    q = select(Words.id).where(Words.word==word)
     res = Dbase.conn.execute(q).fetchall()
     ids = tuple(i[0] for i in res)
 
     for i in ids:
-        q = sqlalchemy.delete(Words).where(Words.id==i)
+        q = delete(Words).where(Words.id==i)
         Dbase.conn.execute(q)
 
 

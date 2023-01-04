@@ -6,8 +6,8 @@ from datetime import time as dtime
 import sqlalchemy
 
 import cfg
-from database import Dbase, Fat, Libera
-from dicts import libera, no_libera
+from database import Dbase, FatModel, LiberaModel
+from dicts import you_libera, you_not_libera
 
 
 def good_bad_phrases(percent: int, good_phrases: tuple, bad_phrases: tuple):
@@ -91,13 +91,13 @@ def inline_test(**kw):
                 )
 
 
-tst = inline_test(
-    model=Fat,
-    msg_user_id=cfg.EVLOSH_ID,
-    say='Я жирный на',
-    good_phrases=libera,
-    bad_phrases=no_libera,
-    )
+# tst = inline_test(
+#     model=FatModel,
+#     msg_user_id=cfg.EVLOSH_ID,
+#     say='Я жирный на',
+#     good_phrases=libera,
+#     bad_phrases=no_libera,
+#     )
 
 
-print(tst)
+# print(tst)
