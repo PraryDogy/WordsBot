@@ -15,3 +15,12 @@ biden_name = 'байден'
 zelensky_path = './img/zelek.jpg'
 putin_path = './img/putin.jpg'
 biden_path = './img/biden.jpg'
+
+
+fat_header = 'Насколько я жирный'
+fat_descr = 'Тест основан на научных методиках'
+fat_msg = 'Я жирный на'
+
+libera_header = 'Насколько я либерал'
+libera_descr = 'Анализ вашего телеграма'
+libera_msg = 'Я либерал на'

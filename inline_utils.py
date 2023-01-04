@@ -68,40 +68,41 @@ class PercentBase:
 
 class PercentFat(PercentBase):
     def __init__(self, msg_user_id):
-        PercentBase.__init__(self, FatModel, msg_user_id, 'Я жирный на',
+        PercentBase.__init__(self, FatModel, msg_user_id, cfg.fat_msg,
             you_fat, you_not_fat)
 
 
 class PercentLibera(PercentBase):
     def __init__(self, msg_user_id):
-        PercentBase.__init__(self, LiberaModel, msg_user_id, 'Я либерал на', 
+        PercentBase.__init__(self, LiberaModel, msg_user_id, cfg.libera_msg,
             you_libera, you_not_libera)
 
 
 class ItemBase:
-    def __init__(self, head: str, img_path: str, test_result: PercentBase):
+    def __init__(self, header: str, descr: str, img_path: str, test_result: PercentBase):
         """
         *head: test name
         *inline_query: query from aiogram message handler
         *img_path: web url
         """
-        libera_head_id: str = hashlib.md5(head.encode()).hexdigest()
-        libera_msg = InputTextMessageContent(test_result)
+        head_id: str = hashlib.md5(header.encode()).hexdigest()
+        msg = InputTextMessageContent(test_result.msg)
 
         self.item = InlineQueryResultArticle(
-            id=libera_head_id,
-            title=f'{head}',
-            input_message_content=libera_msg,
+            id=head_id,
+            title=f'{header}',
+            description=descr,
+            input_message_content=msg,
             thumb_url=img_path)
 
 
 class ItemLibera(ItemBase):
     def __init__(self, msg_usr_id: int):
-        test_res = PercentLibera(msg_usr_id).msg
-        ItemBase.__init__(self, 'Насколько я либерал', cfg.PUTIN_IMG, test_res)
+        test_res = PercentLibera(msg_usr_id)
+        ItemBase.__init__(self, cfg.libera_header, cfg.libera_descr, cfg.PUTIN_IMG, test_res)
 
 
 class ItemFat(ItemBase):
     def __init__(self, msg_usr_id: int):
-        test_res = PercentFat(msg_usr_id).msg
-        ItemBase.__init__(self, 'Насколько я жирный', cfg.FAT_IMG, test_res)
+        test_res = PercentFat(msg_usr_id)
+        ItemBase.__init__(self, cfg.fat_header, cfg.fat_descr, cfg.FAT_IMG, test_res)
