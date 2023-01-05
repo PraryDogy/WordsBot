@@ -61,6 +61,9 @@ puppies_url = [
     ]
 
 
-stickers_id = [
-    'CAACAgIAAx0CYSXtmQACAlpjtsQvRFX6WHUOHDFR2YP8Mz9R7QACdQEAAiQ33gGj3knW95AcsC0E'
+gifs_id = [
+    'CgACAgQAAx0CYSXtmQACAuhjtweiCIIy-uG9hrYjBgfAhPkWDQACJgMAAsO5tFJvsX1vTGP6TS0E',
+    'CgACAgQAAx0CYSXtmQACAuhjtweiCIIy-uG9hrYjBgfAhPkWDQACJgMAAsO5tFJvsX1vTGP6TS0E',
+    'CgACAgIAAx0CYSXtmQACAupjtwhMkLreSOeHWSruAeYcdTvt6wACXQ4AAhmqKUkMlJQCp0jJvS0E',
+    'CgACAgIAAx0CYSXtmQACAuxjtwhd4E79R0Ds59uqLiYCyD_VlwACuhQAAit7OUmk7MSvBfzKvy0E'
     ]

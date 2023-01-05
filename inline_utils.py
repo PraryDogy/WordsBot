@@ -5,11 +5,11 @@ from datetime import datetime, timedelta
 import sqlalchemy
 from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
                            InlineQueryResultArticle, InlineQueryResultPhoto,
-                           InputTextMessageContent)
+                           InputTextMessageContent, InlineQueryResultCachedGif)
 
 import cfg
 from database import Dbase, FatModel, InlineBasemodel, LiberaModel, PuppyModel
-from dicts import puppies_url, you_fat, you_libera, you_not_fat, you_not_libera
+from dicts import puppies_url, you_fat, you_libera, you_not_fat, you_not_libera, gifs_id
 
 
 class TestUtils:
@@ -179,7 +179,7 @@ class ItemPuppy(TestPuppy):
         self.item = InlineQueryResultPhoto(
             id=hashlib.md5(cfg.puppy_header.encode()).hexdigest(),
             photo_url=self.puppy_url,
-            thumb_url=self.puppy_url,
+            thumb_url=cfg.CAT_IMG,
             title=cfg.puppy_header,
             description=cfg.puppy_descr,
             reply_markup=MessageButton(),

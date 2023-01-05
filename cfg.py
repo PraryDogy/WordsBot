@@ -1,6 +1,7 @@
 DATABASE = 'database.db'
-PUTIN_IMG = 'https://sun9-67.userapi.com/impg/PTLggCAuUejRbw1H-GIjpGjNf73dM7IWhYrsww/x6kavkNNquI.jpg?size=300x300&quality=95&sign=9772535c2cd701e33cae3030464999a9&type=album'
+PUTIN_IMG = 'https://sun1-21.userapi.com/impg/PTLggCAuUejRbw1H-GIjpGjNf73dM7IWhYrsww/x6kavkNNquI.jpg?size=300x300&quality=95&sign=9772535c2cd701e33cae3030464999a9&type=album'
 FAT_IMG = 'https://sun9-40.userapi.com/impg/XEe4VPlF5BvuAYbjZLm3MPamjWIhLrxO66oFEw/f54lKM4s6gU.jpg?size=300x300&quality=95&sign=a347fede0405ca0ec49763ebcb68a413&type=album'
+CAT_IMG = 'https://sun9-52.userapi.com/impg/oflg7IEfK2jw4PF74evO40pxF28uKBmdieFdWA/aA7mVfxFP48.jpg?size=591x591&quality=95&sign=4af9b9fa4b495eefc3589d9eb2990ac0&type=album'
 
 EVLOSH_ID = 248208655
 HELI_ID = -1001297579871
