@@ -54,3 +54,13 @@ you_not_fat = [
     'Дрищщщщ',
     'Поеду к бабушке есть пирожки'
     ]
+
+
+puppies_url = [
+    'shorturl.at/gmnDN',
+    ]
+
+
+stickers_id = [
+    'CAACAgIAAx0CYSXtmQACAlpjtsQvRFX6WHUOHDFR2YP8Mz9R7QACdQEAAiQ33gGj3knW95AcsC0E'
+    ]

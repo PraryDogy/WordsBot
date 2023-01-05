@@ -1,6 +1,9 @@
 import sqlite3
+
 import sqlalchemy.ext.declarative
-from sqlalchemy import create_engine, Column, Integer, Text, ForeignKey, select, delete
+from sqlalchemy import (Column, ForeignKey, Integer, Text, create_engine,
+                        delete, insert, select, update)
+
 import cfg
 
 
@@ -52,7 +55,7 @@ class InlineBasemodel(Dbase.base):
     __abstract__ = True
     id = Column(Integer, primary_key=True)
     percent = Column(Integer)
-    time = Column(Integer)
+    time = Column(Text)
     user_id = Column(Integer)
 
 
@@ -66,10 +69,17 @@ class FatModel(InlineBasemodel):
     user_id = Column(Integer, ForeignKey('users.user_id'))
 
 
+class PuppyModel(Dbase.base):
+    __tablename__ = 'puppies'
+    id = Column(Integer, primary_key=True)
+    url = Column(Text)
+    time = Column(Text)
+    user_id = Column(Integer)
+
+
 def reset_db():
     # Dbase.base.metadata.drop_all(Dbase.conn)
     Dbase.base.metadata.create_all(Dbase.conn)
-
 
 def rem_words(word: str):
     q = select(Words.id).where(Words.word==word)
@@ -79,7 +89,3 @@ def rem_words(word: str):
     for i in ids:
         q = delete(Words).where(Words.id==i)
         Dbase.conn.execute(q)
-
-
-def upload_db():
-    ''

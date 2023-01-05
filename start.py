@@ -3,11 +3,12 @@ from aiogram.types import InlineQuery
 from aiogram.types.input_file import InputFile
 
 import cfg
-from inline_utils import ItemFat, ItemLibera
+import bot_token
+from inline_utils import ItemFat, ItemLibera, ItemPuppy
 from utils import (chat_words, check_user, detect_candle, my_words,
                    president_word, top_boltunov, words_convert, write_db)
 
-bot = Bot(token=cfg.TOKEN)
+bot = Bot(token=bot_token.TOKEN_TEST)
 dp = Dispatcher(bot)
 
 
@@ -53,9 +54,22 @@ async def inline_libera(inline_query: InlineQuery):
     check_user(inline_query.from_user.id, inline_query.from_user.username)
     item_libera = ItemLibera(inline_query.from_user.id).item
     item_fat = ItemFat(inline_query.from_user.id).item
+    item_puppy = ItemPuppy(inline_query.from_user.id).item
 
-    items = [item_libera, item_fat]
+    items = [item_puppy, item_libera, item_fat]
+
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
+
+
+# @dp.message_handler(content_types=['sticker'])
+# async def get_sticker_id(message):
+#     print(message.__dict__['_values']['sticker']['file_id'])
+
+
+# @dp.message_handler(content_types=['photo'])
+# async def get_sticker_id(message):
+#     print(message.photo[-1].file_id)
+#     print(message)
 
 
 @dp.message_handler()
