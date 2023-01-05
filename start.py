@@ -1,15 +1,12 @@
-from aiogram import Bot, Dispatcher, executor, types
+from aiogram import executor, types
 from aiogram.types import InlineQuery
 from aiogram.types.input_file import InputFile
 
 import cfg
-import bot_token
+from bot_config import bot, dp
 from inline_utils import ItemFat, ItemLibera, ItemPuppy
 from utils import (chat_words, check_user, detect_candle, my_words,
                    president_word, top_boltunov, words_convert, write_db)
-
-bot = Bot(token=bot_token.TOKEN_TEST)
-dp = Dispatcher(bot)
 
 
 @dp.message_handler(commands=['my_words'])
@@ -56,7 +53,7 @@ async def inline_libera(inline_query: InlineQuery):
     item_fat = ItemFat(inline_query.from_user.id).item
     item_puppy = ItemPuppy(inline_query.from_user.id).item
 
-    items = [item_puppy, item_libera, item_fat]
+    items = [item_libera, item_fat]
 
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
 

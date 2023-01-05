@@ -15,7 +15,7 @@ from dicts import puppies_url, you_fat, you_libera, you_not_fat, you_not_libera
 class TestUtils:
     def __init__(self):
         self.new_value = random.randint(0, 100)
-        self.now = datetime.today()
+        self.now = datetime.today().replace(microsecond=0)
 
     def db_usr_check(self, msg_usr_id, model: InlineBasemodel):
         """
@@ -156,6 +156,7 @@ class ItemFat(InlineItem):
 
 class TestPuppy(TestUtils):
     def __init__(self, msg_usr_id):
+        TestUtils.__init__(self)
         self.puppy_url = random.choice(puppies_url)
 
         if not self.db_usr_check(msg_usr_id, PuppyModel):
