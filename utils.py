@@ -203,7 +203,6 @@ def top_boltunov(msg_chat_id, msg_username):
         )
 
 
-# unused
 def nltk_download(module: str):
     import ssl
     import nltk
