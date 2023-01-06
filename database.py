@@ -70,6 +70,11 @@ class FatModel(InlineBasemodel):
     user_id = Column(Integer, ForeignKey('users.user_id'))
 
 
+class MobiModel(InlineBasemodel):
+    __tablename__ = 'mobi'
+    user_id = Column(Integer, ForeignKey('users.user_id'))
+
+
 class PuppyModel(Dbase.base):
     __tablename__ = 'puppies'
     id = Column(Integer, primary_key=True)
@@ -90,3 +95,6 @@ def rem_words(word: str):
     for i in ids:
         q = delete(Words).where(Words.id==i)
         Dbase.conn.execute(q)
+
+
+reset_db()

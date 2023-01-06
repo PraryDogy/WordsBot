@@ -7,20 +7,17 @@ from aiogram.types import InlineQuery
 import cfg
 from bot_config import bot, dp
 from handler_utils import (chat_words, detect_candle, get_usr_t,
-                               top_boltunov, user_words_top)
-from inline_utils import ItemFat, ItemLibera, ItemPuppy
+                               top_boltunov, get_user_words)
+from inline_utils import ItemFat, ItemLibera, ItemPuppy, ItemMobi
 from utils import db_user_check, db_words_record, words_convert, db_time_record
 
 
 @dp.message_handler(commands=['user_words'])
 async def send_my_words(message: types.Message):
     db_user_check(message.from_user.id, message.from_user.username)
-    
-    usr_name = message.get_args().replace('@', '')
-    usr_name = message.from_user.username if not usr_name else usr_name
-
-    top = user_words_top(message.chat.id, usr_name)
-    await bot.send_message(chat_id=message.chat.id, text=top)
+    args = message.get_args()
+    msg = get_user_words(message.chat.id, message.from_user.username, args)
+    await bot.send_message(chat_id=message.chat.id, text=msg)
 
 
 @dp.message_handler(commands=['chat_words'])
@@ -40,8 +37,8 @@ async def top_slovobludov(message: types.Message):
 @dp.message_handler(commands=['last_time'])
 async def get_msg_t(message: types.Message):
     db_user_check(message.from_user.id, message.from_user.username)
-    nickname = message.get_args().replace('@', '')
-    await bot.send_message(message.chat.id, text=get_usr_t(message.from_user.username, nickname))
+    args = message.get_args()
+    await bot.send_message(message.chat.id, text=get_usr_t(message.from_user.username, args))
 
 
 @dp.message_handler(commands=['gde_svet_denis'])
@@ -65,9 +62,10 @@ async def inline_libera(inline_query: InlineQuery):
     db_user_check(inline_query.from_user.id, inline_query.from_user.username)
     item_libera = ItemLibera(inline_query.from_user.id).item
     item_fat = ItemFat(inline_query.from_user.id).item
+    item_mobi = ItemMobi(inline_query.from_user.id).item
     item_puppy = ItemPuppy(inline_query.from_user.id).item
 
-    items = [item_libera, item_fat, item_puppy]
+    items = [item_libera, item_fat, item_mobi, item_puppy]
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
 
 

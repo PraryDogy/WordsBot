@@ -118,6 +118,9 @@ def db_username_get(wished_usr_name: str):
 
 
 def db_userid_get(input_username):
+    """
+    Returns user_id by username
+    """
     q = sqlalchemy.select(Users.user_id).where(Users.user_name==input_username)
     return Dbase.conn.execute(q).first()[0]
 

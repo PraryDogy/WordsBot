@@ -7,15 +7,21 @@ from database import Dbase, Users, Words
 from utils import db_username_get, db_usernames_get, db_words_get, db_userid_get
 
 
-def user_words_top(msg_chat_id, msg_username):
+def get_user_words(msg_chat_id, msg_username, msg_args: str):
     """
     Returns text with top 10 words of user in current chat.
     """
-    username = db_username_get(msg_username)
-    if not username:
+    if msg_args:
+        msg_args = msg_args.replace('@', '')
+        username = db_username_get(msg_args)
+    else:
+        username = db_username_get(msg_username)
+
+    if username:
+        usr_id = db_userid_get(username)
+    else:
         return 'Нет данных о пользователе'
 
-    usr_id = db_userid_get(username)
     q = sqlalchemy.select(Words.word, Words.count).where(
         Words.user_id==usr_id, Words.chat_id==msg_chat_id).order_by(-Words.count)
     db_words = Dbase.conn.execute(q).fetchall()[:10]
@@ -47,12 +53,18 @@ def chat_words(msg_chat_id, msg_username):
     return f'@{msg_username}, топ 10 слов всех участников в чате\n\n' + rowed
 
 
-def get_usr_t(msg_usr_name, wished_usr_name):
-    wished_usr_name = db_username_get(wished_usr_name)
-    if not wished_usr_name:
+def get_usr_t(msg_usr_name, msg_args: str):
+    if msg_args:
+        print(msg_args)
+        msg_args = msg_args.replace('@', '')
+    else:
+        return 'Пример команды: "/last_time @имя_пользователя"'
+
+    username = db_username_get(msg_args)
+    if not username:
         return 'Нет данных о таком пользователе'
 
-    select_time = sqlalchemy.select(Users.last_time).where(Users.user_name==wished_usr_name)
+    select_time = sqlalchemy.select(Users.last_time).where(Users.user_name==username)
     db_time = Dbase.conn.execute(select_time).first()[0]
     
     if db_time is None:
@@ -61,7 +73,7 @@ def get_usr_t(msg_usr_name, wished_usr_name):
     msg_time = datetime.strptime(db_time, '%Y-%m-%d %H:%M:%S')
     msg_time = msg_time.strftime('%H:%M %d.%m.%Y')
 
-    msg = f'@{msg_usr_name}, пользователь {wished_usr_name} последний раз писал {msg_time}'
+    msg = f'@{msg_usr_name}, пользователь {username} последний раз писал {msg_time}'
     return msg
 
 

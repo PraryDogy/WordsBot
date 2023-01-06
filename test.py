@@ -1,8 +1,10 @@
 from datetime import datetime
-
-test_time = '2023-01-06 16:04:06'
-
-test_time = datetime.strptime(test_time, '%Y-%m-%d %H:%M:%S')
+from handler_utils import get_user_words
 
 
-print(test_time.strftime('%H:%M'))
+# sova = 'Barmaley1100500', -1001725098231
+
+# get_user_words(sova[-1], sova[0])
+
+
+# /user_words Barmaley1100500

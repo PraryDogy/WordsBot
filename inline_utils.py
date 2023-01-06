@@ -1,15 +1,16 @@
 import hashlib
+import itertools
 import random
 from datetime import datetime, timedelta
 
 import sqlalchemy
 from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
                            InlineQueryResultArticle, InlineQueryResultPhoto,
-                           InputTextMessageContent, InlineQueryResultCachedGif)
+                           InputTextMessageContent)
 
 import cfg
-from database import Dbase, FatModel, InlineBasemodel, LiberaModel, PuppyModel
-from dicts import puppies_url, you_fat, you_libera, you_not_fat, you_not_libera, puppies_url
+from database import *
+from dicts import *
 
 
 class TestUtils:
@@ -114,6 +115,13 @@ class PercentLibera(PercentTest):
             (you_not_libera, you_libera))
 
 
+class PercentMobi(PercentTest):
+    def __init__(self, msg_user_id):
+        PercentTest.__init__(
+            self, MobiModel, msg_user_id, cfg.mobi_before_value, '%',
+            (you_not_mobi, you_mobi))
+
+
 class MessageButton(InlineKeyboardMarkup):
     def __init__(self):
         InlineKeyboardMarkup.__init__(self, row_width=3)
@@ -152,6 +160,10 @@ class ItemFat(InlineItem):
         test_res = PercentFat(msg_usr_id)
         InlineItem.__init__(self, cfg.fat_header, cfg.fat_descr, cfg.FAT_IMG, test_res.msg)
 
+class ItemMobi(InlineItem):
+    def __init__(self, msg_usr_id: int):
+        test_res = PercentMobi(msg_usr_id)
+        InlineItem.__init__(self, cfg.mobi_header, cfg.mobi_descr, cfg.MOBI_IMG, test_res.msg)
 
 
 class TestPuppy(TestUtils):
@@ -182,5 +194,6 @@ class ItemPuppy(TestPuppy):
             thumb_url=self.puppy_url,
             title=cfg.puppy_header,
             description=cfg.puppy_descr,
+            caption=random.choice(puppies_caption),
             reply_markup=MessageButton(),
             )
