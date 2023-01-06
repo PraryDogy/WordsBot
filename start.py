@@ -67,7 +67,7 @@ async def inline_libera(inline_query: InlineQuery):
     item_fat = ItemFat(inline_query.from_user.id).item
     item_puppy = ItemPuppy(inline_query.from_user.id).item
 
-    items = [item_libera, item_fat]
+    items = [item_libera, item_fat, item_puppy]
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
 
 
