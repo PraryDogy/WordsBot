@@ -1,9 +1,8 @@
-import re
+from datetime import datetime
 
-with open('qqq.txt', 'r') as file:
-    data = file.read()
+test_time = '2023-01-06 16:04:06'
+
+test_time = datetime.strptime(test_time, '%Y-%m-%d %H:%M:%S')
 
 
-q = r'"file_id": "\S*"'
-res = re.findall(q, data)
-file_id = res[-1].split(' ')[-1].strip('"')
+print(test_time.strftime('%H:%M'))

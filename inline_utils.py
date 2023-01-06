@@ -44,7 +44,7 @@ class TestUtils:
 
         first_row = f'{phrase_before_value} {value} {phrase_after_value}'
         second_row = random.choice(phrases_list)
-        third_row = f'Обновить можно {day} в {next_update_time.hour}:{next_update_time.minute}'
+        third_row = f'Обновить можно {day} в {next_update_time.strftime("%H:%M")}'
 
         return f'{first_row}\n{second_row}\n{third_row}'
 
