@@ -35,7 +35,7 @@ def words_convert(text: str):
     return tuple(i for i in lemm_words if i not in stop_words)
 
 
-def db_write_words(msg_user_id, msg_chat_id, words_list: words_convert):
+def db_words_record(msg_user_id, msg_chat_id, words_list: words_convert):
     """
     Gets all user's words with all chats ids  from database
     If word from input words list not in database words list - adds new row
@@ -69,10 +69,11 @@ def db_write_words(msg_user_id, msg_chat_id, words_list: words_convert):
             Dbase.conn.execute(q)
 
 
-def db_check_user(msg_user_id: int, msg_username: str):
+def db_user_check(msg_user_id: int, msg_username: str):
     """
     Checks database `Users` table for user by `user_id` from message.
-    Creates new record if now exists.
+    Creates new record if user not exists.
+    Updates username of exists user if it was changed.
     """
     get_user = sqlalchemy.select(
         Users.user_id, Users.user_name).filter(Users.user_id == msg_user_id)
@@ -91,15 +92,19 @@ def db_check_user(msg_user_id: int, msg_username: str):
         Dbase.conn.execute(new_user)
 
 
-def db_write_last_time(msg_usr_id):
+def db_time_record(msg_usr_id):
     vals = {'last_time': datetime.today().replace(microsecond=0)}
     q = sqlalchemy.update(Users).where(Users.user_id==msg_usr_id).values(vals)
     Dbase.conn.execute(q)
 
 
-def db_find_username(wished_usr_name: str):
+def db_username_get(wished_usr_name: str):
+    """
+    Returns username of False.
+    """
     q = sqlalchemy.select(Users.user_name)
     all_usernames = tuple(i[0] for i in Dbase.conn.execute(q).fetchall())
+    all_usernames = tuple(i for i in all_usernames if i is not None)
 
     true_name = False
     for i in all_usernames:
@@ -108,20 +113,21 @@ def db_find_username(wished_usr_name: str):
 
     if not true_name:
         return False
+
     return true_name
 
 
-def db_find_userid(input_username):
+def db_userid_get(input_username):
     q = sqlalchemy.select(Users.user_id).where(Users.user_name==input_username)
     return Dbase.conn.execute(q).first()[0]
 
 
-def db_get_usernames():
+def db_usernames_get():
     q = sqlalchemy.select(Users.user_id, Users.user_name)
     return Dbase.conn.execute(q).fetchall()
 
 
-def db_get_chatwords(msg_chat_id):
+def db_words_get(msg_chat_id):
     q = sqlalchemy.select(Words.word, Words.count).where(
         Words.chat_id==msg_chat_id).order_by(-Words.count)
-    db_words = Dbase.conn.execute(q).fetchall()
+    return Dbase.conn.execute(q).fetchall()

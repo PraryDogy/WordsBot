@@ -4,22 +4,20 @@ import numpy as np
 import sqlalchemy
 from datetime import datetime
 from database import Dbase, Users, Words
-from utils import db_find_username, db_get_usernames, db_get_chatwords, db_find_userid
+from utils import db_username_get, db_usernames_get, db_words_get, db_userid_get
 
 
-def user_words_top(msg_chat_id, msg_username, args):
+def user_words_top(msg_chat_id, msg_username):
     """
     Returns text with top 10 words of user in current chat.
     """
-    if len(args) == 0:
-        args = msg_username
-    
-    username = db_find_username(args)
+    username = db_username_get(msg_username)
     if not username:
         return 'Нет данных о пользователе'
 
+    usr_id = db_userid_get(username)
     q = sqlalchemy.select(Words.word, Words.count).where(
-        Words.user_id==db_find_userid(username), Words.chat_id==msg_chat_id).order_by(-Words.count)
+        Words.user_id==usr_id, Words.chat_id==msg_chat_id).order_by(-Words.count)
     db_words = Dbase.conn.execute(q).fetchall()[:10]
     rowed = ''.join([f'{word}: {count}\n' for word, count in db_words])
     
@@ -34,7 +32,7 @@ def chat_words(msg_chat_id, msg_username):
     Telegram `/chat_words`. 
     Returns text with top 10 words in current chat.
     """
-    db_words = db_get_chatwords(msg_chat_id)
+    db_words = db_words_get(msg_chat_id)
     unic_words = set(i[0] for i in db_words)
     result = []
 
@@ -50,7 +48,7 @@ def chat_words(msg_chat_id, msg_username):
 
 
 def get_usr_t(msg_usr_name, wished_usr_name):
-    wished_usr_name = db_find_username(wished_usr_name)
+    wished_usr_name = db_username_get(wished_usr_name)
     if not wished_usr_name:
         return 'Нет данных о таком пользователе'
 
@@ -92,7 +90,7 @@ def top_boltunov(msg_chat_id, msg_username):
     user_words = []
     unique = []
 
-    for db_id, db_user_name in db_get_usernames():
+    for db_id, db_user_name in db_usernames_get():
 
         q = sqlalchemy.select(Words.count).where(Words.chat_id==msg_chat_id, Words.user_id==db_id)
         words_count = sum(i[0] for i in Dbase.conn.execute(q).fetchall())
