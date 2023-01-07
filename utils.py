@@ -125,9 +125,22 @@ def db_userid_get(input_username):
     return Dbase.conn.execute(q).first()[0]
 
 
-def db_usernames_get():
+def db_all_usernames_get():
     q = sqlalchemy.select(Users.user_id, Users.user_name)
     return Dbase.conn.execute(q).fetchall()
+
+
+def db_chat_usernames_get(msg_chat_id):
+    q = sqlalchemy.select(Words.user_id).where(Words.chat_id==msg_chat_id)
+    ids = Dbase.conn.execute(q).fetchall()
+    ids = set(tuple(i[0] for i in ids))
+
+    usernames = []
+    for i in ids:
+        q = sqlalchemy.select(Users.user_name).where(Users.user_id==i)
+        usernames.append(Dbase.conn.execute(q).first()[0])
+    
+    return usernames
 
 
 def db_words_get(msg_chat_id):

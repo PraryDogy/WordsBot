@@ -1,6 +1,6 @@
 import re
 
-import clipboard
+# import clipboard
 from aiogram import executor, types
 from aiogram.types import InlineQuery
 
@@ -8,7 +8,7 @@ import cfg
 from bot_config import bot, dp
 from handler_utils import (chat_words, detect_candle, get_usr_t,
                                top_boltunov, get_user_words)
-from inline_utils import ItemFat, ItemLibera, ItemPuppy, ItemMobi
+from inline_utils import *
 from utils import db_user_check, db_words_record, words_convert, db_time_record
 
 
@@ -65,7 +65,7 @@ async def inline_libera(inline_query: InlineQuery):
     item_mobi = ItemMobi(inline_query.from_user.id).item
     item_puppy = ItemPuppy(inline_query.from_user.id).item
 
-    items = [item_libera, item_fat, item_mobi, item_puppy]
+    items = [item_fat, item_libera, item_mobi, item_puppy]
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
 
 
@@ -85,7 +85,6 @@ async def echo(message: types.Message):
     db_user_check(message.from_user.id, message.from_user.username)
     db_time_record(message.from_user.id)
     db_words_record(message.from_user.id, message.chat.id, words_convert(message.text))
-
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)

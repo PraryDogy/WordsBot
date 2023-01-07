@@ -4,7 +4,7 @@ import numpy as np
 import sqlalchemy
 from datetime import datetime
 from database import Dbase, Users, Words
-from utils import db_username_get, db_usernames_get, db_words_get, db_userid_get
+from utils import db_username_get, db_all_usernames_get, db_words_get, db_userid_get
 
 
 def get_user_words(msg_chat_id, msg_username, msg_args: str):
@@ -102,7 +102,7 @@ def top_boltunov(msg_chat_id, msg_username):
     user_words = []
     unique = []
 
-    for db_id, db_user_name in db_usernames_get():
+    for db_id, db_user_name in db_all_usernames_get():
 
         q = sqlalchemy.select(Words.count).where(Words.chat_id==msg_chat_id, Words.user_id==db_id)
         words_count = sum(i[0] for i in Dbase.conn.execute(q).fetchall())

@@ -7,18 +7,6 @@ from sqlalchemy import (Column, ForeignKey, Integer, Text, create_engine,
 import cfg
 
 
-def create_table_words():
-    engine = sqlite3.connect(cfg.DATABASE)
-    cur = engine.cursor()
-    query = """CREATE TABLE words(
-        id INTEGER PRIMARY KEY,
-        word STRING,
-        count INTEGER,
-        user STRING
-        )"""
-    cur.execute(query)
-
-
 class Dbase():
     """
     Checks database exists with DbChecker.
@@ -52,40 +40,41 @@ class Words(Dbase.base):
     chat_id = Column(Integer)
 
 
-class InlineBasemodel(Dbase.base):
+class TestBaseModel(Dbase.base):
     __abstract__ = True
     id = Column(Integer, primary_key=True)
-    percent = Column(Integer)
+    value = Column(Text)
     time = Column(Text)
     user_id = Column(Integer)
 
 
-class LiberaModel(InlineBasemodel):
+class LiberaModel(TestBaseModel):
     __tablename__ = 'libera'
     user_id = Column(Integer, ForeignKey('users.user_id'))
 
 
-class FatModel(InlineBasemodel):
+class FatModel(TestBaseModel):
     __tablename__ = 'fat'
     user_id = Column(Integer, ForeignKey('users.user_id'))
 
 
-class MobiModel(InlineBasemodel):
+class MobiModel(TestBaseModel):
     __tablename__ = 'mobi'
     user_id = Column(Integer, ForeignKey('users.user_id'))
 
 
-class PuppyModel(Dbase.base):
+class PuppyModel(TestBaseModel):
     __tablename__ = 'puppies'
+    user_id = Column(Integer, ForeignKey('users.user_id'))
+
+
+class PairingModel(Dbase.base):
+    __tablename__ = 'pairing'
     id = Column(Integer, primary_key=True)
-    url = Column(Text)
+    pair = Column(Text)
     time = Column(Text)
     user_id = Column(Integer)
 
-
-def reset_db():
-    # Dbase.base.metadata.drop_all(Dbase.conn)
-    Dbase.base.metadata.create_all(Dbase.conn)
 
 def rem_words(word: str):
     q = select(Words.id).where(Words.word==word)
@@ -97,4 +86,39 @@ def rem_words(word: str):
         Dbase.conn.execute(q)
 
 
-reset_db()
+def migrate_table(name):
+    import sqlite3
+
+    conn = sqlite3.connect(cfg.DATABASE)
+    cur = conn.cursor()
+
+    disable_fk = """PRAGMA foreign_keys=off"""
+    start_transaction = """BEGIN TRANSACTION"""
+    rename = f"""ALTER TABLE {name} RENAME TO {name}_old"""
+    create_table = f"""CREATE TABLE IF NOT EXISTS {name} (
+                        "id" INTEGER NOT NULL PRIMARY KEY,
+                        "value" TEXT,
+                        "time" TEXT,
+                        "user_id" INTEGER,
+                        FOREIGN KEY ("user_id")REFERENCES "users"("user_id")
+                        )
+                        """
+    copy_data = f"""INSERT INTO {name} SELECT * FROM {name}_old"""
+    comm = """COMMIT"""
+    enable_fk = """PRAGMA foreign_keys=off"""
+    remove_old = f"""DROP TABLE {name}_old"""
+
+    for i in (
+        disable_fk, start_transaction, rename, create_table, copy_data,
+        comm, enable_fk, remove_old):
+        cur.execute(i)
+
+    conn.commit()
+
+
+def full_migration():
+    for i in ('libera', 'fat', 'mobi', 'puppies'):
+        migrate_table(i)
+
+
+Dbase.base.metadata.create_all(Dbase.conn)
