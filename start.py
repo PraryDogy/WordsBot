@@ -1,6 +1,6 @@
 import re
 
-# import clipboard
+import clipboard
 from aiogram import executor, types
 from aiogram.types import InlineQuery
 
@@ -60,16 +60,19 @@ async def get_ava(message: types.Message):
 @dp.inline_handler()
 async def inline_libera(inline_query: InlineQuery):
     db_user_check(inline_query.from_user.id, inline_query.from_user.username)
-    item_libera = ItemLibera(inline_query.from_user.id).item
-    item_fat = ItemFat(inline_query.from_user.id).item
-    item_mobi = ItemMobi(inline_query.from_user.id).item
-    item_puppy = ItemPuppy(inline_query.from_user.id).item
 
-    items = [item_fat, item_libera, item_mobi, item_puppy]
+    items = []
+    items.append(ItemLibera(inline_query.from_user.id).item)
+    items.append(ItemFat(inline_query.from_user.id).item)
+    items.append(ItemMobi(inline_query.from_user.id).item)
+    items.append(ItemPuppy(inline_query.from_user.id).item)
+
+    # items.append(ItemTest(inline_query.from_user.id).item)
+
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
 
 
-# @dp.message_handler(content_types=['animation'])
+# @dp.message_handler(content_types=['photo'])
 # async def get_sticker_id(message):
 #     reg = r'"file_id": "\S*"'
 #     res = re.findall(reg, str(message))

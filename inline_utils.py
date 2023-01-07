@@ -6,12 +6,11 @@ from datetime import datetime, timedelta
 import sqlalchemy
 from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
                            InlineQueryResultArticle, InlineQueryResultPhoto,
-                           InputTextMessageContent)
+                           InputTextMessageContent, InlineQueryResultCachedPhoto, InlineQueryResultCachedGif)
 
 import cfg
 from database import *
-from dicts import *
-from utils import db_chat_usernames_get
+import dicts
 
 
 class MessageButton(InlineKeyboardMarkup):
@@ -23,7 +22,7 @@ class MessageButton(InlineKeyboardMarkup):
 
 class TestUtils:
     def __init__(self):
-        self.now = datetime.today().replace(microsecond=0)
+        pass
 
     def db_usr_check(self, msg_usr_id, model: TestBaseModel):
         """
@@ -37,8 +36,11 @@ class TestUtils:
         Returns time from database by user_id in datetime format.
         """
         select_time = sqlalchemy.select(model.time).where(model.user_id==msg_usr_id)
-        res = Dbase.conn.execute(select_time).first()[0]
-        return datetime.strptime(res, '%Y-%m-%d %H:%M:%S')
+        res = Dbase.conn.execute(select_time).first()
+        if not res:
+            print(f'error get user time{msg_usr_id}')
+            return datetime.today().replace(microsecond=0)
+        return datetime.strptime(res[0], '%Y-%m-%d %H:%M:%S')
 
     def update_record(self, vals, model: TestBaseModel, msg_usr_id):
         """Updates database record by model.user_id==msg_usr_id"""
@@ -55,16 +57,23 @@ class TestUtils:
         *`new_value`: random value for new test result.
         """
         TestUtils.__init__(self)
-        db_user_time = self.get_db_usr_time(msg_usr_id, FatModel)
+        today = datetime.today().replace(microsecond=0)
 
         if not self.db_usr_check(msg_usr_id, model):
-            vals = {'value': str(new_value), 'time': str(self.now), 'user_id': msg_usr_id}
+            vals = {'value': str(new_value), 'time': str(today), 'user_id': msg_usr_id}
             new_record = sqlalchemy.insert(model).values(vals)
             Dbase.conn.execute(new_record)
+
+            q = sqlalchemy.select(Users.user_id)
+            all_users = Dbase.conn.execute(q).fetchall()
+            print(f'new_user {msg_usr_id}')
+            print(len(all_users))
+
             return new_value
 
-        elif (self.now - db_user_time).days > 0:
-            vals = {'value': new_value, 'time': self.now}
+        db_user_time = self.get_db_usr_time(msg_usr_id, model)
+        if (today - db_user_time).days > 0:
+            vals = {'value': new_value, 'time': today}
             self.update_record(vals, model, msg_usr_id)
             return new_value
 
@@ -110,7 +119,7 @@ class ImgTestBase(TestUtils):
         self.link = self.msg_test_result(msg_usr_id, db_model, new_value)
 
         good_row = random.choice(args[1])
-        time_row = self.msg_time(self.get_db_usr_time(msg_usr_id, FatModel))
+        time_row = self.msg_time(self.get_db_usr_time(msg_usr_id, db_model))
         self.msg = f'{good_row}\n{time_row}'
 
 
@@ -151,15 +160,15 @@ class PercentTestFat(PercentTestBase):
     def __init__(self, msg_usr_id):
         PercentTestBase.__init__(
             self, msg_usr_id, FatModel,
-            'Я жирный на', fat_less, fat_more
+            'Я жирный на', dicts.fat_less, dicts.fat_more
             )
 
 
 class PercentTestLibera(PercentTestBase):
     def __init__(self, msg_usr_id):
         PercentTestBase.__init__(
-            self, msg_usr_id, FatModel,
-            'Я либерал на', libera_less, libera_more
+            self, msg_usr_id, LiberaModel,
+            'Я либерал на', dicts.libera_less, dicts.libera_more
             )
 
 
@@ -167,14 +176,14 @@ class PercentTestMobi(PercentTestBase):
     def __init__(self, msg_usr_id):
         PercentTestBase.__init__(
             self, msg_usr_id, MobiModel,
-            'Шанс моей мобилизации', mobi_less, mobi_more
+            'Шанс моей мобилизации', dicts.mobi_less, dicts.mobi_more
             )
 
 
 class ImgTestPuppies(ImgTestBase):
     def __init__(self, msg_usr_id: int):
         ImgTestBase.__init__(self, msg_usr_id, PuppyModel,
-        puppies_url, puppies_caption)
+        dicts.puppies_url, dicts.puppies_caption)
 
 
 class ItemLibera(ItemBase):
@@ -187,6 +196,7 @@ class ItemFat(ItemBase):
     def __init__(self, msg_usr_id: int):
         test_res = PercentTestFat(msg_usr_id)
         ItemBase.__init__(self, cfg.fat_header, cfg.fat_descr, cfg.FAT_IMG, test_res.msg)
+
 
 class ItemMobi(ItemBase):
     def __init__(self, msg_usr_id: int):
@@ -201,8 +211,18 @@ class ItemPuppy(ImgItemBase):
 
 
 
-
-
+class ItemTest():
+    def __init__(self, msg_usr_id):
+        img_id = 'AgACAgIAAx0CYSXtmQACA4FjucZbUASUeaKzFwI1jixw5bEeIQACzsAxGwvOyUkYlYOUkOrG5QEAAwIAA20AAy0E'
+        header = 'test'
+        self.item = InlineQueryResultCachedPhoto(
+            id=hashlib.md5(header.encode()).hexdigest(),
+            photo_file_id=img_id,
+            title="Untitled",
+            description="Untitled",
+            caption='test caption',
+            reply_markup=MessageButton(),
+            )
 
 
 # class TestPairing(TestUtils):
