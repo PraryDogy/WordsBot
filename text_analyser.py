@@ -28,8 +28,10 @@ def nouns(text: str):
     Returns nouns list from input text.
     """
     doc = nlp(text)
-    return tuple(t.text for t in doc if t.pos_ == 'NOUN')
+    print(tuple(token.pos_ for token in doc))
+    return tuple(t.text for t in doc if t.pos_ in ('NOUN', 'PROPN'))
 
 
 words_list = ' '.join(words_convert(data))
-nns = nouns(words_list)
+nns = nouns('мочь')
+print(nns)
