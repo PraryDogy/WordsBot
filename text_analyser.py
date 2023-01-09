@@ -6,6 +6,10 @@ from pymorphy2 import MorphAnalyzer
 from dicts import stop_words
 
 
+nlp = spacy.load("ru_core_news_md")
+lemmatizer = MorphAnalyzer()
+
+
 def download_rus_model():
     'python -m spacy download ru_core_news_md'
 
@@ -35,12 +39,6 @@ def nouns(text: str):
     return tuple(t.text for t in doc if t.pos_ in ('NOUN', 'PROPN'))
 
 
-download_rus_model()
-nlp = spacy.load("ru_core_news_md")
-lemmatizer = MorphAnalyzer()
-
-
-
-words_list = ' '.join(words_convert(data))
-nns = nouns(words_list)
-print(nns)
+# words_list = ' '.join(words_convert(data))
+# nns = nouns(words_list)
+# print(nns)

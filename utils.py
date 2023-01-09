@@ -7,40 +7,14 @@ import sqlalchemy
 from database import Dbase, Users, Words
 from dicts import stop_words
 
-lemmatizer = pymorphy2.MorphAnalyzer()
-def lemmatize_text(tokens):
-    lem_words = []
-    for word in tokens:
-        lem_words.append(lemmatizer.parse(word)[0].normal_form)
-    return lem_words
 
-
-def words_convert(text: str):
-    """
-    Converts telegram message to words list
-    - removes puntkuation, whitespaces and newlines
-    - all words are lowercase
-    - removes stop words
-    - lemmatize words
-    """
-    remove_punktuation = text.translate(text.maketrans('', '', string.punctuation))
-    remove_newlines = remove_punktuation.replace('\n', ' ')
-    
-    words_list = remove_newlines.split(' ')
-    rem_whitespaces = tuple(i.replace(' ', '') for i in words_list)
-    lower_cases = tuple(i.lower() for i in rem_whitespaces)
-    link_rem = tuple(i for i in lower_cases if 'http' not in i)
-    lemm_words = lemmatize_text(link_rem)
-
-    return tuple(i for i in lemm_words if i not in stop_words)
-
-
-def db_words_record(msg_user_id, msg_chat_id, words_list: words_convert):
+def db_words_record(msg_user_id, msg_chat_id, words_list):
     """
     Gets all user's words with all chats ids  from database
     If word from input words list not in database words list - adds new row
     If word in database words list but has other chat id - adds new row
     If word in database words list and has the same chat id - updates word counter
+    * `words_list`: list of words
     """
     query = sqlalchemy.select(Words.word, Words.chat_id).where(Words.user_id==msg_user_id)
     db_user_words = list(Dbase.conn.execute(query).fetchall())
