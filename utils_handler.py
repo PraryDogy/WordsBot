@@ -5,7 +5,7 @@ import sqlalchemy
 from datetime import datetime
 from database import Dbase, Users, Words
 from utils import db_username_get, db_all_usernames_get, db_words_get, db_userid_get
-
+from text_analyser import nouns
 
 def get_user_words(msg_chat_id, msg_username, msg_args: str):
     """
@@ -24,8 +24,10 @@ def get_user_words(msg_chat_id, msg_username, msg_args: str):
 
     q = sqlalchemy.select(Words.word, Words.count).where(
         Words.user_id==usr_id, Words.chat_id==msg_chat_id).order_by(-Words.count)
-    db_words = Dbase.conn.execute(q).fetchall()[:10]
-    rowed = ''.join([f'{word}: {count}\n' for word, count in db_words])
+    db_words = Dbase.conn.execute(q).fetchall()
+    db_nouns = nouns(db_words)[:10]
+
+    rowed = ''.join([f'{word}: {count}\n' for word, count in db_nouns])
     
     if msg_username == username:
         return f'@{msg_username}, ваш топ 10 слов в чате\n\n' + rowed

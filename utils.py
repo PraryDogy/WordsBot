@@ -1,11 +1,9 @@
-import string
 from datetime import datetime
 
-import pymorphy2
 import sqlalchemy
 
 from database import Dbase, Users, Words
-from dicts import stop_words
+from text_analyser import nouns
 
 
 def db_words_record(msg_user_id, msg_chat_id, words_list):
@@ -120,4 +118,8 @@ def db_chat_usernames_get(msg_chat_id):
 def db_words_get(msg_chat_id):
     q = sqlalchemy.select(Words.word, Words.count).where(
         Words.chat_id==msg_chat_id).order_by(-Words.count)
-    return Dbase.conn.execute(q).fetchall()
+    db_words = Dbase.conn.execute(q).fetchall()[:500]
+    return nouns(db_words)[:500]
+
+
+# print(db_words_get(-1001297579871))

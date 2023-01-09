@@ -6,16 +6,18 @@ from aiogram.types import InlineQuery
 
 import cfg
 from bot_config import bot, dp
-from handler_utils import (chat_words, detect_candle, get_usr_t,
-                               top_boltunov, get_user_words)
-from inline_utils import *
-from utils import db_user_check, db_words_record, words_convert, db_time_record
+from utils_handler import (chat_words, detect_candle, get_user_words,
+                           get_usr_t, top_boltunov)
+from utils_inline import *
+from text_analyser import words_convert
+from utils import db_time_record, db_user_check, db_words_record
 
 
 @dp.message_handler(commands=['user_words'])
 async def send_my_words(message: types.Message):
     db_user_check(message.from_user.id, message.from_user.username)
     args = message.get_args()
+    await bot.send_message(chat_id=message.chat.id, text='Обрабатываю...')
     msg = get_user_words(message.chat.id, message.from_user.username, args)
     await bot.send_message(chat_id=message.chat.id, text=msg)
 
@@ -23,6 +25,7 @@ async def send_my_words(message: types.Message):
 @dp.message_handler(commands=['chat_words'])
 async def send_chat_words(message: types.Message):
     db_user_check(message.from_user.id, message.from_user.username)
+    await bot.send_message(chat_id=message.chat.id, text='Обрабатываю...')
     top = chat_words(message.chat.id, message.from_user.username)
     await bot.send_message(chat_id=message.chat.id, text=top)
 
@@ -85,6 +88,7 @@ async def inline_libera(inline_query: InlineQuery):
 async def echo(message: types.Message):
     if message.via_bot:
         return
+    # print(message.from_user.username)
     db_user_check(message.from_user.id, message.from_user.username)
     db_time_record(message.from_user.id)
     db_words_record(message.from_user.id, message.chat.id, words_convert(message.text))

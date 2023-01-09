@@ -31,12 +31,20 @@ def words_convert(text: str):
     return clean_words
 
 
-def nouns(text: str):
+def nouns(db_words: tuple):
     """
-    Returns nouns list from input text.
+    Returns tuple of tuples `noun`, `count`.
+    * `db_words`: tuple of tuples `word`, `count`
     """
-    doc = nlp(text)
-    return tuple(t.text for t in doc if t.pos_ in ('NOUN', 'PROPN'))
+    res = []
+    print('running')
+    for w, c in db_words:
+        doc = nlp(w)
+        for word in doc:
+            if word.pos_ in ('NOUN', 'PROPN'):
+                res.append((word.text, c))
+    return res
+
 
 
 # words_list = ' '.join(words_convert(data))
