@@ -1,10 +1,18 @@
-import spacy
 import string
+
+import spacy
 from pymorphy2 import MorphAnalyzer
+
 from dicts import stop_words
+
 
 nlp = spacy.load("ru_core_news_md")
 lemmatizer = MorphAnalyzer()
+
+
+def download_rus_model():
+    'python -m spacy download ru_core_news_md'
+
 
 with open('test_text.txt', 'r') as file:
     data = file.read()
@@ -28,10 +36,9 @@ def nouns(text: str):
     Returns nouns list from input text.
     """
     doc = nlp(text)
-    print(tuple(token.pos_ for token in doc))
     return tuple(t.text for t in doc if t.pos_ in ('NOUN', 'PROPN'))
 
 
-words_list = ' '.join(words_convert(data))
-nns = nouns('мочь')
-print(nns)
+# words_list = ' '.join(words_convert(data))
+# nns = nouns(words_list)
+# print(nns)
