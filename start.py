@@ -94,4 +94,6 @@ async def echo(message: types.Message):
     db_words_record(message.from_user.id, message.chat.id, words_convert(message.text))
 
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+    inp = input('Ты уверен что сменил токен бота? Напиши "да", если нет - жми ввод')
+    if 'да' in inp.lower():
+        executor.start_polling(dp, skip_updates=True)
