@@ -21,16 +21,6 @@ class MessageButton(InlineKeyboardMarkup):
 
 
 class TestUtils:
-    def __init__(self):
-        pass
-
-    def db_usr_check(self, msg_usr_id, model: TestBaseModel):
-        """
-        Returns `True` if record already in database else `False`
-        """
-        select_usr = sqlalchemy.select(model).where(model.user_id==msg_usr_id)
-        return bool(Dbase.conn.execute(select_usr).first())
-
     def get_db_usr_time(self, msg_usr_id: int, model: TestBaseModel):
         """
         Returns time from database by user_id in datetime format.
@@ -42,45 +32,57 @@ class TestUtils:
             return datetime.today().replace(microsecond=0)
         return datetime.strptime(res[0], '%Y-%m-%d %H:%M:%S')
 
-    def update_record(self, vals, model: TestBaseModel, msg_usr_id):
-        """Updates database record by model.user_id==msg_usr_id"""
-        update_record = sqlalchemy.update(model).where(model.user_id==msg_usr_id).values(vals)
-        Dbase.conn.execute(update_record)
-
-    def msg_test_result(self, msg_usr_id: int, model: TestBaseModel, new_value):
+    def new_user(self, msg_usr_id, model, new_value):
         """
-        Creates new record if not exists, updates record if previous record
-        was more than 24 hours ago.
-        Returns `value`: `str` of test result.
-        *`model`: InlineBasemodel.
-        *`msg_user_id`: user id from tg message.
-        *`new_value`: random value for new test result.
+        Returns True if user is new and new record was created. Else returns False.
+        * `msg_usr_id`: telegram message user id
+        * `model`: database model for any bot test (e.g: FatModel, PuppyModel)
+        * `new_value`: value for any bot test result (e.g: 0-100, img_url)
         """
-        TestUtils.__init__(self)
-        today = datetime.today().replace(microsecond=0)
+        select_usr = sqlalchemy.select(model).where(model.user_id==msg_usr_id)
+        if not bool(Dbase.conn.execute(select_usr).first()):
 
-        if not self.db_usr_check(msg_usr_id, model):
+            today = datetime.today().replace(microsecond=0)
             vals = {'value': str(new_value), 'time': str(today), 'user_id': msg_usr_id}
+
             new_record = sqlalchemy.insert(model).values(vals)
             Dbase.conn.execute(new_record)
 
-            q = sqlalchemy.select(Users.user_id)
-            all_users = Dbase.conn.execute(q).fetchall()
-            print(f'new_user {msg_usr_id}')
-            print(len(all_users))
+            return True
+        return False
 
-            return new_value
+    def update_user(self, msg_usr_id, model: TestBaseModel, new_value):
+        """
+        Returns True if exist user record was updated. Else returns False.
+        Compares `now` time and time when user record was updated `last time`.
+        If user record updated more than `one day ago` - updates record with
+        `new_value`.
 
+        * `msg_usr_id`: telegram message user id
+        * `model`: database model for any bot test (e.g: FatModel, PuppyModel)
+        * `new_value`: value for any bot test result (e.g: 0-100, img_url)
+        """
+        today = datetime.today().replace(microsecond=0)
         db_user_time = self.get_db_usr_time(msg_usr_id, model)
+
         if (today - db_user_time).days > 0:
             vals = {'value': new_value, 'time': today}
-            self.update_record(vals, model, msg_usr_id)
-            return new_value
+            
+            update_record = sqlalchemy.update(model).where(model.user_id==msg_usr_id).values(vals)
+            Dbase.conn.execute(update_record)
 
-        else:
-            select_percent = sqlalchemy.select(model.value).where(model.user_id==msg_usr_id)
-            old_value = Dbase.conn.execute(select_percent).first()[0]
-            return old_value
+            return True
+        return False
+
+    def get_old_value(self, msg_usr_id, model: TestBaseModel):
+        """
+        Get value for user from database. 
+        """
+        select_value = sqlalchemy.select(model.value).where(model.user_id==msg_usr_id)
+        old_value = Dbase.conn.execute(select_value).first()
+        if old_value:
+            return old_value[0]
+        return False
 
     def msg_time(self, input_time: datetime):
         """
@@ -94,120 +96,162 @@ class TestUtils:
         return f'Обновить можно {day} в {next_update_time.strftime("%H:%M")}'
 
 
-class PercentTestBase(TestUtils):
-    def __init__(self, msg_usr_id, db_model: TestBaseModel, *args):
+class PercentTestResult(TestUtils):
+    def __init__(self, msg_usr_id, model: TestBaseModel, *args):
         """
-        *`args`: phrase before value, phrases list less, prases list more
+        * `args`: phrase before value, phrases list less, phrases list more
+        * `msg`
         """
         TestUtils.__init__(self)
-        new_value = random.choice([i for i in range(100)])
-        msg_result = self.msg_test_result(msg_usr_id, db_model, new_value)
+        test_result = random.choice([i for i in range(100)])
 
-        percent_row = f'{args[0]} {msg_result}%'
-        good_row = random.choice(args[1] if int(msg_result) < 50 else args[2])
-        time_row = self.msg_time(self.get_db_usr_time(msg_usr_id, db_model))
+        if self.new_user(msg_usr_id, model, test_result):
+            print('new_user')
+
+        elif self.update_user(msg_usr_id, model, test_result):
+            print('update user record')
+
+        else:
+            test_result = self.get_old_value(msg_usr_id, model)
+
+        percent_row = f'{args[0]} {test_result}%'
+        good_row = random.choice(args[1] if int(test_result) < 50 else args[2])
+        time_row = self.msg_time(self.get_db_usr_time(msg_usr_id, model))
+
         self.msg = f'{percent_row}\n{good_row}\n{time_row}'
 
 
-class ImgTestBase(TestUtils):
-    def __init__(self, msg_usr_id, db_model: TestBaseModel, *args):
+class ImgTestResult(TestUtils):
+    def __init__(self, msg_usr_id, model: TestBaseModel, *args):
         """
-        *`args`: img links list, good_words below image
+        * `args`: img links list, good_words below image
+        * `img_url`, `msg`
         """
         TestUtils.__init__(self)
-        new_value = random.choice(args[0])
-        self.link = self.msg_test_result(msg_usr_id, db_model, new_value)
+        self.img_url = random.choice(args[0])
+
+        if self.new_user(msg_usr_id, model, self.img_url):
+            print('new_user')
+
+        elif self.update_user(msg_usr_id, model, self.img_url):
+            print('update user record')
+
+        else:
+            self.img_url = self.get_old_value(msg_usr_id, model)
 
         good_row = random.choice(args[1])
-        time_row = self.msg_time(self.get_db_usr_time(msg_usr_id, db_model))
+        time_row = self.msg_time(self.get_db_usr_time(msg_usr_id, model))
+
         self.msg = f'{good_row}\n{time_row}'
 
 
-class ItemBase:
-    def __init__(self, header: str, descr: str, img_path: str, test_result: str):
+class TxtInlineItemBase:
+    def __init__(self, header: str, descr: str, thumb_url: str, msg: str):
         """
-        *head: test name
-        *inline_query: query from aiogram message handler
-        *img_path: web url
+        * `header`: inline header
+        * `descr`: inline description
+        * `thumb_url`: inline thumbnail image url
+        * `msg`: message from test result
+        * `item`
         """
-        head_id: str = hashlib.md5(header.encode()).hexdigest()
-        msg = InputTextMessageContent(test_result)
-
         self.item = InlineQueryResultArticle(
-            id=head_id,
-            title=f'{header}',
+
+            id=hashlib.md5(header.encode()).hexdigest(),
+
+            title=header,
             description=descr,
-            input_message_content=msg,
-            thumb_url=img_path,
+            thumb_url=thumb_url,
+
+            input_message_content=InputTextMessageContent(msg),
             reply_markup=MessageButton()
             )
 
 
-class ImgItemBase:
+class ImgInlineItemBase:
     def __init__(self, header: str, descr, img_url, msg):
+        """
+        * `header`: inline header
+        * `descr`: inline description
+        * `img_url`: inline image url
+        * `msg`: message from test result
+        `item`
+        """
         self.item = InlineQueryResultPhoto(
+
             id=hashlib.md5(header.encode()).hexdigest(),
+
             photo_url=img_url,
             thumb_url=img_url,
+
             title=header,
             description=descr,
+
             caption=msg,
             reply_markup=MessageButton(),
             )
 
 
-class PercentTestFat(PercentTestBase):
+class PercentTestFat(PercentTestResult):
     def __init__(self, msg_usr_id):
-        PercentTestBase.__init__(
+        """`msg`"""
+        PercentTestResult.__init__(
             self, msg_usr_id, FatModel,
             'Я жирный на', dicts.fat_less, dicts.fat_more
             )
 
 
-class PercentTestLibera(PercentTestBase):
+class PercentTestLibera(PercentTestResult):
     def __init__(self, msg_usr_id):
-        PercentTestBase.__init__(
+        """`msg`"""
+        PercentTestResult.__init__(
             self, msg_usr_id, LiberaModel,
             'Я либерал на', dicts.libera_less, dicts.libera_more
             )
 
 
-class PercentTestMobi(PercentTestBase):
+class PercentTestMobi(PercentTestResult):
     def __init__(self, msg_usr_id):
-        PercentTestBase.__init__(
+        """`msg`"""
+        PercentTestResult.__init__(
             self, msg_usr_id, MobiModel,
             'Шанс моей мобилизации', dicts.mobi_less, dicts.mobi_more
             )
 
 
-class ImgTestPuppies(ImgTestBase):
+class ImgTestPuppies(ImgTestResult):
     def __init__(self, msg_usr_id: int):
-        ImgTestBase.__init__(self, msg_usr_id, PuppyModel,
+        """`msg`, `img_url`"""
+        ImgTestResult.__init__(self, msg_usr_id, PuppyModel,
         dicts.puppies_url, dicts.puppies_caption)
 
 
-class ItemLibera(ItemBase):
+class ItemLibera(TxtInlineItemBase):
     def __init__(self, msg_usr_id: int):
         test_res = PercentTestLibera(msg_usr_id)
-        ItemBase.__init__(self, cfg.libera_header, cfg.libera_descr, cfg.PUTIN_IMG, test_res.msg)
+        TxtInlineItemBase.__init__(
+            self, cfg.libera_header, cfg.libera_descr, cfg.PUTIN_IMG, test_res.msg)
 
 
-class ItemFat(ItemBase):
+class ItemFat(TxtInlineItemBase):
     def __init__(self, msg_usr_id: int):
         test_res = PercentTestFat(msg_usr_id)
-        ItemBase.__init__(self, cfg.fat_header, cfg.fat_descr, cfg.FAT_IMG, test_res.msg)
+        TxtInlineItemBase.__init__(
+            self, cfg.fat_header, cfg.fat_descr, cfg.FAT_IMG, test_res.msg)
 
 
-class ItemMobi(ItemBase):
+class ItemMobi(TxtInlineItemBase):
     def __init__(self, msg_usr_id: int):
         test_res = PercentTestMobi(msg_usr_id)
-        ItemBase.__init__(self, cfg.mobi_header, cfg.mobi_descr, cfg.MOBI_IMG, test_res.msg)
+        TxtInlineItemBase.__init__(
+            self, cfg.mobi_header, cfg.mobi_descr, cfg.MOBI_IMG, test_res.msg)
 
 
-class ItemPuppy(ImgItemBase):
+class ItemPuppy(ImgInlineItemBase):
     def __init__(self, msg_usr_id):
         test_res = ImgTestPuppies(msg_usr_id)
-        ImgItemBase.__init__(self, cfg.puppy_header, cfg.puppy_descr, test_res.link, test_res.msg)
+        ImgInlineItemBase.__init__(
+            self, cfg.puppy_header, cfg.puppy_descr, 
+            test_res.img_url, test_res.msg)
 
 
 
@@ -277,3 +321,5 @@ class ItemTest():
 #             thumb_url=img_path,
 #             reply_markup=MessageButton()
 #             )
+
+
