@@ -98,7 +98,7 @@ async def echo(message: types.Message):
 
 if __name__ == '__main__':
     inp = input('Ты уверен что сменил токен бота? Напиши "да", если нет - жми ввод')
-    if 'да' in inp.lower():
+    if 'да' in inp.lower() or 'lf' in inp.lower():
 
         # rem_emoji()
         # rem_digits()
