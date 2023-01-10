@@ -43,7 +43,8 @@ def words_regex(message: str):
         link = re.match(r'(https?:\/\/[^ ]*)/', w)
         if not link:
             word = re.match(r'(\w+)', w)
-            res.append(word.group(1))
+            if word:
+                res.append(word.group(1))
 
     lema = tuple(lemmatizer.parse(word)[0].normal_form for word in res)
     words = tuple(i for i in lema if i not in stop_words)
@@ -56,7 +57,6 @@ def get_nouns(db_words: tuple):
     * `db_words`: tuple of tuples `word`, `count`
     """
     res = []
-    print('running')
     for w, c in db_words:
         doc = nlp(w)
         for word in doc:
@@ -69,8 +69,8 @@ def get_nouns(db_words: tuple):
 # with open('test_text.txt', 'r') as file:
 #     data = file.read()
 # data = 'Я взял это ссылку где-нибудь у Илима https://stackoverflow.com/questions/47637005/handmade-estimator-modifies-parameters-in-init/47637293?noredirect=1#comment82268544_47637293 freed'
+# data = 'ебать ты лох😁😁😁'
 
-# classic = words_classic(data)
+# # classic = words_classic(data)
 # regg = words_regex(data)
-
 # print(regg)
