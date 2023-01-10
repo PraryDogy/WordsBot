@@ -171,10 +171,3 @@ def rem_stopwords():
             for res_id in tuple(i[0] for i in res):
                 q = sqlalchemy.delete(Words).where(Words.id==res_id)
                 Dbase.conn.execute(q)
-
-
-rem_emoji()
-rem_digits()
-rem_short()
-rem_stopwords()
-Dbase.base.metadata.create_all(Dbase.conn)

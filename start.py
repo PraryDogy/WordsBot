@@ -1,17 +1,19 @@
 import re
 
 import clipboard
-from aiogram import executor, types
+from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import InlineQuery
 
 import cfg
-from bot_config import bot, dp
+from bot_config import TOKEN
+from text_analyser import words_regex
+from utils import db_time_record, db_user_check, db_words_record
 from utils_handler import (chat_words, detect_candle, get_user_words,
                            get_usr_t, top_boltunov)
 from utils_inline import *
-from text_analyser import words_regex
-from utils import db_time_record, db_user_check, db_words_record
 
+bot = Bot(token=TOKEN)
+dp = Dispatcher(bot)
 
 @dp.message_handler(commands=['user_words'])
 async def send_my_words(message: types.Message):
@@ -97,4 +99,11 @@ async def echo(message: types.Message):
 if __name__ == '__main__':
     inp = input('Ты уверен что сменил токен бота? Напиши "да", если нет - жми ввод')
     if 'да' in inp.lower():
+
+        rem_emoji()
+        rem_digits()
+        rem_short()
+        rem_stopwords()
+        Dbase.base.metadata.create_all(Dbase.conn)
+
         executor.start_polling(dp, skip_updates=True)
