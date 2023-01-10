@@ -125,7 +125,8 @@ def top_boltunov(msg_chat_id, msg_username):
 
 def word_stat(msg_chat_id, args: str):
     if not args:
-        return 'Пример команды /word_stat слово'
+        return 'Пример команды /word_stat слово.\
+                \nСлово должно быть в именительном падеже и в единственном числе.'
     
     word_people, word_count = db_word_stat_get(msg_chat_id, args.lower())
 
