@@ -6,10 +6,9 @@ from aiogram.types import InlineQuery
 
 import cfg
 from bot_config import TOKEN
+from database_queries import *
 from text_analyser import words_regex
-from database_queries import db_time_record, db_user_check, db_words_record
-from utils_handler import (chat_words_top, detect_candle, user_words_top,
-                           get_usr_t, top_boltunov)
+from utils_handler import *
 from utils_inline import *
 
 bot = Bot(token=TOKEN)
@@ -37,6 +36,14 @@ async def top_slovobludov(message: types.Message):
     db_user_check(message.from_user.id, message.from_user.username)
     msg = top_boltunov(message.chat.id, message.from_user.username)
     await bot.send_message(chat_id=message.chat.id, text=msg)
+
+
+@dp.message_handler(commands=['word_stat'])
+async def get_word_stat(message: types.Message):
+    db_user_check(message.from_user.id, message.from_user.username)
+    args = message.get_args()
+    print(message.chat.id)
+    await bot.send_message(message.chat.id, text=word_stat(message.chat.id, args))
 
 
 @dp.message_handler(commands=['last_time'])

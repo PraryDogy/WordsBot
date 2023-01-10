@@ -118,3 +118,17 @@ def db_user_words_get(usr_id, msg_chat_id, words_limit=None):
         .order_by(-Words.count)\
         .limit(words_limit)
     return Dbase.conn.execute(q).all()
+
+
+def db_word_stat_get(msg_chat_id, args):
+    """
+    Returns `tuple` (how many people saif word, how many times people said word)
+    or None if word not found
+    """
+    q = sqlalchemy.select(
+        Dbase.sq_count(Words.word),\
+        Dbase.sq_sum(Words.count))\
+        .filter(Words.chat_id==msg_chat_id, Words.word==args)
+    return Dbase.conn.execute(q).first()
+
+

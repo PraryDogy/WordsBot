@@ -7,7 +7,7 @@ import sqlalchemy
 import cfg
 from database import Dbase, Words
 from database_queries import (db_all_usernames_get, db_chat_words_get,
-                              db_user_get, db_user_time_get, db_user_words_get)
+                              db_user_get, db_user_time_get, db_user_words_get, db_word_stat_get)
 from text_analyser import get_nouns
 
 
@@ -56,7 +56,7 @@ def get_usr_t(msg_usr_name, msg_args: str):
     if msg_args:
         msg_args = msg_args.replace('@', '')
     else:
-        return 'Пример команды: "/last_time @имя_пользователя"'
+        return 'Пример команды: /last_time @имя_пользователя'
 
     username = db_user_get(msg_args)
     if not username:
@@ -121,3 +121,20 @@ def top_boltunov(msg_chat_id, msg_username):
         'Топ 10 по уникальным словам:\n\n'
         f'{res[1]}\n'
         )
+
+
+def word_stat(msg_chat_id, args: str):
+    if not args:
+        return 'Пример команды /word_stat слово'
+    
+    word_people, word_count = db_word_stat_get(msg_chat_id, args.lower())
+
+    if not word_people or not word_count:
+        return 'Нет данных о таком слове.'
+
+    first =  f'Статистика слова "{args}"'
+    second = f'Было сказано: {word_count} раз'
+    third = f'{word_people} человек сказали это слово'
+
+    return f'{first}\n\n{second}\n{third}'
+
