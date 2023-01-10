@@ -7,8 +7,8 @@ from aiogram.types import InlineQuery
 import cfg
 from bot_config import TOKEN
 from text_analyser import words_regex
-from utils import db_time_record, db_user_check, db_words_record
-from utils_handler import (chat_words, detect_candle, get_user_words,
+from database_queries import db_time_record, db_user_check, db_words_record
+from utils_handler import (chat_words_top, detect_candle, user_words_top,
                            get_usr_t, top_boltunov)
 from utils_inline import *
 
@@ -20,7 +20,7 @@ async def send_my_words(message: types.Message):
     db_user_check(message.from_user.id, message.from_user.username)
     args = message.get_args()
     await bot.send_message(chat_id=message.chat.id, text='Обрабатываю...')
-    msg = get_user_words(message.chat.id, message.from_user.username, args)
+    msg = user_words_top(message.chat.id, message.from_user.username, args)
     await bot.send_message(chat_id=message.chat.id, text=msg)
 
 
@@ -28,7 +28,7 @@ async def send_my_words(message: types.Message):
 async def send_chat_words(message: types.Message):
     db_user_check(message.from_user.id, message.from_user.username)
     await bot.send_message(chat_id=message.chat.id, text='Обрабатываю...')
-    top = chat_words(message.chat.id, message.from_user.username)
+    top = chat_words_top(message.chat.id, message.from_user.username)
     await bot.send_message(chat_id=message.chat.id, text=top)
 
 
@@ -100,10 +100,10 @@ if __name__ == '__main__':
     inp = input('Ты уверен что сменил токен бота? Напиши "да", если нет - жми ввод')
     if 'да' in inp.lower():
 
-        rem_emoji()
-        rem_digits()
-        rem_short()
-        rem_stopwords()
+        # rem_emoji()
+        # rem_digits()
+        # rem_short()
+        # rem_stopwords()
         Dbase.base.metadata.create_all(Dbase.conn)
 
         executor.start_polling(dp, skip_updates=True)

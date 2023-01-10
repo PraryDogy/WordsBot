@@ -1,8 +1,8 @@
 import sqlite3
+
 import sqlalchemy
 import sqlalchemy.ext.declarative
 from sqlalchemy import Column, ForeignKey, Integer, Text
-from sqlalchemy.sql.expression import func
 
 import cfg
 
@@ -171,3 +171,25 @@ def rem_stopwords():
             for res_id in tuple(i[0] for i in res):
                 q = sqlalchemy.delete(Words).where(Words.id==res_id)
                 Dbase.conn.execute(q)
+
+def right_joins():
+    q = sqlalchemy.select(Words.word, Words.count).join(
+        Users, Users.user_id==Words.user_id).where(
+        Users.user_name=='Evlosh').order_by(-Words.count)
+    return Dbase.conn.execute(q).all()
+
+
+evlosh = 248208655
+evlosh_name = 'evlrosh'
+
+peugeot = 5717544572
+peugeot_name = 'PeugeotKiller'
+
+heli = -1001297579871
+
+
+# q = sqlalchemy.select(sqlalchemy.sql.expression.func.sum(Words.word))\
+#     .where(Words.user_id==evlosh, Words.chat_id==heli)
+# count = Dbase.conn.execute(q).first()
+
+# print(count)

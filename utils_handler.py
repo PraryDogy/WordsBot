@@ -1,80 +1,73 @@
-import cfg
+from datetime import datetime
+
 import cv2
 import numpy as np
 import sqlalchemy
-from datetime import datetime
-from database import Dbase, Users, Words
-from utils import db_username_get, db_all_usernames_get, db_chat_words_get, db_userid_get
+
+import cfg
+from database import Dbase, Words
+from database_queries import (db_all_usernames_get, db_chat_words_get,
+                              db_user_get, db_user_time_get, db_user_words_get)
 from text_analyser import get_nouns
 
 
-
-def get_user_words(msg_chat_id, msg_username, msg_args: str):
+def user_words_top(msg_chat_id, msg_username, msg_args: str):
     """
     Returns text with top 10 words of user in current chat.
     """
     if msg_args:
-        msg_args = msg_args.replace('@', '')
-        username = db_username_get(msg_args)
+        user = db_user_get(msg_args.replace('@', ''))
     else:
-        username = db_username_get(msg_username)
+        user = db_user_get(msg_username)
 
-    if username:
-        usr_id = db_userid_get(username)
-    else:
+    if not user:
         return 'Нет данных о пользователе'
 
-    q = sqlalchemy.select(Words.word, Words.count).where(
-        Words.user_id==usr_id, Words.chat_id==msg_chat_id).order_by(-Words.count)
-    db_words = Dbase.conn.execute(q).fetchall()
+    db_words = db_user_words_get(user[0], msg_chat_id, 500)
     db_nouns = get_nouns(db_words)[:10]
-
     rowed = ''.join([f'{word}: {count}\n' for word, count in db_nouns])
     
-    if msg_username == username:
+    if not msg_args:
         return f'@{msg_username}, ваш топ 10 слов в чате\n\n' + rowed
     else:
-        return f'@{msg_username}, топ 10 слов в чате пользователя {username}\n\n' + rowed
+        return f'@{msg_username}, топ 10 слов в чате пользователя {user[1]}\n\n' + rowed
 
 
-def chat_words(msg_chat_id, msg_username):
+def chat_words_top(msg_chat_id, msg_username):
     """
     Telegram `/chat_words`. 
     Returns text with top 10 words in current chat.
     """
     db_words = db_chat_words_get(msg_chat_id)
-    unic_words = set(i[0] for i in db_words)
-    result = []
+    nouns = get_nouns(db_words)
 
-    for u_word in unic_words:
-        u_count = 0
-        for db_word, db_count in db_words:
-            u_count += db_count if u_word == db_word else False
-        result.append((u_word, u_count))
+    res = []
+    for u_word in set(i[0] for i in nouns):
+        macth_list = tuple((word, id) for word, id in db_words if u_word == word)
+        res.append((u_word, sum([i[1] for i in macth_list])))
+        res.sort()
+    res = sorted(res, key = lambda x: x[1], reverse=1)[:10]
 
-    result = tuple(reversed(sorted(result, key=lambda x: x[1])))[:10]
-    rowed = ''.join([f'{word}: {count}\n' for word, count in result])
+    rowed = ''.join([f'{word}: {count}\n' for word, count in res])
     return f'@{msg_username}, топ 10 слов всех участников в чате\n\n' + rowed
 
 
 def get_usr_t(msg_usr_name, msg_args: str):
     if msg_args:
-        print(msg_args)
         msg_args = msg_args.replace('@', '')
     else:
         return 'Пример команды: "/last_time @имя_пользователя"'
 
-    username = db_username_get(msg_args)
+    username = db_user_get(msg_args)
     if not username:
         return 'Нет данных о таком пользователе'
 
-    select_time = sqlalchemy.select(Users.last_time).where(Users.user_name==username)
-    db_time = Dbase.conn.execute(select_time).first()[0]
+    db_time = db_user_time_get(username)
     
-    if db_time is None:
+    if not db_time:
         return 'Нет данных о последнем сообщении'
 
-    msg_time = datetime.strptime(db_time, '%Y-%m-%d %H:%M:%S')
+    msg_time = datetime.strptime(db_time[0], '%Y-%m-%d %H:%M:%S')
     msg_time = msg_time.strftime('%H:%M %d.%m.%Y')
 
     msg = f'@{msg_usr_name}, пользователь {username} последний раз писал {msg_time}'
@@ -106,16 +99,31 @@ def top_boltunov(msg_chat_id, msg_username):
     user_words = []
     unique = []
 
-    for db_id, db_user_name in db_all_usernames_get():
+    for db_user_id, db_user_name in db_all_usernames_get():
 
-        q = sqlalchemy.select(Words.count).where(Words.chat_id==msg_chat_id, Words.user_id==db_id)
-        words_count = sum(i[0] for i in Dbase.conn.execute(q).fetchall())
-        user_words.append((db_user_name, words_count)) if words_count != 0 else False
+        q = sqlalchemy.select(sqlalchemy.sql.expression.func.sum(Words.count))\
+            .where(Words.user_id==db_user_id, Words.chat_id==msg_chat_id)
+        count = Dbase.conn.execute(q).first()[0]
+        user_words.append((db_user_name, count)) if count else False
 
-        q = sqlalchemy.select(Words.word).where(Words.chat_id==msg_chat_id, Words.user_id==db_id)
+
+
+
+
+
+
+
+        # q = sqlalchemy.select(sqlalchemy.sql.expression.func.sum(Words.count))\
+        #     .where(Words.user_id==db_user_id, Words.chat_id==msg_chat_id)
+        # count = Dbase.conn.execute(q).first()[0]
+
+
+        q = sqlalchemy.select(Words.word)\
+            .where(Words.chat_id==msg_chat_id, Words.user_id==db_user_id)
         words_count = set(i[0] for i in Dbase.conn.execute(q).fetchall())
         words_count = len(words_count)
         unique.append((db_user_name, words_count)) if words_count != 0 else False
+
 
     res = []
     for lst in (user_words, unique):
@@ -131,16 +139,3 @@ def top_boltunov(msg_chat_id, msg_username):
         'Топ 10 по уникальным словам:\n\n'
         f'{res[1]}\n'
         )
-
-
-# unused
-# def nltk_download(module: str):
-#     import ssl
-#     import nltk
-#     try:
-#         _create_unverified_https_context = ssl._create_unverified_context
-#     except AttributeError:
-#         pass
-#     else:
-#         ssl._create_default_https_context = _create_unverified_https_context
-#     nltk.download(module)

@@ -43,10 +43,8 @@ def db_words_record(msg_user_id, msg_chat_id, words_list):
     new_words = []
 
     for word in words_list:
-        if (
-            (word, msg_chat_id) not in db_user_words
-            and
-            (word, msg_chat_id) not in new_words):
+        if (word, msg_chat_id) not in db_user_words and \
+            (word, msg_chat_id) not in new_words:
 
             new_words.append((word, msg_chat_id))
 
@@ -74,31 +72,13 @@ def db_time_record(msg_usr_id):
     Dbase.conn.execute(q)
 
 
-def db_username_get(wished_usr_name: str):
+def db_user_get(username: str):
     """
-    Returns username of False.
+    Returns `user_id`, `username` or None
     """
-    q = sqlalchemy.select(Users.user_name)
-    all_usernames = tuple(i[0] for i in Dbase.conn.execute(q).fetchall())
-    all_usernames = tuple(i for i in all_usernames if i is not None)
-
-    true_name = False
-    for i in all_usernames:
-        if i.lower() == wished_usr_name.lower():
-            true_name = i
-
-    if not true_name:
-        return False
-
-    return true_name
-
-
-def db_userid_get(msg_username):
-    """
-    Returns user_id by username
-    """
-    q = sqlalchemy.select(Users.user_id).where(Users.user_name==msg_username)
-    return Dbase.conn.execute(q).first()[0]
+    q = sqlalchemy.select(Users.user_id, Users.user_name)\
+        .filter(sqlalchemy.func.lower(Users.user_name)==username.lower())
+    return Dbase.conn.execute(q).first()
 
 
 def db_all_usernames_get():
@@ -106,34 +86,36 @@ def db_all_usernames_get():
     Returns tuple (user_id, user_name) for all users.
     """
     q = sqlalchemy.select(Users.user_id, Users.user_name)
+    return Dbase.conn.execute(q).all()
+
+
+def db_chat_words_get(msg_chat_id, words_limit=None):
+    """
+    Returns tuple tuples (`word`, `count`) for chat.
+    * `words_limit`: optional, `int`.
+    """
+    q = sqlalchemy.select(Words.word, Words.count)\
+        .where(Words.chat_id==msg_chat_id)\
+        .order_by(-Words.count)\
+        .limit(words_limit)
     return Dbase.conn.execute(q).fetchall()
 
 
-def db_chat_usernames_get(msg_chat_id):
+def db_user_time_get(username):
     """
-    Returns tuple user_name for all users of chat.
+    Returns db datetime `str` or `None`
     """
-    q = sqlalchemy.select(Words.user_id).where(Words.chat_id==msg_chat_id)
-    ids = Dbase.conn.execute(q).fetchall()
-    ids = set(tuple(i[0] for i in ids))
-
-    usernames = []
-    for i in ids:
-        q = sqlalchemy.select(Users.user_name).where(Users.user_id==i)
-        usernames.append(Dbase.conn.execute(q).first()[0])
-    
-    return usernames
+    q = sqlalchemy.select(Users.last_time).where(Users.user_name==username)
+    return Dbase.conn.execute(q).first()
 
 
-def db_chat_words_get(msg_chat_id):
+def db_user_words_get(usr_id, msg_chat_id, words_limit=None):
     """
-    Returns tuple (noun, count) for chat.
-    Max tuple lenght = 500
+    Returns tuple tuples (`word`, `count`) for current user and chat, ordered by count.
+    * `words_limit`: optional, `int`.
     """
-    q = sqlalchemy.select(Words.word, Words.count).where(
-        Words.chat_id==msg_chat_id).order_by(-Words.count)
-    db_words = Dbase.conn.execute(q).fetchall()[:500]
-    return get_nouns(db_words)[:500]
-
-
-# print(db_words_get(-1001297579871))
+    q = sqlalchemy.select(Words.word, Words.count)\
+        .where(Words.user_id==usr_id, Words.chat_id==msg_chat_id)\
+        .order_by(-Words.count)\
+        .limit(words_limit)
+    return Dbase.conn.execute(q).all()
