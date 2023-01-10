@@ -131,7 +131,8 @@ def word_stat(msg_chat_id, args: str):
     word_people, word_count = db_word_stat_get(msg_chat_id, args.lower())
 
     if not word_people or not word_count:
-        return 'Нет данных о таком слове.'
+        return 'Нет данных о таком слове.\
+                \nСлово должно быть написано в именительном падеже и в единственном числе.'
 
     first =  f'Статистика слова "{args}"'
     second = f'Было сказано: {word_count} раз'
