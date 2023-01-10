@@ -171,5 +171,3 @@ def rem_stopwords():
             for res_id in tuple(i[0] for i in res):
                 q = sqlalchemy.delete(Words).where(Words.id==res_id)
                 Dbase.conn.execute(q)
-
-# 
