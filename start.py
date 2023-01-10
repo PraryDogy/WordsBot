@@ -42,7 +42,6 @@ async def top_slovobludov(message: types.Message):
 async def get_word_stat(message: types.Message):
     db_user_check(message.from_user.id, message.from_user.username)
     args = message.get_args()
-    print(message.chat.id)
     await bot.send_message(message.chat.id, text=word_stat(message.chat.id, args))
 
 
