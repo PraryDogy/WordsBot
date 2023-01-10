@@ -69,7 +69,7 @@ def get_nouns(db_words: tuple):
 # with open('test_text.txt', 'r') as file:
 #     data = file.read()
 # data = 'Я взял это ссылку где-нибудь у Илима https://stackoverflow.com/questions/47637005/handmade-estimator-modifies-parameters-in-init/47637293?noredirect=1#comment82268544_47637293 freed'
-# data = 'ебать ты лох😁😁😁'
+# data = 'Уже был спарринг? 😱'
 
 # # classic = words_classic(data)
 # regg = words_regex(data)
