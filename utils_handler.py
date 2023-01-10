@@ -4,8 +4,10 @@ import numpy as np
 import sqlalchemy
 from datetime import datetime
 from database import Dbase, Users, Words
-from utils import db_username_get, db_all_usernames_get, db_words_get, db_userid_get
-from text_analyser import nouns
+from utils import db_username_get, db_all_usernames_get, db_chat_words_get, db_userid_get
+from text_analyser import get_nouns
+
+
 
 def get_user_words(msg_chat_id, msg_username, msg_args: str):
     """
@@ -25,7 +27,7 @@ def get_user_words(msg_chat_id, msg_username, msg_args: str):
     q = sqlalchemy.select(Words.word, Words.count).where(
         Words.user_id==usr_id, Words.chat_id==msg_chat_id).order_by(-Words.count)
     db_words = Dbase.conn.execute(q).fetchall()
-    db_nouns = nouns(db_words)[:10]
+    db_nouns = get_nouns(db_words)[:10]
 
     rowed = ''.join([f'{word}: {count}\n' for word, count in db_nouns])
     
@@ -40,7 +42,7 @@ def chat_words(msg_chat_id, msg_username):
     Telegram `/chat_words`. 
     Returns text with top 10 words in current chat.
     """
-    db_words = db_words_get(msg_chat_id)
+    db_words = db_chat_words_get(msg_chat_id)
     unic_words = set(i[0] for i in db_words)
     result = []
 

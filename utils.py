@@ -3,7 +3,31 @@ from datetime import datetime
 import sqlalchemy
 
 from database import Dbase, Users, Words
-from text_analyser import nouns
+from text_analyser import get_nouns
+
+
+def db_user_check(msg_user_id: int, msg_username: str):
+    """
+    Checks database `Users` table for user by `user_id` from message.
+    Creates new record if user not exists.
+    Updates username of exists user if it was changed.
+    """
+    get_user = sqlalchemy.select(
+        Users.user_id, Users.user_name).filter(Users.user_id == msg_user_id)
+    db_user = Dbase.conn.execute(get_user).first()
+    
+    if db_user is not None:
+        db_id, db_name = db_user
+        if msg_username != db_name:
+            vals = {'user_name': msg_username}
+            update_user = sqlalchemy.update(Users).where(Users.user_id==msg_user_id).values(vals)
+            Dbase.conn.execute(update_user)
+
+    if db_user is None:
+        vals = {'user_id': msg_user_id, 'user_name': msg_username}
+        new_user = sqlalchemy.insert(Users).values(vals)
+        Dbase.conn.execute(new_user)
+
 
 
 def db_words_record(msg_user_id, msg_chat_id, words_list):
@@ -41,30 +65,10 @@ def db_words_record(msg_user_id, msg_chat_id, words_list):
             Dbase.conn.execute(q)
 
 
-def db_user_check(msg_user_id: int, msg_username: str):
-    """
-    Checks database `Users` table for user by `user_id` from message.
-    Creates new record if user not exists.
-    Updates username of exists user if it was changed.
-    """
-    get_user = sqlalchemy.select(
-        Users.user_id, Users.user_name).filter(Users.user_id == msg_user_id)
-    db_user = Dbase.conn.execute(get_user).first()
-    
-    if db_user is not None:
-        db_id, db_name = db_user
-        if msg_username != db_name:
-            vals = {'user_name': msg_username}
-            update_user = sqlalchemy.update(Users).where(Users.user_id==msg_user_id).values(vals)
-            Dbase.conn.execute(update_user)
-
-    if db_user is None:
-        vals = {'user_id': msg_user_id, 'user_name': msg_username}
-        new_user = sqlalchemy.insert(Users).values(vals)
-        Dbase.conn.execute(new_user)
-
-
 def db_time_record(msg_usr_id):
+    """
+    Record when user send message last time.
+    """
     vals = {'last_time': datetime.today().replace(microsecond=0)}
     q = sqlalchemy.update(Users).where(Users.user_id==msg_usr_id).values(vals)
     Dbase.conn.execute(q)
@@ -89,20 +93,26 @@ def db_username_get(wished_usr_name: str):
     return true_name
 
 
-def db_userid_get(input_username):
+def db_userid_get(msg_username):
     """
     Returns user_id by username
     """
-    q = sqlalchemy.select(Users.user_id).where(Users.user_name==input_username)
+    q = sqlalchemy.select(Users.user_id).where(Users.user_name==msg_username)
     return Dbase.conn.execute(q).first()[0]
 
 
 def db_all_usernames_get():
+    """
+    Returns tuple (user_id, user_name) for all users.
+    """
     q = sqlalchemy.select(Users.user_id, Users.user_name)
     return Dbase.conn.execute(q).fetchall()
 
 
 def db_chat_usernames_get(msg_chat_id):
+    """
+    Returns tuple user_name for all users of chat.
+    """
     q = sqlalchemy.select(Words.user_id).where(Words.chat_id==msg_chat_id)
     ids = Dbase.conn.execute(q).fetchall()
     ids = set(tuple(i[0] for i in ids))
@@ -115,11 +125,15 @@ def db_chat_usernames_get(msg_chat_id):
     return usernames
 
 
-def db_words_get(msg_chat_id):
+def db_chat_words_get(msg_chat_id):
+    """
+    Returns tuple (noun, count) for chat.
+    Max tuple lenght = 500
+    """
     q = sqlalchemy.select(Words.word, Words.count).where(
         Words.chat_id==msg_chat_id).order_by(-Words.count)
     db_words = Dbase.conn.execute(q).fetchall()[:500]
-    return nouns(db_words)[:500]
+    return get_nouns(db_words)[:500]
 
 
 # print(db_words_get(-1001297579871))

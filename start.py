@@ -9,7 +9,7 @@ from bot_config import bot, dp
 from utils_handler import (chat_words, detect_candle, get_user_words,
                            get_usr_t, top_boltunov)
 from utils_inline import *
-from text_analyser import words_convert
+from text_analyser import words_regex
 from utils import db_time_record, db_user_check, db_words_record
 
 
@@ -88,10 +88,11 @@ async def inline_libera(inline_query: InlineQuery):
 async def echo(message: types.Message):
     if message.via_bot:
         return
-    # print(message.from_user.username)
+
     db_user_check(message.from_user.id, message.from_user.username)
     db_time_record(message.from_user.id)
-    db_words_record(message.from_user.id, message.chat.id, words_convert(message.text))
+    db_words_record(message.from_user.id, message.chat.id, words_regex(message.text))
+
 
 if __name__ == '__main__':
     inp = input('Ты уверен что сменил токен бота? Напиши "да", если нет - жми ввод')
