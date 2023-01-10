@@ -187,4 +187,3 @@ peugeot = 5717544572
 peugeot_name = 'PeugeotKiller'
 
 heli = -1001297579871
-bots_chat = -1001629875609
