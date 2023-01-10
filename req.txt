@@ -1,0 +1,9 @@
+aiogram==2.23.1
+numpy==1.21.6
+opencv-python==3.4.16.59
+Pillow==9.3.0
+SQLAlchemy==1.4.45
+pymorphy2==0.9.1
+clipboard==0.0.4
+pydantic==1.10.2
+spacy
