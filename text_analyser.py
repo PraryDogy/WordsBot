@@ -12,7 +12,7 @@ import re
 
 nlp = spacy.load("ru_core_news_md")
 lemmatizer = MorphAnalyzer()
-
+# 
 
 def words_classic(text: str):
     """

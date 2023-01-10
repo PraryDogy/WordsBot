@@ -107,3 +107,4 @@ if __name__ == '__main__':
         Dbase.base.metadata.create_all(Dbase.conn)
 
         executor.start_polling(dp, skip_updates=True)
+        # 
