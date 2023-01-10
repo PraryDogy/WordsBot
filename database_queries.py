@@ -3,7 +3,6 @@ from datetime import datetime
 import sqlalchemy
 
 from database import Dbase, Users, Words
-from text_analyser import get_nouns
 
 
 def db_user_check(msg_user_id: int, msg_username: str):
@@ -77,7 +76,7 @@ def db_user_get(username: str):
     Returns `user_id`, `username` or None
     """
     q = sqlalchemy.select(Users.user_id, Users.user_name)\
-        .filter(sqlalchemy.func.lower(Users.user_name)==username.lower())
+        .filter(Dbase.sq_lower(Users.user_name)==username.lower())
     return Dbase.conn.execute(q).first()
 
 

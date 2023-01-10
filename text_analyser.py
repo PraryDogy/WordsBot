@@ -10,6 +10,7 @@ import re
 
 'python -m spacy download ru_core_news_md'
 
+print('load spacy model')
 nlp = spacy.load("ru_core_news_md")
 lemmatizer = MorphAnalyzer()
 

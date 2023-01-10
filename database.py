@@ -1,5 +1,3 @@
-import sqlite3
-
 import sqlalchemy
 import sqlalchemy.ext.declarative
 from sqlalchemy import Column, ForeignKey, Integer, Text
@@ -21,6 +19,9 @@ class Dbase():
         )
     conn = __engine.connect()
     base = sqlalchemy.ext.declarative.declarative_base()
+    sq_sum = sqlalchemy.sql.expression.func.sum
+    sq_count = sqlalchemy.sql.expression.func.count
+    sq_lower = sqlalchemy.func.lower
 
 
 class Users(Dbase.base):
@@ -186,10 +187,3 @@ peugeot = 5717544572
 peugeot_name = 'PeugeotKiller'
 
 heli = -1001297579871
-
-
-# q = sqlalchemy.select(sqlalchemy.sql.expression.func.sum(Words.word))\
-#     .where(Words.user_id==evlosh, Words.chat_id==heli)
-# count = Dbase.conn.execute(q).first()
-
-# print(count)
