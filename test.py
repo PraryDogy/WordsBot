@@ -1,8 +1,7 @@
-sss = set(('a', 'b', 'c'))
-bbb = set()
+lst = {'1':5, '666':5, '777':6, '6':5}
+a = list(lst.keys())
 
 
-ccc = ', '.join(bbb)
+b = a[1:-1]
 
-if not ccc:
-    print('123')
+print(b)

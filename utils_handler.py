@@ -127,32 +127,42 @@ def word_stat(msg_chat_id, args: str):
         return 'Пример команды /word_stat слово.'
 
     normalized_word = normalize_word(args).lower()
-    word_analyse = db_word_stat_like_get(msg_chat_id, normalized_word)
+    
+    word_analyse_normalized = db_word_stat_like_get(msg_chat_id, normalized_word)
+    word_analyse_args = db_word_stat_like_get(msg_chat_id, args.lower())
 
-    if not word_analyse[normalized_word][0] or\
-        not word_analyse[normalized_word][1]:
-        
-        return f'Нет данных о {args}.'
+    if len(word_analyse_normalized) > len(word_analyse_args):
+        word_analyse = word_analyse_normalized
+    else:
+        word_analyse = word_analyse_args
+        normalized_word = args
 
-    first =  f'Статистика слова "{args}"'
-    second = f'{word_analyse[normalized_word][0]} человек сказали это слово'
-    third = f'Было сказано: {word_analyse[normalized_word][1]} раз'
+    lines = []
 
-    similar_words = ", ".join(list(word_analyse.keys())[1:])
-
-    if similar_words:
-        fourth = f'Похожие слова: {similar_words}'
-
-        all_words_people = sum(v[0] for _, v in word_analyse.items())
-        all_words_count = sum(v[1] for _, v in word_analyse.items())
-
-        fifth = f'Итого: {all_words_people} человек сказали это слово'
-        sixth = f'Итого было сказано: {all_words_count} раз'
-
-        return f'{first}\n{second}\n{third}\n\n{fourth}\n{fifth}\n{sixth}'
+    if not word_analyse[normalized_word]:
+        lines.append(f'Нет данных о слове {args}.')
+        word_analyse[normalized_word] = 0
 
     else:
-        return f'{first}\n{second}\n{third}'
+        lines.append(f'Статистика слова {args}:')
+
+    similar_words = ", ".join(list(word_analyse.keys())[1:-1])
+
+    if similar_words:
+        lines.append(f'Похожие слова: {similar_words}')
+
+        all_words_count = sum(list(word_analyse.values())[:-1])
+        lines.append(f'Было сказано: {all_words_count} раз.')
+
+    else:
+        lines.append(f'Было сказано: {word_analyse[normalized_word]} раз')
+
+    lines.append(f'Это слово сказало {word_analyse["humans_count"]} человек.')
+
+    lines.append('Попробуйте написать корень слова для лучшего результата.')
+
+    return '\n'.join(lines)
+
 
 def get_usr_t(msg_usr_name, msg_args: str):
     if msg_args:

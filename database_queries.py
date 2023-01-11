@@ -136,29 +136,37 @@ def db_word_stat_like_get(msg_chat_id, input_word):
     """
     Returns 
     * `dict`:
-        * `key` input_word: `int` people count, `int` word count
-        * `key` similar_word: `int` people count, `int` word count
+        * `key` input_word: `int` word count or `None`
+        * `key` similar_word: `int` word count
         * `key` similar_word...
+        * `key` humans_count: `int` how many people said word
     """
-
-    res = {input_word: []}
+    res = {}
 
     q = sqlalchemy.select(
-        Dbase.sq_count(Words.word),\
         Dbase.sq_sum(Words.count))\
         .filter(Words.chat_id==msg_chat_id, Words.word==input_word)
-    res[input_word] = tuple(Dbase.conn.execute(q).first())
+    res[input_word] = Dbase.conn.execute(q).first()[0]
 
     q = sqlalchemy.select(Words.word)\
-        .filter(Words.chat_id==msg_chat_id, Words.word.like(input_word+'%'))
+        .filter(Words.chat_id==msg_chat_id, Words.word.like('%'+input_word+'%'))
     similar_words = set(i[0] for i in Dbase.conn.execute(q).all())
 
     for i in similar_words:
 
         q = sqlalchemy.select(
-            Dbase.sq_count(Words.word),\
             Dbase.sq_sum(Words.count))\
             .filter(Words.chat_id==msg_chat_id, Words.word==i)
-        res[i] = tuple(Dbase.conn.execute(q).first())
+        res[i] = Dbase.conn.execute(q).first()[0]
 
+    humans_count = 0
+    similar_words.add(input_word)
+
+    for i in similar_words:
+        q = sqlalchemy.select(Dbase.sq_count(Words.word))\
+            .filter(Words.chat_id==msg_chat_id, Words.word==i)
+        humans_count += Dbase.conn.execute(q).first()[0]
+
+    res['humans_count'] = humans_count
     return res
+
