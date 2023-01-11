@@ -135,7 +135,7 @@ def word_stat(msg_chat_id, args: str):
         word_analyse = word_analyse_normalized
     else:
         word_analyse = word_analyse_args
-        normalized_word = args
+        normalized_word = args.lower()
 
     lines = []
 
@@ -157,7 +157,7 @@ def word_stat(msg_chat_id, args: str):
     else:
         lines.append(f'Было сказано: {word_analyse[normalized_word]} раз')
 
-    lines.append(f'Это слово сказало {word_analyse["humans_count"]} человек.')
+    lines.append(f'Эти слова сказало {word_analyse["humans_count"]} человек.')
 
     lines.append('Попробуйте написать корень слова для лучшего результата.')
 
