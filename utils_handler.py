@@ -7,7 +7,8 @@ import sqlalchemy
 import cfg
 from database import Dbase, Words
 from database_queries import (db_all_usernames_get, db_chat_words_get,
-                              db_user_get, db_user_time_get, db_user_words_get, db_word_stat_get)
+                              db_user_get, db_user_time_get, db_user_words_get,
+                              db_word_stat_get, db_word_stat_like_get)
 from text_analyser import get_nouns
 
 
@@ -25,12 +26,20 @@ def user_words_top(msg_chat_id, msg_username, msg_args: str):
 
     db_words = db_user_words_get(user[0], msg_chat_id, 500)
     db_nouns = get_nouns(db_words)[:10]
-    rowed = ''.join([f'{word}: {count}\n' for word, count in db_nouns])
-    
+
+    rowed_words = ''.join([f'{word}: {count}\n' for word, count in db_words[:10]])
+    rowed_nouns = ''.join([f'{word}: {count}\n' for word, count in db_nouns])
+
     if not msg_args:
-        return f'@{msg_username}, ваш топ 10 слов в чате\n\n' + rowed
+        return f'@{msg_username}, ваш топ 10 слов в чате\
+                \n\n{rowed_words}\
+                \nТоп 10 существительных:\
+                \n\n{rowed_nouns}'
     else:
-        return f'@{msg_username}, топ 10 слов в чате пользователя {user[1]}\n\n' + rowed
+        return f'@{msg_username}, топ 10 слов в чате пользователя {user[1]}\
+                \n\n{rowed_words}\
+                \nТоп 10 существительных:\
+                \n\n{rowed_nouns}'
 
 
 def chat_words_top(msg_chat_id, msg_username):
@@ -38,18 +47,30 @@ def chat_words_top(msg_chat_id, msg_username):
     Telegram `/chat_words`. 
     Returns text with top 10 words in current chat.
     """
-    db_words = db_chat_words_get(msg_chat_id)
-    nouns = get_nouns(db_words)
+    db_words = db_chat_words_get(msg_chat_id, 500)
+    db_nouns = get_nouns(db_words)
 
-    res = []
-    for u_word in set(i[0] for i in nouns):
+    best_words = []
+    best_nouns = []
+
+    for u_word in set(i[0] for i in db_nouns):
         macth_list = tuple((word, id) for word, id in db_words if u_word == word)
-        res.append((u_word, sum([i[1] for i in macth_list])))
-        res.sort()
-    res = sorted(res, key = lambda x: x[1], reverse=1)[:10]
+        best_nouns.append((u_word, sum([i[1] for i in macth_list])))
 
-    rowed = ''.join([f'{word}: {count}\n' for word, count in res])
-    return f'@{msg_username}, топ 10 слов всех участников в чате\n\n' + rowed
+    for u_word in set(i[0] for i in db_words):
+        macth_list = tuple((word, id) for word, id in db_words if u_word == word)
+        best_words.append((u_word, sum([i[1] for i in macth_list])))
+
+    sorted_words = sorted(best_words, key = lambda x: x[1], reverse=1)[:10]
+    sorted_nouns = sorted(best_nouns, key = lambda x: x[1], reverse=1)[:10]
+
+    f_words = ''.join([f'{word}: {count}\n' for word, count in sorted_words])
+    f_nouns = ''.join([f'{noun}: {count}\n' for noun, count in sorted_nouns])
+
+    return f'@{msg_username}, топ 10 слов чата\
+            \n\n{f_words}\
+            \nТоп 10 существительных чата:\
+            \n\n{f_nouns}'
 
 
 def get_usr_t(msg_usr_name, msg_args: str):
@@ -128,15 +149,20 @@ def word_stat(msg_chat_id, args: str):
         return 'Пример команды /word_stat слово.\
                 \nСлово должно быть в именительном падеже и в единственном числе.'
     
-    word_people, word_count = db_word_stat_get(msg_chat_id, args.lower())
+    people_c, word_c = db_word_stat_get(msg_chat_id, args.lower())
+    similar = ''
 
-    if not word_people or not word_count:
+    if not people_c or not word_c:
+        people_c, word_c, similar = db_word_stat_like_get(msg_chat_id, args[:-1].lower())
+        similar = ', '.join(similar)
+
+    if not people_c or not word_c:
         return 'Нет данных о таком слове.\
                 \nСлово должно быть написано в именительном падеже и в единственном числе.'
 
     first =  f'Статистика слова "{args}"'
-    second = f'Было сказано: {word_count} раз'
-    third = f'{word_people} человек сказали это слово'
+    second = f'Было сказано: {word_c} раз'
+    third = f'{people_c} человек сказали это слово'
+    fourth = 'Похожие слова: ' + similar if similar else ''
 
-    return f'{first}\n\n{second}\n{third}'
-
+    return f'{first}\n\n{second}\n{third}\n{fourth}'

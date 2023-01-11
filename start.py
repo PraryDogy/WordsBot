@@ -14,20 +14,28 @@ from utils_inline import *
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 
+
 @dp.message_handler(commands=['user_words'])
 async def send_my_words(message: types.Message):
     db_user_check(message.from_user.id, message.from_user.username)
+
+    msg_del = await bot.send_message(chat_id=message.chat.id, text='Обрабатываю...')
+
     args = message.get_args()
-    await bot.send_message(chat_id=message.chat.id, text='Обрабатываю...')
     msg = user_words_top(message.chat.id, message.from_user.username, args)
+
+    await msg_del.delete()
     await bot.send_message(chat_id=message.chat.id, text=msg)
 
 
 @dp.message_handler(commands=['chat_words'])
 async def send_chat_words(message: types.Message):
     db_user_check(message.from_user.id, message.from_user.username)
-    await bot.send_message(chat_id=message.chat.id, text='Обрабатываю...')
+
+    msg_del = await bot.send_message(chat_id=message.chat.id, text='Обрабатываю...')
     top = chat_words_top(message.chat.id, message.from_user.username)
+    
+    await msg_del.delete()
     await bot.send_message(chat_id=message.chat.id, text=top)
 
 
@@ -78,8 +86,6 @@ async def inline_libera(inline_query: InlineQuery):
     items.append(ItemMobi(inline_query.from_user.id).item)
     items.append(ItemPuppy(inline_query.from_user.id).item)
 
-    # items.append(ItemTest(inline_query.from_user.id).item)
-
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
 
 
@@ -94,6 +100,7 @@ async def inline_libera(inline_query: InlineQuery):
 
 @dp.message_handler()
 async def echo(message: types.Message):
+
     if message.via_bot:
         return
 
@@ -103,13 +110,7 @@ async def echo(message: types.Message):
 
 
 if __name__ == '__main__':
-    inp = input('Ты уверен что сменил токен бота? Напиши "да", если нет - жми ввод\n')
-    if 'да' in inp.lower() or 'lf' in inp.lower():
-
-        # rem_emoji()
-        # rem_digits()
-        # rem_short()
-        # rem_stopwords()
-        Dbase.base.metadata.create_all(Dbase.conn)
-
+    inp = input(
+        'Вы уверены, что сменили токен бота? Напишите любую букву и нажми ввод. Для отмены нажмите только ввод\n')
+    if inp:
         executor.start_polling(dp, skip_updates=True)

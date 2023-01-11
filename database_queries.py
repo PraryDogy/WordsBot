@@ -132,3 +132,20 @@ def db_word_stat_get(msg_chat_id, args):
     return Dbase.conn.execute(q).first()
 
 
+def db_word_stat_like_get(msg_chat_id, args):
+    """
+    Returns `tuple` (`people count`, `word count`, `set(similar words)`)
+    or `tuple` (0, `None`, `empty set`) if word not found
+    """
+    q = sqlalchemy.select(
+        Dbase.sq_count(Words.word),\
+        Dbase.sq_sum(Words.count))\
+        .filter(Words.chat_id==msg_chat_id, Words.word.like(args+'%'))
+
+    people_count, word_count = Dbase.conn.execute(q).first()
+
+    q = sqlalchemy.select(Words.word)\
+        .filter(Words.chat_id==msg_chat_id, Words.word.like(args+'%'))
+    similar_words = Dbase.conn.execute(q).all()
+
+    return people_count, word_count, set(i[0] for i in similar_words)
