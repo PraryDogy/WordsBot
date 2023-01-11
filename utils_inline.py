@@ -97,28 +97,27 @@ class TestUtils:
 
 
 class PercentTestResult(TestUtils):
-    def __init__(self, msg_usr_id, model: TestBaseModel, *args):
+    def __init__(self, msg_usr_id, model: TestBaseModel, before_value: str):
         """
-        * `args`: phrase before value, phrases list less, phrases list more
+        * `before_value`: phrase before value
         * `msg`
         """
         TestUtils.__init__(self)
         test_result = random.choice([i for i in range(100)])
 
         if self.new_user(msg_usr_id, model, test_result):
-            print('new_user')
+            pass
 
         elif self.update_user(msg_usr_id, model, test_result):
-            print('update user record')
+            pass
 
         else:
             test_result = self.get_old_value(msg_usr_id, model)
 
-        percent_row = f'{args[0]} {test_result}%'
-        good_row = random.choice(args[1] if int(test_result) < 50 else args[2])
+        percent_row = f'{before_value} {test_result}%'
         time_row = self.msg_time(self.get_db_usr_time(msg_usr_id, model))
 
-        self.msg = f'{percent_row}\n{good_row}\n{time_row}'
+        self.msg = f'{percent_row}\n{time_row}'
 
 
 class ImgTestResult(TestUtils):
@@ -194,63 +193,69 @@ class ImgInlineItemBase:
 class PercentTestFat(PercentTestResult):
     def __init__(self, msg_usr_id):
         """`msg`"""
-        PercentTestResult.__init__(
-            self, msg_usr_id, FatModel,
-            'Я жирный на', dicts.fat_less, dicts.fat_more
-            )
+        before_value = 'Я жирный на'
+        PercentTestResult.__init__(self, msg_usr_id, FatModel, before_value)
 
 
 class PercentTestLibera(PercentTestResult):
     def __init__(self, msg_usr_id):
         """`msg`"""
-        PercentTestResult.__init__(
-            self, msg_usr_id, LiberaModel,
-            'Я либерал на', dicts.libera_less, dicts.libera_more
-            )
+        before_value = 'Я либерал на'
+        PercentTestResult.__init__(self, msg_usr_id, LiberaModel, before_value)
 
 
 class PercentTestMobi(PercentTestResult):
     def __init__(self, msg_usr_id):
         """`msg`"""
-        PercentTestResult.__init__(
-            self, msg_usr_id, MobiModel,
-            'Шанс моей мобилизации', dicts.mobi_less, dicts.mobi_more
-            )
+        before_value = 'Шанс моей мобилизации'
+        PercentTestResult.__init__(self, msg_usr_id, MobiModel, before_value)
 
 
 class ImgTestPuppies(ImgTestResult):
     def __init__(self, msg_usr_id: int):
         """`msg`, `img_url`"""
-        ImgTestResult.__init__(self, msg_usr_id, PuppyModel,
-        dicts.puppies_url, dicts.puppies_caption)
+        ImgTestResult.__init__(
+            self, msg_usr_id, PuppyModel,
+            dicts.puppies_url_list, dicts.puppies_caption)
 
 
 class ItemLibera(TxtInlineItemBase):
     def __init__(self, msg_usr_id: int):
         test_res = PercentTestLibera(msg_usr_id)
+        header = 'Насколько я либерал'
+        descr = 'Анализ вашего телеграма'
+        thumb = 'https://sun1-21.userapi.com/impg/PTLggCAuUejRbw1H-GIjpGjNf73dM7IWhYrsww/x6kavkNNquI.jpg?size=300x300&quality=95&sign=9772535c2cd701e33cae3030464999a9&type=album'
         TxtInlineItemBase.__init__(
-            self, cfg.libera_header, cfg.libera_descr, cfg.PUTIN_IMG, test_res.msg)
+            self, header, descr, thumb, test_res.msg)
 
 
 class ItemFat(TxtInlineItemBase):
     def __init__(self, msg_usr_id: int):
         test_res = PercentTestFat(msg_usr_id)
+        header = 'Насколько я жирный'
+        descr = 'Тест основан на научных методиках'
+        thumb = 'https://sun9-40.userapi.com/impg/XEe4VPlF5BvuAYbjZLm3MPamjWIhLrxO66oFEw/f54lKM4s6gU.jpg?size=300x300&quality=95&sign=a347fede0405ca0ec49763ebcb68a413&type=album'
         TxtInlineItemBase.__init__(
-            self, cfg.fat_header, cfg.fat_descr, cfg.FAT_IMG, test_res.msg)
+            self, header, descr, thumb, test_res.msg)
 
 
 class ItemMobi(TxtInlineItemBase):
     def __init__(self, msg_usr_id: int):
         test_res = PercentTestMobi(msg_usr_id)
+        header = 'Шанс моей мобилизации'
+        descr = 'Словлю ли я волну?'
+        thumb = 'https://sun9-5.userapi.com/impg/mnJv7OTLrAdMqXUA0e5RC-kBEWMEbijLphmejQ/M8LDDxUhuLQ.jpg?size=508x505&quality=95&sign=21030729d57ec5cd1184d9b83b9b4de8&type=album'
         TxtInlineItemBase.__init__(
-            self, cfg.mobi_header, cfg.mobi_descr, cfg.MOBI_IMG, test_res.msg)
+            self, header, descr, thumb, test_res.msg)
 
 
 class ItemPuppy(ImgInlineItemBase):
     def __init__(self, msg_usr_id):
         test_res = ImgTestPuppies(msg_usr_id)
+        header = 'Какой я сегодня пупи'
+        descr = 'При поддержке Николая Дроздова'
         ImgInlineItemBase.__init__(
-            self, cfg.puppy_header, cfg.puppy_descr, 
+            self, header, descr,
             test_res.img_url, test_res.msg)
 
 

@@ -178,12 +178,3 @@ def right_joins():
         Users, Users.user_id==Words.user_id).where(
         Users.user_name=='Evlosh').order_by(-Words.count)
     return Dbase.conn.execute(q).all()
-
-
-evlosh = 248208655
-evlosh_name = 'evlrosh'
-
-peugeot = 5717544572
-peugeot_name = 'PeugeotKiller'
-
-heli = -1001297579871

@@ -9,7 +9,7 @@ from database import Dbase, Words
 from database_queries import (db_all_usernames_get, db_chat_words_get,
                               db_user_get, db_user_time_get, db_user_words_get,
                               db_word_stat_get, db_word_stat_like_get)
-from text_analyser import get_nouns
+from text_analyser import get_nouns, normalize_word
 
 
 def user_words_top(msg_chat_id, msg_username, msg_args: str):
@@ -64,35 +64,13 @@ def chat_words_top(msg_chat_id, msg_username):
     sorted_words = sorted(best_words, key = lambda x: x[1], reverse=1)[:10]
     sorted_nouns = sorted(best_nouns, key = lambda x: x[1], reverse=1)[:10]
 
-    f_words = ''.join([f'{word}: {count}\n' for word, count in sorted_words])
-    f_nouns = ''.join([f'{noun}: {count}\n' for noun, count in sorted_nouns])
+    str_words = ''.join([f'{word}: {count}\n' for word, count in sorted_words])
+    str_nouns = ''.join([f'{noun}: {count}\n' for noun, count in sorted_nouns])
 
     return f'@{msg_username}, топ 10 слов чата\
-            \n\n{f_words}\
+            \n\n{str_words}\
             \nТоп 10 существительных чата:\
-            \n\n{f_nouns}'
-
-
-def get_usr_t(msg_usr_name, msg_args: str):
-    if msg_args:
-        msg_args = msg_args.replace('@', '')
-    else:
-        return 'Пример команды: /last_time @имя_пользователя'
-
-    username = db_user_get(msg_args)
-    if not username:
-        return 'Нет данных о таком пользователе'
-
-    db_time = db_user_time_get(username)
-    
-    if not db_time:
-        return 'Нет данных о последнем сообщении'
-
-    msg_time = datetime.strptime(db_time[0], '%Y-%m-%d %H:%M:%S')
-    msg_time = msg_time.strftime('%H:%M %d.%m.%Y')
-
-    msg = f'@{msg_usr_name}, пользователь {username} последний раз писал {msg_time}'
-    return msg
+            \n\n{str_nouns}'
 
 
 def detect_candle(input):
@@ -146,23 +124,53 @@ def top_boltunov(msg_chat_id, msg_username):
 
 def word_stat(msg_chat_id, args: str):
     if not args:
-        return 'Пример команды /word_stat слово.\
-                \nСлово должно быть в именительном падеже и в единственном числе.'
-    
-    people_c, word_c = db_word_stat_get(msg_chat_id, args.lower())
-    similar = ''
+        return 'Пример команды /word_stat слово.'
 
-    if not people_c or not word_c:
-        people_c, word_c, similar = db_word_stat_like_get(msg_chat_id, args[:-1].lower())
-        similar = ', '.join(similar)
+    normalized_word = normalize_word(args).lower()
+    word_analyse = db_word_stat_like_get(msg_chat_id, normalized_word)
 
-    if not people_c or not word_c:
-        return 'Нет данных о таком слове.\
-                \nСлово должно быть написано в именительном падеже и в единственном числе.'
+    if not word_analyse[normalized_word][0] or\
+        not word_analyse[normalized_word][1]:
+        
+        return f'Нет данных о {args}.'
 
     first =  f'Статистика слова "{args}"'
-    second = f'Было сказано: {word_c} раз'
-    third = f'{people_c} человек сказали это слово'
-    fourth = 'Похожие слова: ' + similar if similar else ''
+    second = f'{word_analyse[normalized_word][0]} человек сказали это слово'
+    third = f'Было сказано: {word_analyse[normalized_word][1]} раз'
 
-    return f'{first}\n\n{second}\n{third}\n{fourth}'
+    similar_words = ", ".join(list(word_analyse.keys())[1:])
+
+    if similar_words:
+        fourth = f'Похожие слова: {similar_words}'
+
+        all_words_people = sum(v[0] for _, v in word_analyse.items())
+        all_words_count = sum(v[1] for _, v in word_analyse.items())
+
+        fifth = f'Итого: {all_words_people} человек сказали это слово'
+        sixth = f'Итого было сказано: {all_words_count} раз'
+
+        return f'{first}\n{second}\n{third}\n\n{fourth}\n{fifth}\n{sixth}'
+
+    else:
+        return f'{first}\n{second}\n{third}'
+
+def get_usr_t(msg_usr_name, msg_args: str):
+    if msg_args:
+        msg_args = msg_args.replace('@', '')
+    else:
+        return 'Пример команды: /last_time @имя_пользователя'
+
+    username = db_user_get(msg_args)[0]
+    if not username:
+        return 'Нет данных о таком пользователе'
+
+    db_time = db_user_time_get(username)
+    
+    if not db_time:
+        return 'Нет данных о последнем сообщении'
+
+    msg_time = datetime.strptime(db_time[0], '%Y-%m-%d %H:%M:%S')
+    msg_time = msg_time.strftime('%H:%M %d.%m.%Y')
+
+    msg = f'@{msg_usr_name}, пользователь {username} последний раз писал {msg_time}'
+    return msg

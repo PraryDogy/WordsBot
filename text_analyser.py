@@ -15,6 +15,10 @@ nlp = spacy.load("ru_core_news_md")
 lemmatizer = MorphAnalyzer()
 
 
+def normalize_word(word: str):
+    return lemmatizer.parse(word)[0].normal_form
+
+
 def words_regex(message: str):
     """
     Returns tuple of words in lower case, normal form, excluding stopwords and
@@ -22,16 +26,16 @@ def words_regex(message: str):
     """
     message = message.split()
 
-    res = []
+    words_reg_list = []
     for w in message:
 
         link = re.match(r'(https?:\/\/[^ ]*)/', w)
         if not link:
             word = re.match(r'(\w+)', w)
             if word:
-                res.append(word.group(1))
+                words_reg_list.append(word.group(1))
 
-    lema = tuple(lemmatizer.parse(word)[0].normal_form for word in res)
+    lema = tuple(normalize_word(w) for w in words_reg_list)
     words = tuple(i for i in lema if i not in stop_words)
     return words
 
