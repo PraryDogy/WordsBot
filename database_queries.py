@@ -30,7 +30,6 @@ def db_user_record(msg_user_id: int, msg_username: str):
         Dbase.conn.execute(new_user)
 
 
-
 def db_words_record(msg_usr_id, msg_chat_id, words_list):
     """
     Gets all user's words with all chats ids  from database
