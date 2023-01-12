@@ -41,7 +41,7 @@ class Words(Dbase.base):
 
 create_tables = Dbase.base.metadata.create_all(Dbase.conn)
 
-
+from collections import Counter
 
 def db_words_record(msg_usr_id, msg_chat_id, words_list):
     """
@@ -56,6 +56,7 @@ def db_words_record(msg_usr_id, msg_chat_id, words_list):
     db_data = Dbase.conn.execute(query).all()
 
     db_words = [i[1] for i in db_data]
+    new_words = Counter([i for i in words_list if i not in db_words])
 
     for w, c in new_words.items():
         vals = {'word': w, 'count': c, 'user_id': msg_usr_id, 'chat_id': msg_chat_id}
@@ -68,3 +69,6 @@ def db_words_record(msg_usr_id, msg_chat_id, words_list):
         vals = {'count': z + len([i for i in words_list if i == y])}
         q = sqlalchemy.update(Words).where(Words.id==x).values(vals)
         Dbase.conn.execute(q)
+
+
+# db_words_record(123, 123, ['мама', 'мама', 'вода', 'снег'])
