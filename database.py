@@ -12,12 +12,12 @@ class Dbase():
     *var conn: database connection
     *var base: declatative_base for models and actions
     """
-    __engine = sqlalchemy.create_engine(
+    engine = sqlalchemy.create_engine(
         'sqlite:///' + cfg.DATABASE,
         connect_args={'check_same_thread':False,},
         echo= False
         )
-    conn = __engine.connect()
+    conn = engine.connect()
     base = sqlalchemy.ext.declarative.declarative_base()
     sq_sum = sqlalchemy.sql.expression.func.sum
     sq_count = sqlalchemy.sql.expression.func.count
@@ -121,57 +121,6 @@ def rem_words(word: str):
         q = sqlalchemy.delete(Words).where(Words.id==i)
         Dbase.conn.execute(q)
 
-
-def rem_emoji():
-    with open('emoji.txt', 'r') as file:
-        data = file.read()
-        ems = data.replace('\n', ' ')
-        emoji = ems.split()
-
-    for i in emoji:
-        q = sqlalchemy.select(Words.id, Words.word).filter(Words.word.contains(i))
-        res = Dbase.conn.execute(q).fetchall()
-        for id, word in res:
-            vals = {'word': word.replace(i, '')}
-            q = sqlalchemy.update(Words).where(Words.id == id).values(vals)
-            Dbase.conn.execute(q)
-    
-    rem_words('')
-
-
-def rem_digits():
-    digits = '1 2 3 4 5 6 7 8 9 0'.split()
-    for i in digits:
-        q = sqlalchemy.select(Words.id, Words.word).filter(Words.word.contains(i))
-        res = Dbase.conn.execute(q).fetchall()
-        for id, word in res:
-            vals = {'word': word.replace(i, '')}
-            q = sqlalchemy.update(Words).where(Words.id == id).values(vals)
-            Dbase.conn.execute(q)
-
-    rem_words('')
-
-
-def rem_short():
-    q = sqlalchemy.select(Words.word, Words.id)
-    res = Dbase.conn.execute(q).fetchall()
-    ids = tuple(i[1] for i in res if len(i[0]) == 1)
-
-    for i in ids:
-        q = sqlalchemy.delete(Words).where(Words.id==i)
-        Dbase.conn.execute(q)
-
-def rem_stopwords():
-    from dicts import stop_words
-
-    for i in stop_words:
-        q = sqlalchemy.select(Words.id).where(Words.word == i)
-        res = Dbase.conn.execute(q).fetchall()
-
-        if res:
-            for res_id in tuple(i[0] for i in res):
-                q = sqlalchemy.delete(Words).where(Words.id==res_id)
-                Dbase.conn.execute(q)
 
 def right_joins():
     q = sqlalchemy.select(Words.word, Words.count).join(

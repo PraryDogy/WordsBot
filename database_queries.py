@@ -1,3 +1,4 @@
+from collections import Counter
 from datetime import datetime
 
 import sqlalchemy
@@ -5,7 +6,7 @@ import sqlalchemy
 from database import Dbase, Users, Words
 
 
-def db_user_check(msg_user_id: int, msg_username: str):
+def db_user_record(msg_user_id: int, msg_username: str):
     """
     Checks database `Users` table for user by `user_id` from message.
     Creates new record if user not exists.
@@ -15,21 +16,22 @@ def db_user_check(msg_user_id: int, msg_username: str):
         Users.user_id, Users.user_name).filter(Users.user_id == msg_user_id)
     db_user = Dbase.conn.execute(get_user).first()
     
-    if db_user is not None:
+    if db_user:
         db_id, db_name = db_user
         if msg_username != db_name:
             vals = {'user_name': msg_username}
-            update_user = sqlalchemy.update(Users).where(Users.user_id==msg_user_id).values(vals)
+            update_user = sqlalchemy.update(Users)\
+                .where(Users.user_id==msg_user_id).values(vals)
             Dbase.conn.execute(update_user)
 
-    if db_user is None:
+    else:
         vals = {'user_id': msg_user_id, 'user_name': msg_username}
         new_user = sqlalchemy.insert(Users).values(vals)
         Dbase.conn.execute(new_user)
 
 
 
-def db_words_record(msg_user_id, msg_chat_id, words_list):
+def db_words_record(msg_usr_id, msg_chat_id, words_list):
     """
     Gets all user's words with all chats ids  from database
     If word from input words list not in database words list - adds new row
@@ -37,29 +39,25 @@ def db_words_record(msg_user_id, msg_chat_id, words_list):
     If word in database words list and has the same chat id - updates word counter
     * `words_list`: list of words
     """
-    query = sqlalchemy.select(Words.word, Words.chat_id).where(Words.user_id==msg_user_id)
-    db_user_words = list(Dbase.conn.execute(query).fetchall())
-    new_words = []
+    for i in words_list:
+        query = sqlalchemy.select(Words.id, Words.word, Words.count)\
+            .where(Words.user_id==msg_usr_id, Words.chat_id==msg_chat_id)
+        db_data = Dbase.conn.execute(query).all()
 
-    for word in words_list:
-        if (word, msg_chat_id) not in db_user_words and \
-            (word, msg_chat_id) not in new_words:
+    db_words = [i[1] for i in db_data]
+    new_words = Counter([i for i in words_list if i not in db_words])
 
-            new_words.append((word, msg_chat_id))
+    for w, c in new_words.items():
+        vals = {'word': w, 'count': c, 'user_id': msg_usr_id, 'chat_id': msg_chat_id}
+        q = sqlalchemy.insert(Words).values(vals)
+        Dbase.conn.execute(q)
 
-            vals = {'word': word, 'count': 1, 'user_id': msg_user_id, 'chat_id': msg_chat_id}
-            q = sqlalchemy.insert(Words).values(vals)
-            Dbase.conn.execute(q)
+    old_words = [(x, y, z) for x, y, z in db_data if y in words_list]
 
-        else:
-            q = sqlalchemy.select(Words.count).where(
-                Words.word==word, Words.user_id==msg_user_id, Words.chat_id==msg_chat_id)
-            db_word_count = Dbase.conn.execute(q).first()[0]
-
-            vals = {'count': db_word_count+1}
-            q = sqlalchemy.update(Words).where(
-                Words.word==word, Words.user_id==msg_user_id, Words.chat_id==msg_chat_id).values(vals)
-            Dbase.conn.execute(q)
+    for x, y, z in old_words:
+        vals = {'count': z + len([i for i in words_list if i == y])}
+        q = sqlalchemy.update(Words).where(Words.id==x).values(vals)
+        Dbase.conn.execute(q)
 
 
 def db_time_record(msg_usr_id):
@@ -94,8 +92,7 @@ def db_chat_words_get(msg_chat_id, words_limit=None):
     * `words_limit`: optional, `int`.
     """
     q = sqlalchemy.select(Words.word, Words.count)\
-        .where(Words.chat_id==msg_chat_id)\
-        .order_by(-Words.count)\
+        .where(Words.chat_id==msg_chat_id).order_by(-Words.count)\
         .limit(words_limit)
     return Dbase.conn.execute(q).fetchall()
 
@@ -115,8 +112,7 @@ def db_user_words_get(usr_id, msg_chat_id, words_limit=None):
     """
     q = sqlalchemy.select(Words.word, Words.count)\
         .where(Words.user_id==usr_id, Words.chat_id==msg_chat_id)\
-        .order_by(-Words.count)\
-        .limit(words_limit)
+        .order_by(-Words.count).limit(words_limit)
     return Dbase.conn.execute(q).all()
 
 
