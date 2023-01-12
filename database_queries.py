@@ -50,10 +50,10 @@ def db_words_record(msg_usr_id, msg_chat_id, words_list):
         q = sqlalchemy.insert(Words).values(vals)
         Dbase.conn.execute(q)
 
-    old_words = [(x, y, z) for x, y, z in db_data if y in words_list]
+    old_words = [(x, y, z) for x, y, z in db_data if y in new_words]
 
     for x, y, z in old_words:
-        vals = {'count': z + len([i for i in words_list if i == y])}
+        vals = {'count': z + len([i for i in norm_words if i == y])}
         q = sqlalchemy.update(Words).where(Words.id==x).values(vals)
         Dbase.conn.execute(q)
 
