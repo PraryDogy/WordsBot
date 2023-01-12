@@ -156,16 +156,3 @@ def db_word_stat_get(msg_chat_id, input_word):
     res.append(Dbase.conn.execute(q).first()[0])
 
     return False if not res[0] else res
-
-
-# import cfg
-# import sys
-# norm_word_st = db_word_stat_get(cfg.heli, 'sdfsdfsdf')
-# args_st = db_word_stat_get(cfg.heli, 'sdfsdf'.lower())
-# word_st = []
-
-# # for a, b in zip(norm_word_st, args_st):
-# #     word_st.append(max(a, b))
-
-
-# print(norm_word_st)
