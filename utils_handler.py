@@ -8,7 +8,7 @@ import cfg
 from database import Dbase, Words
 from database_queries import (db_all_usernames_get, db_chat_words_get,
                               db_user_get, db_user_time_get, db_user_words_get,
-                              db_word_stat_get, db_word_stat_like_get)
+                              db_word_stat_get)
 from text_analyser import get_nouns, normalize_word
 
 
@@ -126,42 +126,31 @@ def word_stat(msg_chat_id, args: str):
     if not args:
         return 'Пример команды /word_stat слово.'
 
-    normalized_word = normalize_word(args).lower()
-    
-    word_analyse_normalized = db_word_stat_like_get(msg_chat_id, normalized_word)
-    word_analyse_args = db_word_stat_like_get(msg_chat_id, args.lower())
+    norm_word = normalize_word(args)
 
-    if len(word_analyse_normalized) > len(word_analyse_args):
-        word_analyse = word_analyse_normalized
-    else:
-        word_analyse = word_analyse_args
-        normalized_word = args.lower()
+    norm_word_st = db_word_stat_get(msg_chat_id, norm_word)
+    args_st = db_word_stat_get(msg_chat_id, args.lower())
+    word_st = []
 
-    lines = []
+    if not norm_word_st or not args_st:
+        return 'Нет данных о таком слове.'
 
-    if not word_analyse[normalized_word]:
-        lines.append(f'Нет данных о слове {args}.')
-        word_analyse[normalized_word] = 0
+    for a, b in zip(norm_word_st, args_st):
+        word_st.append(max(a, b))
 
-    else:
-        lines.append(f'Статистика слова {args}:')
+    msg_list = []
+    msg_list.append(f'Статистика слова {args}.')
 
-    similar_words = ", ".join(list(word_analyse.keys())[1:-1])
+    similar_words = ", ".join(word_st[0])
 
     if similar_words:
-        lines.append(f'Похожие слова: {similar_words}')
+        msg_list.append(f'Похожие слова: {similar_words}.')
 
-        all_words_count = sum(list(word_analyse.values())[:-1])
-        lines.append(f'Было сказано: {all_words_count} раз.')
+    msg_list.append(f'Было сказано: {word_st[1]} раз.')
+    msg_list.append(f'Эти слова сказало {word_st[2]} человек.')
+    msg_list.append('Попробуйте написать корень слова для лучшего результата.')
 
-    else:
-        lines.append(f'Было сказано: {word_analyse[normalized_word]} раз')
-
-    lines.append(f'Эти слова сказало {word_analyse["humans_count"]} человек.')
-
-    lines.append('Попробуйте написать корень слова для лучшего результата.')
-
-    return '\n'.join(lines)
+    return '\n'.join(msg_list)
 
 
 def get_usr_t(msg_usr_name, msg_args: str):

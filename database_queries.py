@@ -132,41 +132,40 @@ def db_word_stat_get(msg_chat_id, args):
     return Dbase.conn.execute(q).first()
 
 
-def db_word_stat_like_get(msg_chat_id, input_word):
+def db_word_stat_get(msg_chat_id, input_word):
     """
-    Returns 
-    * `dict`:
-        * `key` input_word: `int` word count or `None`
-        * `key` similar_word: `int` word count
-        * `key` similar_word...
-        * `key` humans_count: `int` how many people said word
-    """
-    res = {}
+    Returns `list`:
+    * `set` similar words including `input_word`,
+    * `int` total how many times people said input word & similar words
+    * `int` total how many people said input & similar words
 
-    q = sqlalchemy.select(
-        Dbase.sq_sum(Words.count))\
-        .filter(Words.chat_id==msg_chat_id, Words.word==input_word)
-    res[input_word] = Dbase.conn.execute(q).first()[0]
+    Returns `False` if `input_word` and similar words not in database.
+    """
+    res = []
 
     q = sqlalchemy.select(Words.word)\
         .filter(Words.chat_id==msg_chat_id, Words.word.like('%'+input_word+'%'))
-    similar_words = set(i[0] for i in Dbase.conn.execute(q).all())
+    res.append(set(i[0] for i in Dbase.conn.execute(q).all()))
 
-    for i in similar_words:
+    q = sqlalchemy.select(Dbase.sq_sum(Words.count))\
+        .filter(Words.chat_id==msg_chat_id, Words.word.in_(res[0]))
+    res.append(Dbase.conn.execute(q).first()[0])
 
-        q = sqlalchemy.select(
-            Dbase.sq_sum(Words.count))\
-            .filter(Words.chat_id==msg_chat_id, Words.word==i)
-        res[i] = Dbase.conn.execute(q).first()[0]
+    q = sqlalchemy.select(Dbase.sq_count(Words.word))\
+        .filter(Words.chat_id==msg_chat_id, Words.word.in_(res[0]))
+    res.append(Dbase.conn.execute(q).first()[0])
 
-    humans_count = 0
-    similar_words.add(input_word)
+    return False if not res[0] else res
 
-    for i in similar_words:
-        q = sqlalchemy.select(Dbase.sq_count(Words.word))\
-            .filter(Words.chat_id==msg_chat_id, Words.word==i)
-        humans_count += Dbase.conn.execute(q).first()[0]
 
-    res['humans_count'] = humans_count
-    return res
+# import cfg
+# import sys
+# norm_word_st = db_word_stat_get(cfg.heli, 'sdfsdfsdf')
+# args_st = db_word_stat_get(cfg.heli, 'sdfsdf'.lower())
+# word_st = []
 
+# # for a, b in zip(norm_word_st, args_st):
+# #     word_st.append(max(a, b))
+
+
+# print(norm_word_st)
