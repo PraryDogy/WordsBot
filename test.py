@@ -1,12 +1,8 @@
-from collections import Counter
-
 import sqlalchemy
 import sqlalchemy.ext.declarative
 from sqlalchemy import Column, ForeignKey, Integer, Text
 
 import cfg
-from text_analyser import normalize_word
-
 
 class Dbase():
     """
@@ -46,6 +42,7 @@ class Words(Dbase.base):
 create_tables = Dbase.base.metadata.create_all(Dbase.conn)
 
 
+
 def db_words_record(msg_usr_id, msg_chat_id, words_list):
     """
     Gets all user's words with all chats ids  from database
@@ -59,18 +56,15 @@ def db_words_record(msg_usr_id, msg_chat_id, words_list):
     db_data = Dbase.conn.execute(query).all()
 
     db_words = [i[1] for i in db_data]
-    norm_words = [normalize_word(i) for i in db_words]
-
-    new_words = Counter([i for i in norm_words if i not in db_words])
 
     for w, c in new_words.items():
         vals = {'word': w, 'count': c, 'user_id': msg_usr_id, 'chat_id': msg_chat_id}
         q = sqlalchemy.insert(Words).values(vals)
         Dbase.conn.execute(q)
 
-    old_words = [(x, y, z) for x, y, z in db_data if y in norm_words]
+    old_words = [(x, y, z) for x, y, z in db_data if y in words_list]
 
     for x, y, z in old_words:
-        vals = {'count': z + len([i for i in norm_words if i == y])}
+        vals = {'count': z + len([i for i in words_list if i == y])}
         q = sqlalchemy.update(Words).where(Words.id==x).values(vals)
         Dbase.conn.execute(q)
