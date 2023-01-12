@@ -15,19 +15,18 @@ def db_user_record(msg_user_id: int, msg_username: str):
     get_user = sqlalchemy.select(
         Users.user_id, Users.user_name).filter(Users.user_id == msg_user_id)
     db_user = Dbase.conn.execute(get_user).first()
-    
-    if db_user:
-        db_id, db_name = db_user
-        if msg_username != db_name:
-            vals = {'user_name': msg_username}
-            update_user = sqlalchemy.update(Users)\
-                .where(Users.user_id==msg_user_id).values(vals)
-            Dbase.conn.execute(update_user)
 
-    else:
+    if not db_user:
         vals = {'user_id': msg_user_id, 'user_name': msg_username}
         new_user = sqlalchemy.insert(Users).values(vals)
         Dbase.conn.execute(new_user)
+
+    elif msg_username != db_user[1]:
+        vals = {'user_name': msg_username}
+        update_user = sqlalchemy.update(Users)\
+            .where(Users.user_id==msg_user_id).values(vals)
+        Dbase.conn.execute(update_user)
+
 
 
 def db_words_record(msg_usr_id, msg_chat_id, words_list):
