@@ -4,6 +4,7 @@ from datetime import datetime
 import sqlalchemy
 
 from database import Dbase, Users, Words
+from text_analyser import normalize_word
 
 
 def db_user_record(msg_user_id: int, msg_username: str):
@@ -37,10 +38,9 @@ def db_words_record(msg_usr_id, msg_chat_id, words_list):
     If word in database words list and has the same chat id - updates word counter
     * `words_list`: list of words
     """
-    for i in words_list:
-        query = sqlalchemy.select(Words.id, Words.word, Words.count)\
-            .where(Words.user_id==msg_usr_id, Words.chat_id==msg_chat_id)
-        db_data = Dbase.conn.execute(query).all()
+    query = sqlalchemy.select(Words.id, Words.word, Words.count)\
+        .where(Words.user_id==msg_usr_id, Words.chat_id==msg_chat_id)
+    db_data = Dbase.conn.execute(query).all()
 
     db_words = [i[1] for i in db_data]
     new_words = Counter([i for i in words_list if i not in db_words])
