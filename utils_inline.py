@@ -154,13 +154,10 @@ class TxtInlineItemBase:
         * `item`
         """
         self.item = InlineQueryResultArticle(
-
             id=hashlib.md5(header.encode()).hexdigest(),
-
             title=header,
             description=descr,
             thumb_url=thumb_url,
-
             input_message_content=InputTextMessageContent(msg),
             reply_markup=MessageButton()
             )
@@ -176,15 +173,11 @@ class ImgInlineItemBase:
         `item`
         """
         self.item = InlineQueryResultPhoto(
-
             id=hashlib.md5(header.encode()).hexdigest(),
-
             photo_url=img_url,
             thumb_url=img_url,
-
             title=header,
             description=descr,
-
             caption=msg,
             reply_markup=MessageButton(),
             )
@@ -197,6 +190,16 @@ class PercentTestFat(PercentTestResult):
         PercentTestResult.__init__(self, msg_usr_id, FatModel, before_value)
 
 
+class ItemFat(TxtInlineItemBase):
+    def __init__(self, msg_usr_id: int):
+        test_res = PercentTestFat(msg_usr_id)
+        header = 'Насколько я жирный'
+        descr = 'Тест основан на научных методиках'
+        thumb = 'https://sun9-40.userapi.com/impg/XEe4VPlF5BvuAYbjZLm3MPamjWIhLrxO66oFEw/f54lKM4s6gU.jpg?size=300x300&quality=95&sign=a347fede0405ca0ec49763ebcb68a413&type=album'
+        TxtInlineItemBase.__init__(
+            self, header, descr, thumb, test_res.msg)
+
+
 class PercentTestLibera(PercentTestResult):
     def __init__(self, msg_usr_id):
         """`msg`"""
@@ -204,11 +207,31 @@ class PercentTestLibera(PercentTestResult):
         PercentTestResult.__init__(self, msg_usr_id, LiberaModel, before_value)
 
 
+class ItemLibera(TxtInlineItemBase):
+    def __init__(self, msg_usr_id: int):
+        test_res = PercentTestLibera(msg_usr_id)
+        header = 'Насколько я либерал'
+        descr = 'Анализ вашего телеграма'
+        thumb = 'https://sun1-21.userapi.com/impg/PTLggCAuUejRbw1H-GIjpGjNf73dM7IWhYrsww/x6kavkNNquI.jpg?size=300x300&quality=95&sign=9772535c2cd701e33cae3030464999a9&type=album'
+        TxtInlineItemBase.__init__(
+            self, header, descr, thumb, test_res.msg)
+
+
 class PercentTestMobi(PercentTestResult):
     def __init__(self, msg_usr_id):
         """`msg`"""
         before_value = 'Шанс моей мобилизации'
         PercentTestResult.__init__(self, msg_usr_id, MobiModel, before_value)
+
+
+class ItemMobi(TxtInlineItemBase):
+    def __init__(self, msg_usr_id: int):
+        test_res = PercentTestMobi(msg_usr_id)
+        header = 'Шанс моей мобилизации'
+        descr = 'Словлю ли я волну?'
+        thumb = 'https://sun9-5.userapi.com/impg/mnJv7OTLrAdMqXUA0e5RC-kBEWMEbijLphmejQ/M8LDDxUhuLQ.jpg?size=508x505&quality=95&sign=21030729d57ec5cd1184d9b83b9b4de8&type=album'
+        TxtInlineItemBase.__init__(
+            self, header, descr, thumb, test_res.msg)
 
 
 class PercentTestPenis(PercentTestResult):
@@ -242,36 +265,6 @@ class ImgTestPuppies(ImgTestResult):
             dicts.puppies_url_list, dicts.puppies_caption)
 
 
-class ItemLibera(TxtInlineItemBase):
-    def __init__(self, msg_usr_id: int):
-        test_res = PercentTestLibera(msg_usr_id)
-        header = 'Насколько я либерал'
-        descr = 'Анализ вашего телеграма'
-        thumb = 'https://sun1-21.userapi.com/impg/PTLggCAuUejRbw1H-GIjpGjNf73dM7IWhYrsww/x6kavkNNquI.jpg?size=300x300&quality=95&sign=9772535c2cd701e33cae3030464999a9&type=album'
-        TxtInlineItemBase.__init__(
-            self, header, descr, thumb, test_res.msg)
-
-
-class ItemFat(TxtInlineItemBase):
-    def __init__(self, msg_usr_id: int):
-        test_res = PercentTestFat(msg_usr_id)
-        header = 'Насколько я жирный'
-        descr = 'Тест основан на научных методиках'
-        thumb = 'https://sun9-40.userapi.com/impg/XEe4VPlF5BvuAYbjZLm3MPamjWIhLrxO66oFEw/f54lKM4s6gU.jpg?size=300x300&quality=95&sign=a347fede0405ca0ec49763ebcb68a413&type=album'
-        TxtInlineItemBase.__init__(
-            self, header, descr, thumb, test_res.msg)
-
-
-class ItemMobi(TxtInlineItemBase):
-    def __init__(self, msg_usr_id: int):
-        test_res = PercentTestMobi(msg_usr_id)
-        header = 'Шанс моей мобилизации'
-        descr = 'Словлю ли я волну?'
-        thumb = 'https://sun9-5.userapi.com/impg/mnJv7OTLrAdMqXUA0e5RC-kBEWMEbijLphmejQ/M8LDDxUhuLQ.jpg?size=508x505&quality=95&sign=21030729d57ec5cd1184d9b83b9b4de8&type=album'
-        TxtInlineItemBase.__init__(
-            self, header, descr, thumb, test_res.msg)
-
-
 class ItemPuppy(ImgInlineItemBase):
     def __init__(self, msg_usr_id):
         test_res = ImgTestPuppies(msg_usr_id)
@@ -282,72 +275,15 @@ class ItemPuppy(ImgInlineItemBase):
             test_res.img_url, test_res.msg)
 
 
-
-class ItemTest():
-    def __init__(self, msg_usr_id):
-        img_id = 'AgACAgIAAx0CYSXtmQACA4FjucZbUASUeaKzFwI1jixw5bEeIQACzsAxGwvOyUkYlYOUkOrG5QEAAwIAA20AAy0E'
-        header = 'test'
-        self.item = InlineQueryResultCachedPhoto(
-            id=hashlib.md5(header.encode()).hexdigest(),
-            photo_file_id=img_id,
-            title="Untitled",
-            description="Untitled",
-            caption='test caption',
-            reply_markup=MessageButton(),
-            )
-
-
-# class TestPairing(TestUtils):
-#     def __init__(self, msg_usr_id, msg_usrname):
-#         TestUtils.__init__(self)
-#         self.pair = random.choice(db_chat_usernames_get(msg_usr_id))
-#         self.input_time = self.now
-
-#         if not self.db_usr_check(msg_usr_id, PairingModel):
-#             vals = {'pair': self.pair, 'time': str(self.now), 'user_id': msg_usr_id}
-#             self.insert_record(vals, PairingModel)
-
-#         db_usr_t = self.get_db_usr_time(msg_usr_id, PairingModel)
-#         if (self.now - db_usr_t).days > 0:
-#             vals = {'pair': self.pair, 'time': self.now}
-#             self.update_record(vals, PairingModel, msg_usr_id)
-
-#         else:
-#             select_pair = sqlalchemy.select(PairingModel.pair, PairingModel.time).where(PairingModel.user_id==msg_usr_id)
-#             res = Dbase.conn.execute(select_pair).first()
-#             self.pair, self.input_time = res
-
-
-#         next_update_time = self.input_time + timedelta(days=1)
-#         if next_update_time.date() <= datetime.today().date():
-#             day = 'сегодня'
-#         else:
-#             day = 'завтра'
-        
-#         first_row = f'@{msg_usrname} ваша пара сегодня @{self.pair}'
-#         third_row = f'Обновить можно {day} в {next_update_time.strftime("%H:%M")}'
-
-#         self.msg = f'{first_row}\n{third_row}'
-
-
-# class PairingItem(TestPairing):
-#     def __init__(self, msg_usr_id, msg_usrname):
-#         """
-#         *head: test name
-#         *inline_query: query from aiogram message handler
-#         *img_path: web url
-#         """
-#         TestPairing.__init__(self, msg_usr_id, msg_usrname)
-#         head_id: str = hashlib.md5(header.encode()).hexdigest()
-#         msg = InputTextMessageContent(test_result)
-
-#         self.item = InlineQueryResultArticle(
-#             id=head_id,
-#             title=f'{header}',
-#             description=descr,
-#             input_message_content=msg,
-#             thumb_url=img_path,
-#             reply_markup=MessageButton()
+# class ItemTest():
+#     def __init__(self, msg_usr_id):
+#         img_id = 'AgACAgIAAx0CYSXtmQACA4FjucZbUASUeaKzFwI1jixw5bEeIQACzsAxGwvOyUkYlYOUkOrG5QEAAwIAA20AAy0E'
+#         header = 'test'
+#         self.item = InlineQueryResultCachedPhoto(
+#             id=hashlib.md5(header.encode()).hexdigest(),
+#             photo_file_id=img_id,
+#             title="Untitled",
+#             description="Untitled",
+#             caption='test caption',
+#             reply_markup=MessageButton(),
 #             )
-
-

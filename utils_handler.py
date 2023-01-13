@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 import cv2
@@ -12,14 +13,14 @@ from database_queries import (db_all_usernames_get, db_chat_words_get,
 from text_analyser import get_nouns, normalize_word
 
 
-def user_words_top(msg_chat_id, msg_username, msg_args: str):
+def user_words_top(msg_chat_id, msg_username, args: str):
     """
     Returns text with top 10 words of user in current chat.
     """
-    if msg_args:
-        user = db_user_get(msg_args.replace('@', ''))
-    else:
+    if not args:
         user = db_user_get(msg_username)
+    else:
+        user = db_user_get(args.replace('@', ''))
 
     if not user:
         return 'Нет данных о пользователе'
@@ -27,19 +28,17 @@ def user_words_top(msg_chat_id, msg_username, msg_args: str):
     db_words = db_user_words_get(user[0], msg_chat_id, 500)
     db_nouns = get_nouns(db_words)[:10]
 
-    rowed_words = ''.join([f'{word}: {count}\n' for word, count in db_words[:10]])
-    rowed_nouns = ''.join([f'{word}: {count}\n' for word, count in db_nouns])
-
-    if not msg_args:
-        return f'@{msg_username}, ваш топ 10 слов в чате\
-                \n\n{rowed_words}\
-                \nТоп 10 существительных:\
-                \n\n{rowed_nouns}'
+    msg = []
+    if not args:
+        msg.append(f'@{msg_username}, ваш топ 10 слов:')
     else:
-        return f'@{msg_username}, топ 10 слов в чате пользователя {user[1]}\
-                \n\n{rowed_words}\
-                \nТоп 10 существительных:\
-                \n\n{rowed_nouns}'
+        msg.append(f'@{msg_username}, топ 10 слов пользователя {user[1]}:')
+
+    [msg.append(f'{x}: {y}') for x, y in db_words[:10]]
+    msg.append('\nТоп 10 существительных:')
+    [msg.append(f'{x}: {y}') for x, y in db_nouns]
+
+    return '\n'.join(msg)
 
 
 def chat_words_top(msg_chat_id, msg_username):
@@ -47,30 +46,24 @@ def chat_words_top(msg_chat_id, msg_username):
     Telegram `/chat_words`. 
     Returns text with top 10 words in current chat.
     """
-    db_words = db_chat_words_get(msg_chat_id, 500)
-    db_nouns = get_nouns(db_words)
+    words_db = db_chat_words_get(msg_chat_id, 500)
 
-    best_words = []
-    best_nouns = []
+    words_sum = {}
+    for letter, number in words_db:
+            words_sum[letter] = words_sum.get(letter, 0) + number
 
-    for u_word in set(i[0] for i in db_nouns):
-        macth_list = tuple((word, id) for word, id in db_words if u_word == word)
-        best_nouns.append((u_word, sum([i[1] for i in macth_list])))
+    nouns_sum = get_nouns(words_sum.items())
 
-    for u_word in set(i[0] for i in db_words):
-        macth_list = tuple((word, id) for word, id in db_words if u_word == word)
-        best_words.append((u_word, sum([i[1] for i in macth_list])))
+    words_top = sorted(words_sum.items(), key = lambda x: x[1], reverse=1)[:10]
+    nouns_top = sorted(nouns_sum, key = lambda x: x[1], reverse=1)[:10]
 
-    sorted_words = sorted(best_words, key = lambda x: x[1], reverse=1)[:10]
-    sorted_nouns = sorted(best_nouns, key = lambda x: x[1], reverse=1)[:10]
+    msg = []
+    msg.append(f'@{msg_username}, топ 10 слов чата:')
+    [msg.append(f'{x}: {y}') for x, y in words_top]
+    msg.append('\nТоп 10 существительных чата:')
+    [msg.append(f'{x}: {y}') for x, y in nouns_top]
 
-    str_words = ''.join([f'{word}: {count}\n' for word, count in sorted_words])
-    str_nouns = ''.join([f'{noun}: {count}\n' for noun, count in sorted_nouns])
-
-    return f'@{msg_username}, топ 10 слов чата\
-            \n\n{str_words}\
-            \nТоп 10 существительных чата:\
-            \n\n{str_nouns}'
+    return '\n'.join(msg)
 
 
 def detect_candle(input):
@@ -115,9 +108,9 @@ def top_boltunov(msg_chat_id, msg_username):
         res.append('\n'.join(f'{i[0]}: {i[1]} слов' for i in tmp))
 
     return (
-        f'@{msg_username}, топ 10 пиздюшек:\n\n'
+        f'@{msg_username}, топ 10 пиздюшек:\n'
         f'{res[0]}\n\n'
-        'Топ 10 по уникальным словам:\n\n'
+        'Топ 10 по уникальным словам:\n'
         f'{res[1]}\n'
         )
 
@@ -171,5 +164,4 @@ def get_usr_t(msg_usr_name, msg_args: str):
     msg_time = datetime.strptime(db_time[0], '%Y-%m-%d %H:%M:%S')
     msg_time = msg_time.strftime('%H:%M %d.%m.%Y')
 
-    msg = f'@{msg_usr_name}, пользователь {username} последний раз писал {msg_time}'
-    return msg
+    return f'@{msg_usr_name}, пользователь {username} последний раз писал {msg_time}'
