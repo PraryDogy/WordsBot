@@ -134,7 +134,7 @@ def word_stat(msg_chat_id, args: str):
     msg_list = []
     msg_list.append(f'Статистика слова {args}.')
 
-    word_st[0].sort()
+    sorted(word_st[0])
     similar_words = ", ".join(word_st[0])
 
     if similar_words:
