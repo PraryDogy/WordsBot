@@ -85,6 +85,7 @@ async def inline_libera(inline_query: InlineQuery):
     items.append(ItemFat(inline_query.from_user.id).item)
     items.append(ItemMobi(inline_query.from_user.id).item)
     items.append(ItemPuppy(inline_query.from_user.id).item)
+    items.append(ItemPenis(inline_query.from_user.id).item)
 
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
 
@@ -113,4 +114,5 @@ if __name__ == '__main__':
     inp = input(
         'Вы уверены, что сменили токен бота? Напишите любую букву и нажми ввод. Для отмены нажмите только ввод\n')
     if inp:
+        Dbase.base.metadata.create_all(Dbase.conn)
         executor.start_polling(dp, skip_updates=True)

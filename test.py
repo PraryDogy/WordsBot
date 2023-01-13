@@ -52,23 +52,22 @@ def db_words_record(msg_usr_id, msg_chat_id, words_list):
     * `words_list`: list of words
     """
     query = sqlalchemy.select(Words.id, Words.word, Words.count)\
-        .where(Words.user_id==msg_usr_id, Words.chat_id==msg_chat_id)
+        .where(Words.user_id==msg_usr_id, Words.chat_id==msg_chat_id,
+        Words.word.in_(words_list))
     db_data = Dbase.conn.execute(query).all()
 
-    db_words = [i[1] for i in db_data]
-    new_words = Counter([i for i in words_list if i not in db_words])
+    words_list_c = Counter(words_list)
 
-    for w, c in new_words.items():
-        vals = {'word': w, 'count': c, 'user_id': msg_usr_id, 'chat_id': msg_chat_id}
+    new_words = set(i for i in words_list if i not in [i[1] for i in db_data])
+    old_words = [(x, y, z) for x, y, z in db_data if y in words_list]
+
+    for word in new_words:
+        vals = {'word': word, 'count': words_list_c[word],\
+            'user_id': msg_usr_id, 'chat_id': msg_chat_id}
         q = sqlalchemy.insert(Words).values(vals)
         Dbase.conn.execute(q)
 
-    old_words = [(x, y, z) for x, y, z in db_data if y in words_list]
-
-    for x, y, z in old_words:
-        vals = {'count': z + len([i for i in words_list if i == y])}
-        q = sqlalchemy.update(Words).where(Words.id==x).values(vals)
+    for id, word, count in old_words:
+        vals = {'count': count + words_list_c[word]}
+        q = sqlalchemy.update(Words).where(Words.id==id).values(vals)
         Dbase.conn.execute(q)
-
-
-# db_words_record(123, 123, ['мама', 'мама', 'вода', 'снег'])

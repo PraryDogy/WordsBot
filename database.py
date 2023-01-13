@@ -64,6 +64,11 @@ class MobiModel(TestBaseModel):
     user_id = Column(Integer, ForeignKey('users.user_id'))
 
 
+class PenisModel(TestBaseModel):
+    __tablename__ = 'penis'
+    user_id = Column(Integer, ForeignKey('users.user_id'))
+
+
 class PuppyModel(TestBaseModel):
     __tablename__ = 'puppies'
     user_id = Column(Integer, ForeignKey('users.user_id'))

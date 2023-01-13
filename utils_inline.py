@@ -211,6 +211,29 @@ class PercentTestMobi(PercentTestResult):
         PercentTestResult.__init__(self, msg_usr_id, MobiModel, before_value)
 
 
+class PercentTestPenis(PercentTestResult):
+    def __init__(self, msg_usr_id):
+        """`msg`"""
+        penises = [
+            'бантика', 'елдака', 'члена', 'краша', 'сосисона', 'кончика',
+            'дружка', 'туза', 'ствола', 'хобота', 'хуя', 'пениса', 'дрына',
+            'младшего братика', 'шершавого'
+            ]
+        before_value = f'Длина моего {random.choice(penises)}'
+        PercentTestResult.__init__(self, msg_usr_id, PenisModel, before_value)
+        self.msg = self.msg.replace('%', 'см')
+
+
+class ItemPenis(TxtInlineItemBase):
+    def __init__(self, msg_usr_id: int):
+        test_res = PercentTestPenis(msg_usr_id)
+        header = 'Длина моего члена'
+        descr = 'Скинь дикпик для точного замера'
+        thumb = 'https://sun9-21.userapi.com/impg/Nv7LQ95rTyFbFIaaadAGPLP1XWDQpICJedY00Q/ZxO3px1UxXA.jpg?size=320x320&quality=95&sign=f3ecf3e4d08507702a438d38cdc86472&type=album'
+        TxtInlineItemBase.__init__(
+            self, header, descr, thumb, test_res.msg)
+
+
 class ImgTestPuppies(ImgTestResult):
     def __init__(self, msg_usr_id: int):
         """`msg`, `img_url`"""
