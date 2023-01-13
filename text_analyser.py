@@ -1,22 +1,20 @@
-import string
-
 import spacy
-from pymorphy2 import MorphAnalyzer
+# from pymorphy2 import MorphAnalyzer
 
 from dicts import stop_words
-from datetime import datetime
 import re
 
 
 'python -m spacy download ru_core_news_md'
-
 print('load spacy model')
+
 nlp = spacy.load("ru_core_news_md")
-lemmatizer = MorphAnalyzer()
+# lemmatizer = MorphAnalyzer()
 
 
 def normalize_word(word: str):
-    return lemmatizer.parse(word)[0].normal_form
+    return [i.lemma_ for i in nlp(word)][0] if word else False
+    # return lemmatizer.parse(word)[0].normal_form
 
 
 def words_regex(message: str):

@@ -132,3 +132,40 @@ def right_joins():
         Users, Users.user_id==Words.user_id).where(
         Users.user_name=='Evlosh').order_by(-Words.count)
     return Dbase.conn.execute(q).all()
+
+
+print('чтоть это чтото')
+vals = {'word': 'чтото'}
+q = sqlalchemy.update(Words).filter(Words.word=='чтоть').values(vals)
+Dbase.conn.execute(q)
+
+print('чпка это чпок')
+vals = {'word': 'чпок'}
+q = sqlalchemy.update(Words).filter(Words.word=='чпка').values(vals)
+Dbase.conn.execute(q)
+
+print('remove all non alphabetic symbolds and lemm this words')
+
+import re
+from text_analyser import normalize_word
+
+q = sqlalchemy.select(Words.id, Words.word)
+res = Dbase.conn.execute(q).all()
+words_update = []
+
+reg = r'\W'
+for id, word in res:
+    find = re.findall(reg, word)
+    if find:
+        for symb in find:
+            word = word.replace(symb, '')
+        word = normalize_word(word)
+        words_update.append((id, word))
+
+print(words_update)
+
+for id, word in words_update:
+    q = sqlalchemy.delete(Words).filter(Words.id==id)
+    Dbase.conn.execute(q)
+
+print('удали из database.py это говно')
