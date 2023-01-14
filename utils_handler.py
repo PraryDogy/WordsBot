@@ -116,29 +116,34 @@ def word_stat(msg_chat_id, args: str):
     if not args:
         return 'Пример команды /word_stat слово.'
 
-    norm_word = normalize_word(args)
+    args = args.lower()
+    word_variants = []
+    word_stats = []
 
-    norm_word_st = db_word_stat_get(msg_chat_id, norm_word)
-    args_st = db_word_stat_get(msg_chat_id, args.lower())
-    word_st = []
+    word_variants.append(args)
+    word_variants.append(normalize_word(args))
+    word_variants.append(args[:-1] if len(args) > 3 else args)
+    word_variants.append(args[:-2] if len(args) > 5 else args)
 
-    if not norm_word_st or not args_st:
+    for i in set(word_variants):
+        res = db_word_stat_get(msg_chat_id, i)
+        [word_stats.append(res) if res else False]
+
+    if not word_stats:
         return 'Нет данных о таком слове.'
 
-    for a, b in zip(norm_word_st, args_st):
-        word_st.append(max(a, b))
+    maxi = max(*word_stats) if len(word_stats) > 1 else word_stats[0]
 
     msg_list = []
     msg_list.append(f'Статистика слова {args}.')
 
-    sorted(word_st[0])
-    similar_words = ", ".join(word_st[0])
+    similar_words = ", ".join(sorted(maxi[0]))
 
     if similar_words:
         msg_list.append(f'Похожие слова: {similar_words}.')
 
-    msg_list.append(f'Было сказано: {word_st[1]} раз.')
-    msg_list.append(f'Эти слова сказало {word_st[2]} человек.')
+    msg_list.append(f'Было сказано: {maxi[1]} раз.')
+    msg_list.append(f'Эти слова сказало {maxi[2]} человек.')
     msg_list.append('Попробуйте написать корень слова для лучшего результата.')
 
     return '\n'.join(msg_list)
