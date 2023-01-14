@@ -98,7 +98,7 @@ def db_chat_words_get(msg_chat_id, words_limit=None):
 
 def db_user_time_get(username):
     """
-    Returns db datetime `str` or `None`
+    Returns datetime in `str` format when user write message last time or `None`
     """
     q = sqlalchemy.select(Users.last_time).where(Users.user_name==username)
     return Dbase.conn.execute(q).first()
