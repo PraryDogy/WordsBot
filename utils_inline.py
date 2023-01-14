@@ -232,6 +232,6 @@ class ItemPuppy(ImgInlineItemBase):
         test_res = TestPuppies(msg_usr_id)
         header = 'Какой я сегодня пупи'
         descr = 'При поддержке Николая Дроздова'
-        thumb = ''
+        thumb = 'https://sun9-85.userapi.com/impg/NqUV3dpQHXM1ZlWI3wEQo64N4wEQ5-XHqj5b_w/QkN0tTl-Y9c.jpg?size=300x300&quality=95&sign=e44892df7eb1b54d75781d2dbcd7cdf1&type=album'
         ImgInlineItemBase.__init__(
-            self, header, descr, test_res.img_url, test_res.msg)
+            self, header, descr, test_res.img_url, thumb, test_res.msg)
