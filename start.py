@@ -78,11 +78,11 @@ async def inline_libera(inline_query: InlineQuery):
     db_user_record(inline_query.from_user.id, inline_query.from_user.username)
 
     items = []
+    items.append(ItemPuppy(inline_query.from_user.id).item)
+    items.append(ItemPenis(inline_query.from_user.id).item)
     items.append(ItemLibera(inline_query.from_user.id).item)
     items.append(ItemFat(inline_query.from_user.id).item)
     items.append(ItemMobi(inline_query.from_user.id).item)
-    items.append(ItemPuppy(inline_query.from_user.id).item)
-    items.append(ItemPenis(inline_query.from_user.id).item)
 
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
 

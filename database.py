@@ -74,14 +74,6 @@ class PuppyModel(TestBaseModel):
     user_id = Column(Integer, ForeignKey('users.user_id'))
 
 
-class PairingModel(Dbase.base):
-    __tablename__ = 'pairing'
-    id = Column(Integer, primary_key=True)
-    pair = Column(Text)
-    time = Column(Text)
-    user_id = Column(Integer)
-
-
 class Migration:
     def migrate_table(self, name):
         import sqlite3
@@ -132,3 +124,30 @@ def right_joins():
         Users, Users.user_id==Words.user_id).where(
         Users.user_name=='Evlosh').order_by(-Words.count)
     return Dbase.conn.execute(q).all()
+
+
+
+def remove_dubs(model: TestBaseModel):
+    q = sqlalchemy.select(model.id, model.user_id)
+    res = Dbase.conn.execute(q).all()
+    ids = {}
+
+    for id, usr_id in res:
+        if not ids.get(usr_id):
+            ids[usr_id] = [id]
+        else:
+            ids[usr_id].append(id)
+
+    ids_to_rem = {}
+    for k, v in ids.items():
+        if len(v) > 1:
+            ids_to_rem[k] = v[:-1]
+
+    for id_list in ids_to_rem.values():
+        for id in id_list:
+            q = sqlalchemy.delete(model).where(model.id==id)
+            Dbase.conn.execute(q)
+
+
+for i in [FatModel, MobiModel, LiberaModel, PuppyModel, PenisModel]:
+    remove_dubs(i)

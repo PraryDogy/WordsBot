@@ -38,9 +38,9 @@ class TestUtils:
         Dbase.conn.execute(update_record)
 
     def record_get(self, msg_usr_id, model: TestBaseModel):
+        """Returns value"""
         select_value = sqlalchemy.select(model.value).where(model.user_id==msg_usr_id)
-        old_value = Dbase.conn.execute(select_value).first()
-        return old_value[0] if old_value else False
+        return Dbase.conn.execute(select_value).first()[0]
 
     def get_db_usr_time(self, msg_usr_id: int, model: TestBaseModel):
         """
@@ -53,47 +53,45 @@ class TestUtils:
             return self.today
         return datetime.strptime(res[0], '%Y-%m-%d %H:%M:%S')
 
-    def need_update(self, usr_time: datetime):
-        if (self.today - usr_time).days >= 1:
-            return True
-        return False
+    def need_upd(self, usr_time: datetime):
+        return bool((datetime.today()-usr_time).days >= 1)
 
     def time_row(self, usr_time: datetime):
         """
         Retutns string when user can update test results in next time:
         `Обновить можно сегодня/завтра в часов:минут`
         """
-        if (self.today - usr_time).days >= 1:
-            day = 'завтра'
-            new_time = self.today + timedelta(days=1)
+        when_upd = usr_time + timedelta(days=1)
+        if self.today.date() == (usr_time + timedelta(days=1)).date():
+            day = 'сегодня'
         else:
             day = 'завтра'
-            new_time = usr_time + timedelta(days=1)
-        return ''
-        return f'Обновить можно {day} в {new_time.strftime("%H:%M")}'
+        return f'Обновить можно {day} в {when_upd.strftime("%H:%M")}'
 
     def gold_chance(self):
         chance = 0.05
         return bool(math.floor(random.uniform(0, 1/(1-chance))))
 
-
-class ImgTestResult(TestUtils):
-    def __init__(self, msg_usr_id, model: TestBaseModel, *args):
+    def create_test(self, msg_usr_id, model: TestBaseModel, value):
+        """Returns value, usr_time.
+        * Creates new record if user's record not exists.
+        * Updates user's record if last update time > 1 day ago.
+        * Gets old value and last update time if last update time < 1 day ago.
         """
-        * `args`: img links list, good_words below image
-        * `img_url`, `msg`
-        """
-        TestUtils.__init__(self)
-        self.img_url = random.choice(args[0])
+        if self.user_check(msg_usr_id, model):
 
-        if not self.user_new(msg_usr_id, model, self.img_url) or \
-            not self.record_update(msg_usr_id, model, self.img_url):
-            
-            self.img_url = self.record_get(msg_usr_id, model)
+            usr_time = self.get_db_usr_time(msg_usr_id, model)
+            if self.need_upd(usr_time):
+                self.record_update(msg_usr_id, model, value)
+                usr_time = self.today
+            else:
+                value = self.record_get(msg_usr_id, model)
 
-        good_row = random.choice(args[1])
-        time_row = self.time_row(self.get_db_usr_time(msg_usr_id, model))
-        self.msg = f'{good_row}\n{time_row}'
+        else:
+            self.user_new(msg_usr_id, model, value)
+            usr_time = self.today
+
+        return value, usr_time
 
 
 class TxtInlineItemBase:
@@ -138,23 +136,10 @@ class ImgInlineItemBase:
 class TestFat(TestUtils):
     def __init__(self, msg_usr_id):
         TestUtils.__init__(self)
-        value = random.randint(0, 100)
-
-        if self.user_check(msg_usr_id, FatModel):
-            usr_time = self.get_db_usr_time(msg_usr_id, FatModel)
-
-            if self.need_update(usr_time):
-                self.record_update(msg_usr_id, FatModel, value)
-
-            else:
-                value = self.record_get(msg_usr_id, FatModel)
-
-        else:
-            self.user_new(msg_usr_id, FatModel, value)
-            usr_time = self.today
-
-        self.msg = '\n'.join([f"Я жирный на {value}%", 
-        self.time_row(usr_time)])
+        value, usr_time = self.create_test(
+            msg_usr_id, FatModel, random.randint(0, 100))
+        self.msg = '\n'.join(
+            [f"Я жирный на {value}%", self.time_row(usr_time)])
 
 
 class ItemFat(TxtInlineItemBase):
@@ -169,22 +154,11 @@ class ItemFat(TxtInlineItemBase):
 class TestLibera(TestUtils):
     def __init__(self, msg_usr_id):
         TestUtils.__init__(self)
-        value = random.randint(0, 100)
+        value, usr_time = self.create_test(
+            msg_usr_id, LiberaModel, random.randint(0, 100))
 
-        if self.user_check(msg_usr_id, LiberaModel):
-            usr_time = self.get_db_usr_time(msg_usr_id, LiberaModel)
-
-            if self.need_update(usr_time):
-                self.record_update(msg_usr_id, LiberaModel, value)
-
-            else:
-                value = self.record_get(msg_usr_id, LiberaModel)
-
-        else:
-            self.user_new(msg_usr_id, LiberaModel, value)
-            usr_time = self.today
-
-        self.msg = '\n'.join([f"Я либерал на {value}%", self.time_row(usr_time)])
+        self.msg = '\n'.join(
+            [f"Я либерал на {value}%", self.time_row(usr_time)])
 
 
 class ItemLibera(TxtInlineItemBase):
@@ -199,22 +173,11 @@ class ItemLibera(TxtInlineItemBase):
 class TestMobi(TestUtils):
     def __init__(self, msg_usr_id):
         TestUtils.__init__(self)
-        value = random.randint(0, 100)
+        value, usr_time = self.create_test(
+            msg_usr_id, MobiModel, random.randint(0, 100))
 
-        if self.user_check(msg_usr_id, MobiModel):
-            usr_time = self.get_db_usr_time(msg_usr_id, MobiModel)
-
-            if self.need_update(usr_time):
-                self.record_update(msg_usr_id, MobiModel, value)
-
-            else:
-                value = self.record_get(msg_usr_id, MobiModel)
-
-        else:
-            self.user_new(msg_usr_id, MobiModel, value)
-            usr_time = self.today
-
-        self.msg = '\n'.join([f"Шанс моей мобилизации {value}%", self.time_row(usr_time)])
+        self.msg = '\n'.join(
+            [f"Шанс моей мобилизации {value}%", self.time_row(usr_time)])
 
 
 class ItemMobi(TxtInlineItemBase):
@@ -236,25 +199,12 @@ class TestPenis(TestUtils):
             ]
         penis = random.choice(penises)
         value = 49.5 if self.gold_chance() else random.randint(0, 40)
-
-        if self.user_check(msg_usr_id, MobiModel):
-            usr_time = self.get_db_usr_time(msg_usr_id, MobiModel)
-
-            if self.need_update(usr_time):
-                self.record_update(msg_usr_id, MobiModel, value)
-
-            else:
-                value = self.record_get(msg_usr_id, MobiModel)
-
-        else:
-            self.user_new(msg_usr_id, MobiModel, value)
-            usr_time = self.today
+        value, usr_time = self.create_test(msg_usr_id, PenisModel, value)
 
         if msg_usr_id == 248208655:
             value = 9000
 
-        self.msg = '\n'.join([f"Длина моего {penis} {value}см",
-                self.time_row(self.get_db_usr_time(msg_usr_id, MobiModel))])
+        self.msg = '\n'.join([f"Длина моего {penis} {value}см", self.time_row(usr_time)])
 
 
 class ItemPenis(TxtInlineItemBase):
@@ -266,19 +216,21 @@ class ItemPenis(TxtInlineItemBase):
             self, header, descr, thumb, TestPenis(msg_usr_id).msg)
 
 
-class ImgTestPuppies(ImgTestResult):
+class TestPuppies(TestUtils):
     def __init__(self, msg_usr_id: int):
-        """`msg`, `img_url`"""
-        ImgTestResult.__init__(
-            self, msg_usr_id, PuppyModel,
-            dicts.puppies_url_list, dicts.puppies_caption)
+        TestUtils.__init__(self)
+        value = random.choice(dicts.puppies_url_list)
+        value, usr_time = self.create_test(msg_usr_id, PuppyModel, value)
+
+        self.img_url = value
+        self.msg = '\n'.join(
+            [f'{random.choice(dicts.puppies_caption)}', self.time_row(usr_time)])
 
 
 class ItemPuppy(ImgInlineItemBase):
     def __init__(self, msg_usr_id):
-        test_res = ImgTestPuppies(msg_usr_id)
+        test_res = TestPuppies(msg_usr_id)
         header = 'Какой я сегодня пупи'
         descr = 'При поддержке Николая Дроздова'
         ImgInlineItemBase.__init__(
-            self, header, descr,
-            test_res.img_url, test_res.msg)
+            self, header, descr, test_res.img_url, test_res.msg)
