@@ -89,7 +89,7 @@ def top_boltunov(msg_chat_id, msg_username):
     words count.
     """
     user_words = []
-    unique = []
+    msg = []
 
     for db_user_id, db_user_name in db_all_usernames_get():
 
@@ -99,20 +99,17 @@ def top_boltunov(msg_chat_id, msg_username):
             .where(Words.user_id==db_user_id, Words.chat_id==msg_chat_id)
         all_words_c, uniq_words_c = Dbase.conn.execute(q).first()
 
-        user_words.append((db_user_name, all_words_c)) if all_words_c else False
-        unique.append((db_user_name, uniq_words_c)) if uniq_words_c else False
+        uniq = int(100*(uniq_words_c/all_words_c)) if uniq_words_c else False
+        user_words.append((db_user_name, all_words_c, uniq)) if all_words_c else False
 
-    res = []
-    for words_list in (user_words, unique):
-        tmp = sorted(words_list, key=lambda x: x[1], reverse=1)[:10]
-        res.append('\n'.join(f'{i[0]}: {i[1]} слов' for i in tmp))
+    user_words = sorted(user_words, key=lambda i: i[1], reverse=1)
 
-    return (
-        f'@{msg_username}, топ 10 пиздюшек:\n'
-        f'{res[0]}\n\n'
-        'Топ 10 по уникальным словам:\n'
-        f'{res[1]}\n'
-        )
+    msg.append(f'@{msg_username}, топ 10 пиздюшек.')
+    msg.append('Имя, количество слов, процент уникальных:\n')
+    for name, words, perc in user_words[:10]:
+        msg.append(f'{name}: {words}, {perc}%')
+
+    return '\n'.join(msg)
 
 
 def word_stat(msg_chat_id, args: str):
