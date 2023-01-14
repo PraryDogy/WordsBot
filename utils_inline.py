@@ -114,7 +114,7 @@ class TxtInlineItemBase:
 
 
 class ImgInlineItemBase:
-    def __init__(self, header: str, descr, img_url, msg):
+    def __init__(self, header: str, descr, img_url, thumb_url, msg):
         """
         * `header`: inline header
         * `descr`: inline description
@@ -125,7 +125,7 @@ class ImgInlineItemBase:
         self.item = InlineQueryResultPhoto(
             id=hashlib.md5(header.encode()).hexdigest(),
             photo_url=img_url,
-            thumb_url=img_url,
+            thumb_url=thumb_url,
             title=header,
             description=descr,
             caption=msg,
@@ -232,5 +232,6 @@ class ItemPuppy(ImgInlineItemBase):
         test_res = TestPuppies(msg_usr_id)
         header = 'Какой я сегодня пупи'
         descr = 'При поддержке Николая Дроздова'
+        thumb = ''
         ImgInlineItemBase.__init__(
             self, header, descr, test_res.img_url, test_res.msg)
