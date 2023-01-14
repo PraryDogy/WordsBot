@@ -114,7 +114,7 @@ class TxtInlineItemBase:
 
 
 class ImgInlineItemBase:
-    def __init__(self, header: str, descr, img_url, thumb_url, msg):
+    def __init__(self, header: str, descr, img_url, msg):
         """
         * `header`: inline header
         * `descr`: inline description
@@ -125,7 +125,7 @@ class ImgInlineItemBase:
         self.item = InlineQueryResultPhoto(
             id=hashlib.md5(header.encode()).hexdigest(),
             photo_url=img_url,
-            thumb_url=thumb_url,
+            thumb_url=img_url,
             title=header,
             description=descr,
             caption=msg,
@@ -227,11 +227,10 @@ class TestPuppies(TestUtils):
             [f'{random.choice(dicts.puppies_caption)}', self.time_row(usr_time)])
 
 
-class ItemPuppy(ImgInlineItemBase):
+class ItemPuppies(ImgInlineItemBase):
     def __init__(self, msg_usr_id):
         test_res = TestPuppies(msg_usr_id)
         header = 'Какой я сегодня пупи'
         descr = 'При поддержке Николая Дроздова'
-        thumb = 'https://sun9-85.userapi.com/impg/NqUV3dpQHXM1ZlWI3wEQo64N4wEQ5-XHqj5b_w/QkN0tTl-Y9c.jpg?size=300x300&quality=95&sign=e44892df7eb1b54d75781d2dbcd7cdf1&type=album'
         ImgInlineItemBase.__init__(
-            self, header, descr, test_res.img_url, thumb, test_res.msg)
+            self, header, descr, test_res.img_url, test_res.msg)
