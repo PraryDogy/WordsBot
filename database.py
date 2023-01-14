@@ -126,7 +126,6 @@ def right_joins():
     return Dbase.conn.execute(q).all()
 
 
-
 def remove_dubs(model: TestBaseModel):
     q = sqlalchemy.select(model.id, model.user_id)
     res = Dbase.conn.execute(q).all()
@@ -147,7 +146,3 @@ def remove_dubs(model: TestBaseModel):
         for id in id_list:
             q = sqlalchemy.delete(model).where(model.id==id)
             Dbase.conn.execute(q)
-
-
-for i in [FatModel, MobiModel, LiberaModel, PuppyModel, PenisModel]:
-    remove_dubs(i)
