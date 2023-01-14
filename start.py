@@ -1,6 +1,3 @@
-import re
-
-import clipboard
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import InlineQuery
 
@@ -88,15 +85,6 @@ async def inline_libera(inline_query: InlineQuery):
     items.append(ItemPenis(inline_query.from_user.id).item)
 
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
-
-
-# @dp.message_handler(content_types=['photo'])
-# async def get_sticker_id(message):
-#     reg = r'"file_id": "\S*"'
-#     res = re.findall(reg, str(message))
-#     file_id = res[-1].split(' ')[-1].strip('"')
-#     clipboard.copy(file_id)
-#     print(file_id)
 
 
 @dp.message_handler()

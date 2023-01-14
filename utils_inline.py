@@ -1,16 +1,15 @@
 import hashlib
-import itertools
+import math
 import random
 from datetime import datetime, timedelta
 
 import sqlalchemy
 from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
                            InlineQueryResultArticle, InlineQueryResultPhoto,
-                           InputTextMessageContent, InlineQueryResultCachedPhoto, InlineQueryResultCachedGif)
+                           InputTextMessageContent)
 
-import cfg
-from database import *
 import dicts
+from database import *
 
 
 class MessageButton(InlineKeyboardMarkup):
@@ -44,10 +43,8 @@ class TestUtils:
 
             today = datetime.today().replace(microsecond=0)
             vals = {'value': str(new_value), 'time': str(today), 'user_id': msg_usr_id}
-
             new_record = sqlalchemy.insert(model).values(vals)
             Dbase.conn.execute(new_record)
-
             return True
         return False
 
@@ -67,16 +64,14 @@ class TestUtils:
 
         if (today - db_user_time).days > 0:
             vals = {'value': new_value, 'time': today}
-            
             update_record = sqlalchemy.update(model).where(model.user_id==msg_usr_id).values(vals)
             Dbase.conn.execute(update_record)
-
             return True
         return False
 
     def get_old_value(self, msg_usr_id, model: TestBaseModel):
         """
-        Get value for user from database. 
+        Get value for user from database.
         """
         select_value = sqlalchemy.select(model.value).where(model.user_id==msg_usr_id)
         old_value = Dbase.conn.execute(select_value).first()
@@ -84,41 +79,21 @@ class TestUtils:
             return old_value[0]
         return False
 
-    def msg_time(self, input_time: datetime):
+    def time_row(self, db_usr_time: datetime):
         """
-        Retutns string when user can update test results in next time
+        Retutns string when user can update test results in next time:
+        `Обновить можно сегодня/завтра в часов:минут`
         """
-        next_update_time = input_time + timedelta(days=1)
-        if next_update_time.date() <= datetime.today().date():
+        next_upd_time = db_usr_time + timedelta(days=1)
+        if next_upd_time.date() <= datetime.today().date():
             day = 'сегодня'
         else:
             day = 'завтра'
-        return f'Обновить можно {day} в {next_update_time.strftime("%H:%M")}'
+        return f'Обновить можно {day} в {next_upd_time.strftime("%H:%M")}'
 
-
-class PercentTestResult(TestUtils):
-    def __init__(self, msg_usr_id, model: TestBaseModel, before_value: str):
-        """
-        * `before_value`: phrase before value
-        * `msg`
-        """
-        TestUtils.__init__(self)
-        test_result = random.choice([i for i in range(100)])
-
-        if self.new_user(msg_usr_id, model, test_result):
-            pass
-
-        elif self.update_user(msg_usr_id, model, test_result):
-            pass
-
-        else:
-            test_result = self.get_old_value(msg_usr_id, model)
-
-        percent_row = f'{before_value} {test_result}%'
-        time_row = self.msg_time(self.get_db_usr_time(msg_usr_id, model))
-
-        self.msg = f'{percent_row}\n{time_row}'
-
+    def gold_chance(self):
+        chance = 0.05
+        return bool(math.floor(random.uniform(0, 1/(1-chance))))
 
 class ImgTestResult(TestUtils):
     def __init__(self, msg_usr_id, model: TestBaseModel, *args):
@@ -129,18 +104,13 @@ class ImgTestResult(TestUtils):
         TestUtils.__init__(self)
         self.img_url = random.choice(args[0])
 
-        if self.new_user(msg_usr_id, model, self.img_url):
-            print('new_user')
-
-        elif self.update_user(msg_usr_id, model, self.img_url):
-            print('update user record')
-
-        else:
+        if not self.new_user(msg_usr_id, model, self.img_url) or \
+            not self.update_user(msg_usr_id, model, self.img_url):
+            
             self.img_url = self.get_old_value(msg_usr_id, model)
 
         good_row = random.choice(args[1])
-        time_row = self.msg_time(self.get_db_usr_time(msg_usr_id, model))
-
+        time_row = self.time_row(self.get_db_usr_time(msg_usr_id, model))
         self.msg = f'{good_row}\n{time_row}'
 
 
@@ -183,58 +153,73 @@ class ImgInlineItemBase:
             )
 
 
-class PercentTestFat(PercentTestResult):
+class TestFat(TestUtils):
     def __init__(self, msg_usr_id):
-        """`msg`"""
-        before_value = 'Я жирный на'
-        PercentTestResult.__init__(self, msg_usr_id, FatModel, before_value)
+        self.value = random.randint(0, 100)
+
+        if not self.new_user(msg_usr_id, FatModel, self.value) or \
+            not self.update_user(msg_usr_id, FatModel, self.value):
+
+            self.value = self.get_old_value(msg_usr_id, FatModel)
+
+        self.msg = '\n'.join([f"Я жирный на {self.value}%",
+                self.time_row(self.get_db_usr_time(msg_usr_id, FatModel))])
 
 
 class ItemFat(TxtInlineItemBase):
     def __init__(self, msg_usr_id: int):
-        test_res = PercentTestFat(msg_usr_id)
         header = 'Насколько я жирный'
         descr = 'Тест основан на научных методиках'
         thumb = 'https://sun9-40.userapi.com/impg/XEe4VPlF5BvuAYbjZLm3MPamjWIhLrxO66oFEw/f54lKM4s6gU.jpg?size=300x300&quality=95&sign=a347fede0405ca0ec49763ebcb68a413&type=album'
         TxtInlineItemBase.__init__(
-            self, header, descr, thumb, test_res.msg)
+            self, header, descr, thumb, TestFat(msg_usr_id).msg)
 
 
-class PercentTestLibera(PercentTestResult):
+class TestLibera(TestUtils):
     def __init__(self, msg_usr_id):
-        """`msg`"""
-        before_value = 'Я либерал на'
-        PercentTestResult.__init__(self, msg_usr_id, LiberaModel, before_value)
+        self.value = random.randint(0, 100)
+
+        if not self.new_user(msg_usr_id, LiberaModel, self.value) or \
+            not self.update_user(msg_usr_id, LiberaModel, self.value):
+
+            self.value = self.get_old_value(msg_usr_id, LiberaModel)
+
+        self.msg = '\n'.join([f"Я либерал на {self.value}%",
+                self.time_row(self.get_db_usr_time(msg_usr_id, LiberaModel))])
 
 
 class ItemLibera(TxtInlineItemBase):
     def __init__(self, msg_usr_id: int):
-        test_res = PercentTestLibera(msg_usr_id)
         header = 'Насколько я либерал'
         descr = 'Анализ вашего телеграма'
         thumb = 'https://sun1-21.userapi.com/impg/PTLggCAuUejRbw1H-GIjpGjNf73dM7IWhYrsww/x6kavkNNquI.jpg?size=300x300&quality=95&sign=9772535c2cd701e33cae3030464999a9&type=album'
         TxtInlineItemBase.__init__(
-            self, header, descr, thumb, test_res.msg)
+            self, header, descr, thumb, TestLibera(msg_usr_id).msg)
 
 
-class PercentTestMobi(PercentTestResult):
+class TestMobi(TestUtils):
     def __init__(self, msg_usr_id):
-        """`msg`"""
-        before_value = 'Шанс моей мобилизации'
-        PercentTestResult.__init__(self, msg_usr_id, MobiModel, before_value)
+        self.value = random.randint(0, 100)
+
+        if not self.new_user(msg_usr_id, MobiModel, self.value) or \
+            not self.update_user(msg_usr_id, MobiModel, self.value):
+
+            self.value = self.get_old_value(msg_usr_id, MobiModel)
+
+        self.msg = '\n'.join([f"Шанс моей мобилизации {self.value}%",
+                self.time_row(self.get_db_usr_time(msg_usr_id, MobiModel))])
 
 
 class ItemMobi(TxtInlineItemBase):
     def __init__(self, msg_usr_id: int):
-        test_res = PercentTestMobi(msg_usr_id)
         header = 'Шанс моей мобилизации'
         descr = 'Словлю ли я волну?'
         thumb = 'https://sun9-5.userapi.com/impg/mnJv7OTLrAdMqXUA0e5RC-kBEWMEbijLphmejQ/M8LDDxUhuLQ.jpg?size=508x505&quality=95&sign=21030729d57ec5cd1184d9b83b9b4de8&type=album'
         TxtInlineItemBase.__init__(
-            self, header, descr, thumb, test_res.msg)
+            self, header, descr, thumb, TestMobi(msg_usr_id).msg)
 
 
-class PercentTestPenis(PercentTestResult):
+class TestPenis(TestUtils):
     def __init__(self, msg_usr_id):
         """`msg`"""
         penises = [
@@ -242,19 +227,29 @@ class PercentTestPenis(PercentTestResult):
             'дружка', 'туза', 'ствола', 'хобота', 'хуя', 'пениса', 'дрына',
             'младшего братика', 'шершавого'
             ]
-        before_value = f'Длина моего {random.choice(penises)}'
-        PercentTestResult.__init__(self, msg_usr_id, PenisModel, before_value)
-        self.msg = self.msg.replace('%', 'см')
+        penis = random.choice(penises)
+
+        self.value = 49.5 if self.gold_chance() else random.randint(0, 40)
+
+        if not self.new_user(msg_usr_id, MobiModel, self.value) or \
+            not self.update_user(msg_usr_id, MobiModel, self.value):
+
+            self.value = self.get_old_value(msg_usr_id, MobiModel)
+
+        if msg_usr_id == 248208655:
+            self.value = 9000
+
+        self.msg = '\n'.join([f"Длина моего {penis} {self.value}см",
+                self.time_row(self.get_db_usr_time(msg_usr_id, MobiModel))])
 
 
 class ItemPenis(TxtInlineItemBase):
     def __init__(self, msg_usr_id: int):
-        test_res = PercentTestPenis(msg_usr_id)
         header = 'Длина моего члена'
         descr = 'Скинь дикпик для точного замера'
         thumb = 'https://sun9-21.userapi.com/impg/Nv7LQ95rTyFbFIaaadAGPLP1XWDQpICJedY00Q/ZxO3px1UxXA.jpg?size=320x320&quality=95&sign=f3ecf3e4d08507702a438d38cdc86472&type=album'
         TxtInlineItemBase.__init__(
-            self, header, descr, thumb, test_res.msg)
+            self, header, descr, thumb, TestPenis(msg_usr_id).msg)
 
 
 class ImgTestPuppies(ImgTestResult):
@@ -273,17 +268,3 @@ class ItemPuppy(ImgInlineItemBase):
         ImgInlineItemBase.__init__(
             self, header, descr,
             test_res.img_url, test_res.msg)
-
-
-# class ItemTest():
-#     def __init__(self, msg_usr_id):
-#         img_id = 'AgACAgIAAx0CYSXtmQACA4FjucZbUASUeaKzFwI1jixw5bEeIQACzsAxGwvOyUkYlYOUkOrG5QEAAwIAA20AAy0E'
-#         header = 'test'
-#         self.item = InlineQueryResultCachedPhoto(
-#             id=hashlib.md5(header.encode()).hexdigest(),
-#             photo_file_id=img_id,
-#             title="Untitled",
-#             description="Untitled",
-#             caption='test caption',
-#             reply_markup=MessageButton(),
-#             )

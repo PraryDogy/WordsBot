@@ -1,20 +1,18 @@
-import spacy
-# from pymorphy2 import MorphAnalyzer
-
-from dicts import stop_words
 import re
 
+import clipboard
+
+print('load spacy model')
+import spacy
+
+from dicts import stop_words
 
 'python -m spacy download ru_core_news_md'
-print('load spacy model')
-
 nlp = spacy.load("ru_core_news_md")
-# lemmatizer = MorphAnalyzer()
 
 
 def normalize_word(word: str):
     return [i.lemma_ for i in nlp(word)][0] if word else False
-    # return lemmatizer.parse(word)[0].normal_form
 
 
 def words_regex(message: str):
@@ -51,3 +49,12 @@ def get_nouns(db_words: tuple):
             if word.pos_ in ('NOUN', 'PROPN'):
                 res.append((word.text, c))
     return res
+
+
+def get_file_id(message):
+    reg = r'"file_id": "\S*"'
+    res = re.findall(reg, str(message))
+    file_id = res[-1].split(' ')[-1].strip('"')
+    clipboard.copy(file_id)
+    print(file_id)
+    return file_id
