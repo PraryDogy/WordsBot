@@ -20,6 +20,28 @@ class MessageButton(InlineKeyboardMarkup):
 
 
 class TestUtils:
+    def __init__(self):
+        self.today = datetime.today().replace(microsecond=0)
+
+    def user_check(self, msg_usr_id: int, model: TestBaseModel):
+        q = sqlalchemy.select(model).where(model.user_id==msg_usr_id)
+        return Dbase.conn.execute(q).first()
+
+    def user_new(self, msg_usr_id: int, model: TestBaseModel, new_value):
+        vals = {'value': str(new_value), 'time': str(self.today), 'user_id': msg_usr_id}
+        new_record = sqlalchemy.insert(model).values(vals)
+        Dbase.conn.execute(new_record)
+
+    def record_update(self, msg_usr_id, model: TestBaseModel, new_value):
+        vals = {'value': str(new_value), 'time': str(self.today)}
+        update_record = sqlalchemy.update(model).where(model.user_id==msg_usr_id).values(vals)
+        Dbase.conn.execute(update_record)
+
+    def record_get(self, msg_usr_id, model: TestBaseModel):
+        select_value = sqlalchemy.select(model.value).where(model.user_id==msg_usr_id)
+        old_value = Dbase.conn.execute(select_value).first()
+        return old_value[0] if old_value else False
+
     def get_db_usr_time(self, msg_usr_id: int, model: TestBaseModel):
         """
         Returns time from database by user_id in datetime format.
@@ -28,72 +50,32 @@ class TestUtils:
         res = Dbase.conn.execute(select_time).first()
         if not res:
             print(f'error get user time{msg_usr_id}')
-            return datetime.today().replace(microsecond=0)
+            return self.today
         return datetime.strptime(res[0], '%Y-%m-%d %H:%M:%S')
 
-    def new_user(self, msg_usr_id, model, new_value):
-        """
-        Returns True if user is new and new record was created. Else returns False.
-        * `msg_usr_id`: telegram message user id
-        * `model`: database model for any bot test (e.g: FatModel, PuppyModel)
-        * `new_value`: value for any bot test result (e.g: 0-100, img_url)
-        """
-        select_usr = sqlalchemy.select(model).where(model.user_id==msg_usr_id)
-        if not bool(Dbase.conn.execute(select_usr).first()):
-
-            today = datetime.today().replace(microsecond=0)
-            vals = {'value': str(new_value), 'time': str(today), 'user_id': msg_usr_id}
-            new_record = sqlalchemy.insert(model).values(vals)
-            Dbase.conn.execute(new_record)
+    def need_update(self, usr_time: datetime):
+        if (self.today - usr_time).days >= 1:
             return True
         return False
 
-    def update_user(self, msg_usr_id, model: TestBaseModel, new_value):
-        """
-        Returns True if exist user record was updated. Else returns False.
-        Compares `now` time and time when user record was updated `last time`.
-        If user record updated more than `one day ago` - updates record with
-        `new_value`.
-
-        * `msg_usr_id`: telegram message user id
-        * `model`: database model for any bot test (e.g: FatModel, PuppyModel)
-        * `new_value`: value for any bot test result (e.g: 0-100, img_url)
-        """
-        today = datetime.today().replace(microsecond=0)
-        db_user_time = self.get_db_usr_time(msg_usr_id, model)
-
-        if (today - db_user_time).days > 0:
-            vals = {'value': new_value, 'time': today}
-            update_record = sqlalchemy.update(model).where(model.user_id==msg_usr_id).values(vals)
-            Dbase.conn.execute(update_record)
-            return True
-        return False
-
-    def get_old_value(self, msg_usr_id, model: TestBaseModel):
-        """
-        Get value for user from database.
-        """
-        select_value = sqlalchemy.select(model.value).where(model.user_id==msg_usr_id)
-        old_value = Dbase.conn.execute(select_value).first()
-        if old_value:
-            return old_value[0]
-        return False
-
-    def time_row(self, db_usr_time: datetime):
+    def time_row(self, usr_time: datetime):
         """
         Retutns string when user can update test results in next time:
         `Обновить можно сегодня/завтра в часов:минут`
         """
-        next_upd_time = db_usr_time + timedelta(days=1)
-        if next_upd_time.date() <= datetime.today().date():
-            day = 'сегодня'
+        if (self.today - usr_time).days >= 1:
+            day = 'завтра'
+            new_time = self.today + timedelta(days=1)
         else:
             day = 'завтра'
-        return f'Обновить можно {day} в {next_upd_time.strftime("%H:%M")}'
+            new_time = usr_time + timedelta(days=1)
+        return ''
+        return f'Обновить можно {day} в {new_time.strftime("%H:%M")}'
 
     def gold_chance(self):
         chance = 0.05
         return bool(math.floor(random.uniform(0, 1/(1-chance))))
+
 
 class ImgTestResult(TestUtils):
     def __init__(self, msg_usr_id, model: TestBaseModel, *args):
@@ -104,10 +86,10 @@ class ImgTestResult(TestUtils):
         TestUtils.__init__(self)
         self.img_url = random.choice(args[0])
 
-        if not self.new_user(msg_usr_id, model, self.img_url) or \
-            not self.update_user(msg_usr_id, model, self.img_url):
+        if not self.user_new(msg_usr_id, model, self.img_url) or \
+            not self.record_update(msg_usr_id, model, self.img_url):
             
-            self.img_url = self.get_old_value(msg_usr_id, model)
+            self.img_url = self.record_get(msg_usr_id, model)
 
         good_row = random.choice(args[1])
         time_row = self.time_row(self.get_db_usr_time(msg_usr_id, model))
@@ -155,15 +137,24 @@ class ImgInlineItemBase:
 
 class TestFat(TestUtils):
     def __init__(self, msg_usr_id):
-        self.value = random.randint(0, 100)
+        TestUtils.__init__(self)
+        value = random.randint(0, 100)
 
-        if not self.new_user(msg_usr_id, FatModel, self.value) or \
-            not self.update_user(msg_usr_id, FatModel, self.value):
+        if self.user_check(msg_usr_id, FatModel):
+            usr_time = self.get_db_usr_time(msg_usr_id, FatModel)
 
-            self.value = self.get_old_value(msg_usr_id, FatModel)
+            if self.need_update(usr_time):
+                self.record_update(msg_usr_id, FatModel, value)
 
-        self.msg = '\n'.join([f"Я жирный на {self.value}%",
-                self.time_row(self.get_db_usr_time(msg_usr_id, FatModel))])
+            else:
+                value = self.record_get(msg_usr_id, FatModel)
+
+        else:
+            self.user_new(msg_usr_id, FatModel, value)
+            usr_time = self.today
+
+        self.msg = '\n'.join([f"Я жирный на {value}%", 
+        self.time_row(usr_time)])
 
 
 class ItemFat(TxtInlineItemBase):
@@ -177,15 +168,23 @@ class ItemFat(TxtInlineItemBase):
 
 class TestLibera(TestUtils):
     def __init__(self, msg_usr_id):
-        self.value = random.randint(0, 100)
+        TestUtils.__init__(self)
+        value = random.randint(0, 100)
 
-        if not self.new_user(msg_usr_id, LiberaModel, self.value) or \
-            not self.update_user(msg_usr_id, LiberaModel, self.value):
+        if self.user_check(msg_usr_id, LiberaModel):
+            usr_time = self.get_db_usr_time(msg_usr_id, LiberaModel)
 
-            self.value = self.get_old_value(msg_usr_id, LiberaModel)
+            if self.need_update(usr_time):
+                self.record_update(msg_usr_id, LiberaModel, value)
 
-        self.msg = '\n'.join([f"Я либерал на {self.value}%",
-                self.time_row(self.get_db_usr_time(msg_usr_id, LiberaModel))])
+            else:
+                value = self.record_get(msg_usr_id, LiberaModel)
+
+        else:
+            self.user_new(msg_usr_id, LiberaModel, value)
+            usr_time = self.today
+
+        self.msg = '\n'.join([f"Я либерал на {value}%", self.time_row(usr_time)])
 
 
 class ItemLibera(TxtInlineItemBase):
@@ -199,15 +198,23 @@ class ItemLibera(TxtInlineItemBase):
 
 class TestMobi(TestUtils):
     def __init__(self, msg_usr_id):
-        self.value = random.randint(0, 100)
+        TestUtils.__init__(self)
+        value = random.randint(0, 100)
 
-        if not self.new_user(msg_usr_id, MobiModel, self.value) or \
-            not self.update_user(msg_usr_id, MobiModel, self.value):
+        if self.user_check(msg_usr_id, MobiModel):
+            usr_time = self.get_db_usr_time(msg_usr_id, MobiModel)
 
-            self.value = self.get_old_value(msg_usr_id, MobiModel)
+            if self.need_update(usr_time):
+                self.record_update(msg_usr_id, MobiModel, value)
 
-        self.msg = '\n'.join([f"Шанс моей мобилизации {self.value}%",
-                self.time_row(self.get_db_usr_time(msg_usr_id, MobiModel))])
+            else:
+                value = self.record_get(msg_usr_id, MobiModel)
+
+        else:
+            self.user_new(msg_usr_id, MobiModel, value)
+            usr_time = self.today
+
+        self.msg = '\n'.join([f"Шанс моей мобилизации {value}%", self.time_row(usr_time)])
 
 
 class ItemMobi(TxtInlineItemBase):
@@ -221,25 +228,32 @@ class ItemMobi(TxtInlineItemBase):
 
 class TestPenis(TestUtils):
     def __init__(self, msg_usr_id):
-        """`msg`"""
+        TestUtils.__init__(self)
         penises = [
             'бантика', 'елдака', 'члена', 'краша', 'сосисона', 'кончика',
             'дружка', 'туза', 'ствола', 'хобота', 'хуя', 'пениса', 'дрына',
             'младшего братика', 'шершавого'
             ]
         penis = random.choice(penises)
+        value = 49.5 if self.gold_chance() else random.randint(0, 40)
 
-        self.value = 49.5 if self.gold_chance() else random.randint(0, 40)
+        if self.user_check(msg_usr_id, MobiModel):
+            usr_time = self.get_db_usr_time(msg_usr_id, MobiModel)
 
-        if not self.new_user(msg_usr_id, MobiModel, self.value) or \
-            not self.update_user(msg_usr_id, MobiModel, self.value):
+            if self.need_update(usr_time):
+                self.record_update(msg_usr_id, MobiModel, value)
 
-            self.value = self.get_old_value(msg_usr_id, MobiModel)
+            else:
+                value = self.record_get(msg_usr_id, MobiModel)
+
+        else:
+            self.user_new(msg_usr_id, MobiModel, value)
+            usr_time = self.today
 
         if msg_usr_id == 248208655:
-            self.value = 9000
+            value = 9000
 
-        self.msg = '\n'.join([f"Длина моего {penis} {self.value}см",
+        self.msg = '\n'.join([f"Длина моего {penis} {value}см",
                 self.time_row(self.get_db_usr_time(msg_usr_id, MobiModel))])
 
 
