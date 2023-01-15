@@ -223,7 +223,7 @@ class TestPuppies(TestUtils):
         self.img_url = value
         self.msg = '\n'.join(
             [
-                'Тест на пупи'
+                'Тест на пупи\n'
                 f'{random.choice(dicts.puppies_caption)}',
                 self.time_row(usr_time)
                 ])
