@@ -4,9 +4,7 @@ import random
 from datetime import datetime, timedelta
 
 import sqlalchemy
-from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
-                           InlineQueryResultArticle, InlineQueryResultPhoto,
-                           InputTextMessageContent)
+from aiogram.types import *
 
 import dicts
 from database import *
@@ -224,7 +222,11 @@ class TestPuppies(TestUtils):
 
         self.img_url = value
         self.msg = '\n'.join(
-            [f'{random.choice(dicts.puppies_caption)}', self.time_row(usr_time)])
+            [
+                'Тест на пупи'
+                f'{random.choice(dicts.puppies_caption)}',
+                self.time_row(usr_time)
+                ])
 
 
 class ItemPuppies(ImgInlineItemBase):
@@ -244,7 +246,11 @@ class TestPokemons(TestUtils):
 
         self.img_url = value
         self.msg = '\n'.join(
-            [f'{dicts.pokemons[value]}', self.time_row(usr_time)])
+            [
+                'Какой я сегодня покемон',
+                f'{dicts.pokemons[value].capitalize()}',
+                self.time_row(usr_time)
+                ])
 
 
 class ItemPokemons(ImgInlineItemBase):

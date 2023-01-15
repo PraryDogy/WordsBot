@@ -3,8 +3,7 @@ from datetime import datetime
 
 import sqlalchemy
 
-from database import Dbase, Users, Words
-from text_analyser import normalize_word
+from database import *
 
 
 def db_user_record(msg_user_id: int, msg_username: str):
@@ -59,15 +58,6 @@ def db_words_record(msg_usr_id, msg_chat_id, words_list):
         Dbase.conn.execute(q)
 
 
-def db_time_record(msg_usr_id):
-    """
-    Record when user send message last time.
-    """
-    vals = {'last_time': datetime.today().replace(microsecond=0)}
-    q = sqlalchemy.update(Users).where(Users.user_id==msg_usr_id).values(vals)
-    Dbase.conn.execute(q)
-
-
 def db_user_get(username: str):
     """
     Returns `user_id`, `username` or None
@@ -96,14 +86,6 @@ def db_chat_words_get(msg_chat_id, words_limit=None):
     return Dbase.conn.execute(q).fetchall()
 
 
-def db_user_time_get(username):
-    """
-    Returns datetime in `str` format when user write message last time or `None`
-    """
-    q = sqlalchemy.select(Users.last_time).where(Users.user_name==username)
-    return Dbase.conn.execute(q).first()
-
-
 def db_user_words_get(usr_id, msg_chat_id, words_limit=None):
     """
     Returns tuple tuples (`word`, `count`) for current user and chat, ordered by count.
@@ -113,18 +95,6 @@ def db_user_words_get(usr_id, msg_chat_id, words_limit=None):
         .where(Words.user_id==usr_id, Words.chat_id==msg_chat_id)\
         .order_by(-Words.count).limit(words_limit)
     return Dbase.conn.execute(q).all()
-
-
-def db_word_stat_get(msg_chat_id, args):
-    """
-    Returns `tuple` (how many people saif word, how many times people said word)
-    or None if word not found
-    """
-    q = sqlalchemy.select(
-        Dbase.sq_count(Words.word),\
-        Dbase.sq_sum(Words.count))\
-        .filter(Words.chat_id==msg_chat_id, Words.word==args)
-    return Dbase.conn.execute(q).first()
 
 
 def db_sim_words(msg_chat_id, input_word):

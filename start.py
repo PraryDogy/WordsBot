@@ -1,10 +1,9 @@
 from aiogram import Bot, Dispatcher, executor, types
-from aiogram.types import InlineQuery
+from aiogram.types import *
 
-import cfg
 from bot_config import TOKEN
 from database_queries import *
-from text_analyser import words_regex
+from text_analyser import *
 from utils_handler import *
 from utils_inline import *
 
@@ -50,29 +49,6 @@ async def get_word_stat(message: types.Message):
     await bot.send_message(message.chat.id, text=word_stat(message.chat.id, args))
 
 
-@dp.message_handler(commands=['last_time'])
-async def get_msg_t(message: types.Message):
-    db_user_record(message.from_user.id, message.from_user.username)
-    args = message.get_args()
-    await bot.send_message(message.chat.id, text=get_usr_t(message.from_user.username, args))
-
-
-@dp.message_handler(commands=['gde_svet_denis'])
-async def get_ava(message: types.Message):
-    db_user_record(message.from_user.id, message.from_user.username)
-
-    user_photos = await bot.get_user_profile_photos(user_id=cfg.feuilletton_id, limit=1)
-    last_photo = dict((user_photos.photos[0][-1])).get("file_id")
-
-    file = await bot.get_file(last_photo)
-    ava = await bot.download_file(file.file_path, cfg.usr_picture_path)
-
-    if detect_candle(ava.name):
-        await bot.send_message(chat_id=message.chat.id, text='Света нет :(')
-    else:
-        await bot.send_message(chat_id=message.chat.id, text='Свет есть!)')
-
-
 @dp.inline_handler()
 async def inline_libera(inline_query: InlineQuery):
     db_user_record(inline_query.from_user.id, inline_query.from_user.username)
@@ -96,7 +72,6 @@ async def echo(message: types.Message):
         return
 
     db_user_record(message.from_user.id, message.from_user.username)
-    db_time_record(message.from_user.id)
     db_words_record(message.from_user.id, message.chat.id, words_regex(message.text))
 
 

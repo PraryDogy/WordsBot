@@ -6,7 +6,7 @@ print('load spacy model')
 import pymorphy2
 import spacy
 
-from dicts import stop_words
+from dicts import *
 
 'python -m spacy download ru_core_news_md'
 nlp = spacy.load("ru_core_news_md")

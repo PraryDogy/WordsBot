@@ -1,16 +1,8 @@
-from datetime import datetime
-
-import cv2
-import numpy as np
-import pymorphy2
 import sqlalchemy
 
-import cfg
-from database import Dbase, Words
-from database_queries import (db_all_usernames_get, db_chat_words_get,
-                              db_sim_words, db_user_get, db_user_time_get,
-                              db_user_words_get, db_word_count, db_word_people)
-from text_analyser import get_nouns, morph
+from database import *
+from database_queries import *
+from text_analyser import *
 
 
 
@@ -65,23 +57,6 @@ def chat_words_top(msg_chat_id, msg_username):
     [msg.append(f'{x}: {y}') for x, y in nouns_top]
 
     return '\n'.join(msg)
-
-
-def detect_candle(input):
-    """
-    Returns `True` if candle image detected in current user profile picture.
-    Returns `False` if not.
-    """
-    candle_img = cv2.imread(cfg.candle_img_path, 0)
-    usr_picture = cv2.imread(input, 0)
-
-    res = cv2.matchTemplate(usr_picture, candle_img, cv2.TM_CCOEFF_NORMED)
-    threshold = 0.95
-    loc = np.where(res >= threshold)
-
-    if loc[::-1][1].size > 0:
-        return True
-    return False
 
 
 def top_boltunov(msg_chat_id, msg_username):
@@ -142,24 +117,3 @@ def word_stat(msg_chat_id, args: str):
     msg_list.append('Попробуйте написать корень слова для лучшего результата.')
 
     return '\n'.join(msg_list)
-
-
-def get_usr_t(msg_usr_name, msg_args: str):
-    if msg_args:
-        msg_args = msg_args.replace('@', '')
-    else:
-        return 'Пример команды: /last_time @имя_пользователя'
-
-    username = db_user_get(msg_args)[0]
-    if not username:
-        return 'Нет данных о таком пользователе'
-
-    db_time = db_user_time_get(username)
-    
-    if not db_time:
-        return 'Нет данных о последнем сообщении'
-
-    msg_time = datetime.strptime(db_time[0], '%Y-%m-%d %H:%M:%S')
-    msg_time = msg_time.strftime('%H:%M %d.%m.%Y')
-
-    return f'@{msg_usr_name}, пользователь {username} последний раз писал {msg_time}'
