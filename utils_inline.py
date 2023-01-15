@@ -234,3 +234,23 @@ class ItemPuppies(ImgInlineItemBase):
         descr = 'При поддержке Николая Дроздова'
         ImgInlineItemBase.__init__(
             self, header, descr, test_res.img_url, test_res.msg)
+
+
+class TestPokemons(TestUtils):
+    def __init__(self, msg_usr_id: int):
+        TestUtils.__init__(self)
+        value = random.choice(list(dicts.pokemons))
+        value, usr_time = self.create_test(msg_usr_id, PokemonModel, value)
+
+        self.img_url = value
+        self.msg = '\n'.join(
+            [f'{dicts.pokemons[value]}', self.time_row(usr_time)])
+
+
+class ItemPokemons(ImgInlineItemBase):
+    def __init__(self, msg_usr_id):
+        test_res = TestPokemons(msg_usr_id)
+        header = 'Какой я покемон'
+        descr = 'Тест во имя Луны'
+        ImgInlineItemBase.__init__(
+            self, header, descr, test_res.img_url, test_res.msg)

@@ -74,6 +74,11 @@ class PuppyModel(TestBaseModel):
     user_id = Column(Integer, ForeignKey('users.user_id'))
 
 
+class PokemonModel(TestBaseModel):
+    __tablename__ = 'pokemon'
+    user_id = Column(Integer, ForeignKey('users.user_id'))
+
+
 class Migration:
     def migrate_table(self, name):
         import sqlite3

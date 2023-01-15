@@ -78,7 +78,9 @@ async def inline_libera(inline_query: InlineQuery):
     db_user_record(inline_query.from_user.id, inline_query.from_user.username)
 
     items = []
+    items.append(ItemPokemons(inline_query.from_user.id).item)
     items.append(ItemPuppies(inline_query.from_user.id).item)
+
     items.append(ItemPenis(inline_query.from_user.id).item)
     items.append(ItemLibera(inline_query.from_user.id).item)
     items.append(ItemFat(inline_query.from_user.id).item)
