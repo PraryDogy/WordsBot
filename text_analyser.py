@@ -3,12 +3,14 @@ import re
 import clipboard
 
 print('load spacy model')
+import pymorphy2
 import spacy
 
 from dicts import stop_words
 
 'python -m spacy download ru_core_news_md'
 nlp = spacy.load("ru_core_news_md")
+morph = pymorphy2.MorphAnalyzer()
 
 
 def normalize_word(word: str):

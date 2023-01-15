@@ -127,27 +127,20 @@ def db_word_stat_get(msg_chat_id, args):
     return Dbase.conn.execute(q).first()
 
 
-def db_word_stat_get(msg_chat_id, input_word):
-    """
-    Returns `list`:
-    * `set` similar words including `input_word`,
-    * `int` total how many times people said input word & similar words
-    * `int` total how many people said input & similar words
-
-    Returns `False` if `input_word` and similar words not in database.
-    """
-    res = []
-
+def db_sim_words(msg_chat_id, input_word):
     q = sqlalchemy.select(Words.word)\
-        .filter(Words.chat_id==msg_chat_id, Words.word.like('%'+input_word+'%'))
-    res.append(set(i[0] for i in Dbase.conn.execute(q).all()))
+    .filter(Words.chat_id==msg_chat_id, Words.word.like('%'+input_word+'%'))
+    return set(i[0] for i in Dbase.conn.execute(q).all())
 
+
+def db_word_count(msg_chat_id, words_list):
     q = sqlalchemy.select(Dbase.sq_sum(Words.count))\
-        .filter(Words.chat_id==msg_chat_id, Words.word.in_(res[0]))
-    res.append(Dbase.conn.execute(q).first()[0])
+        .filter(Words.chat_id==msg_chat_id, Words.word.in_(words_list))
+    return Dbase.conn.execute(q).first()[0]
 
-    q = sqlalchemy.select(Dbase.sq_count(Words.word))\
-        .filter(Words.chat_id==msg_chat_id, Words.word.in_(res[0]))
-    res.append(Dbase.conn.execute(q).first()[0])
 
-    return False if not res[0] else res
+def db_word_people(msg_chat_id, words_list):
+    q = sqlalchemy.select(Words.user_id)\
+        .filter(Words.chat_id==msg_chat_id, Words.word.in_(words_list))
+
+    return set(i[0] for i in Dbase.conn.execute(q).all())

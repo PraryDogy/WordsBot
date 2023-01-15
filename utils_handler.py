@@ -1,16 +1,17 @@
-import json
 from datetime import datetime
 
 import cv2
 import numpy as np
+import pymorphy2
 import sqlalchemy
 
 import cfg
 from database import Dbase, Words
 from database_queries import (db_all_usernames_get, db_chat_words_get,
-                              db_user_get, db_user_time_get, db_user_words_get,
-                              db_word_stat_get)
-from text_analyser import get_nouns, normalize_word
+                              db_sim_words, db_user_get, db_user_time_get,
+                              db_user_words_get, db_word_count, db_word_people)
+from text_analyser import get_nouns, morph
+
 
 
 def user_words_top(msg_chat_id, msg_username, args: str):
@@ -116,34 +117,28 @@ def word_stat(msg_chat_id, args: str):
     if not args:
         return 'Пример команды /word_stat слово.'
 
-    args = args.lower()
-    word_variants = []
-    word_stats = []
+    similars = set()
+    word_variants = [i.word for i in morph.parse(args)[0].lexeme]
 
-    word_variants.append(args)
-    word_variants.append(normalize_word(args))
-    word_variants.append(args[:-1] if len(args) > 3 else args)
-    word_variants.append(args[:-2] if len(args) > 5 else args)
+    for i in word_variants:
+        similars.update(db_sim_words(msg_chat_id, i))
 
-    for i in set(word_variants):
-        res = db_word_stat_get(msg_chat_id, i)
-        [word_stats.append(res) if res else False]
-
-    if not word_stats:
+    if not similars:
         return 'Нет данных о таком слове.'
 
-    maxi = max(*word_stats) if len(word_stats) > 1 else word_stats[0]
+    count = db_word_count(msg_chat_id, similars)
+    people = len(db_word_people(msg_chat_id, similars))
 
     msg_list = []
     msg_list.append(f'Статистика слова {args}.')
 
-    similar_words = ", ".join(sorted(maxi[0]))
+    similar_words = ", ".join(sorted(similars))
 
     if similar_words:
         msg_list.append(f'Похожие слова: {similar_words}.')
 
-    msg_list.append(f'Было сказано: {maxi[1]} раз.')
-    msg_list.append(f'Эти слова сказало {maxi[2]} человек.')
+    msg_list.append(f'Было сказано: {count} раз.')
+    msg_list.append(f'Произносило: {people} человек.')
     msg_list.append('Попробуйте написать корень слова для лучшего результата.')
 
     return '\n'.join(msg_list)
