@@ -42,6 +42,11 @@ async def top_slovobludov(message: types.Message):
     await bot.send_message(chat_id=message.chat.id, text=msg)
 
 
+# @dp.message_handler(content_types='photo')
+# async def get_word_stat(message: types.Message):
+#     print(get_file_id(message))
+
+
 @dp.message_handler(commands=['word_stat'])
 async def get_word_stat(message: types.Message):
     db_user_record(message.from_user.id, message.from_user.username)
@@ -70,6 +75,19 @@ async def echo(message: types.Message):
 
     if message.via_bot:
         return
+
+    if '@prariewords_bot' in message.text:
+        try:
+            new_text = khalisi(message.reply_to_message.text)
+            # await message.reply_to_message.reply(new_text)
+            await bot.send_photo(
+                message.chat.id,
+                photo='AgACAgIAAx0CYSXtmQACBR5jxSj6C8tQvdZLy0etdc2Y1uk3jgACyMYxG4SkKUosfglEfCzsAQEAAwIAA3gAAy0E',
+                reply_to_message_id=message.message_id,
+                caption=new_text
+                )
+        except AttributeError:
+            print('no reply')
 
     db_user_record(message.from_user.id, message.from_user.username)
     db_words_record(message.from_user.id, message.chat.id, words_regex(message.text))

@@ -60,3 +60,18 @@ def get_file_id(message):
     clipboard.copy(file_id)
     print(file_id)
     return file_id
+
+
+def khalisi(message):
+    words_list = message.split()
+    wished = [i[0] for i in POST_CORRECTION_RULES]
+    replaced = [i[1] for i in POST_CORRECTION_RULES]
+
+    new = []
+    for word in words_list:
+        for part_wished in wished:
+            if part_wished in word and len(word) > 1:
+                word = word.replace(part_wished, replaced[wished.index(part_wished)])
+                break
+        new.append(word)
+    return (' '.join(new))
