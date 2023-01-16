@@ -76,7 +76,7 @@ async def echo(message: types.Message):
     if message.via_bot:
         return
 
-    if '@prariewords_bot' in message.text:
+    if '@prariewords_bot' in message.text or 'ракет' in message.text.lower():
         try:
             new_text = khalisi(message.reply_to_message.text)
 
