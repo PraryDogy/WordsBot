@@ -79,11 +79,11 @@ async def echo(message: types.Message):
     if '@prariewords_bot' in message.text:
         try:
             new_text = khalisi(message.reply_to_message.text)
-            # await message.reply_to_message.reply(new_text)
+
             await bot.send_photo(
                 message.chat.id,
                 photo='AgACAgIAAx0CYSXtmQACBR5jxSj6C8tQvdZLy0etdc2Y1uk3jgACyMYxG4SkKUosfglEfCzsAQEAAwIAA3gAAy0E',
-                reply_to_message_id=message.message_id,
+                reply_to_message_id=message.reply_to_message.message_id,
                 caption=new_text
                 )
         except AttributeError:
