@@ -64,35 +64,25 @@ def get_file_id(message):
     return file_id
 
 
-def khalisi(message):
-    words_list = message.split()
-    wished = [i[0] for i in POST_CORRECTION_RULES]
-    replaced = [i[1] for i in POST_CORRECTION_RULES]
-
-    new = []
-    for word in words_list:
-        for part_wished in wished:
-            if part_wished in word and len(word) > 1:
-                word = word.replace(part_wished, replaced[wished.index(part_wished)])
-                break
-        new.append(word)
-    return (' '.join(new))
-
-
-def restricted_words(message: str):
-    for rus, eng in r_letters:
+def khalisi_politic(message: str):
+    for rus, eng in ru_eng_abc.items():
         if eng in message:
             message = message.replace(eng, rus)
 
-    for word in message.lower().split():
-        for restr_word in r_words:
-            if restr_word in word:
+    words_list = message.lower().split()
+    for msg_word in words_list:
+        for p_word in politic_words:
+            if p_word in msg_word:
                 return True
-
     return False
 
-words = 'в новый год легла pakeTa'
-a = restricted_words(words)
 
-
-print(a)
+def khalisi_convert(message: str):
+    words_list = message.lower().split()
+    new = []
+    for msg_word in words_list:
+        for src, rpl in khalisi_words.items():
+            if src in msg_word and len(msg_word) > 1:
+                new.append(msg_word.replace(src, rpl))
+                break
+    return (' '.join(new))

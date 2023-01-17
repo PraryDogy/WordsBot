@@ -14,24 +14,15 @@ dp = Dispatcher(bot)
 @dp.message_handler(commands=['user_words'])
 async def send_my_words(message: types.Message):
     db_user_record(message.from_user.id, message.from_user.username)
-
-    msg_del = await bot.send_message(chat_id=message.chat.id, text='Обрабатываю...')
-
     args = message.get_args()
     msg = user_words_top(message.chat.id, message.from_user.username, args)
-
-    await msg_del.delete()
     await bot.send_message(chat_id=message.chat.id, text=msg)
 
 
 @dp.message_handler(commands=['chat_words'])
 async def send_chat_words(message: types.Message):
     db_user_record(message.from_user.id, message.from_user.username)
-
-    msg_del = await bot.send_message(chat_id=message.chat.id, text='Обрабатываю...')
     top = chat_words_top(message.chat.id, message.from_user.username)
-    
-    await msg_del.delete()
     await bot.send_message(chat_id=message.chat.id, text=top)
 
 
@@ -76,28 +67,26 @@ async def echo(message: types.Message):
     if message.via_bot:
         return
 
-    restr_words = ['@prariewords_bot', 'ракет']
-    khalisi_answer = False
-    for i in restr_words:
-        for b in message.text.lower().split():
-            if i in b:
-                khalisi_answer = True
-
-    if khalisi_answer:
-        try:
-            new_text = khalisi(message.reply_to_message.text)
-            msg_id = message.reply_to_message.message_id
-        except AttributeError:
-            new_text = khalisi(message.text)
-            msg_id = message.message_id
-
+    if khalisi_politic(message.text):
         await bot.send_photo(
             message.chat.id,
             photo='AgACAgIAAx0CYSXtmQACBR5jxSj6C8tQvdZLy0etdc2Y1uk3jgACyMYxG4SkKUosfglEfCzsAQEAAwIAA3gAAy0E',
-            reply_to_message_id=msg_id,
-            caption=new_text
+            reply_to_message_id=message.message_id,
+            caption=khalisi_convert(message.text)
             )
 
+    if '@prariewords_bot' in message.text:
+        try:
+            await message.delete()
+            khalisi_msg = khalisi_convert(message.reply_to_message.text)
+            msg_reply_id = message.reply_to_message.message_id
+            await bot.send_message(
+                chat_id=message.chat.id,
+                reply_to_message_id=msg_reply_id,
+                text=khalisi_msg
+            )
+        except AttributeError:
+            print('no reply')
 
     db_user_record(message.from_user.id, message.from_user.username)
     db_words_record(message.from_user.id, message.chat.id, words_regex(message.text))
