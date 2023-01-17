@@ -16,6 +16,12 @@ class MessageButton(InlineKeyboardMarkup):
         self.add(InlineKeyboardButton(
             text='Пройти тест', switch_inline_query_current_chat=''))
 
+        # self.add(
+        #     InlineKeyboardButton(
+        #         text='Добавить в группу',
+        #         url='t.me/evlosh_test_bot?startattach&choose=users+bots+groups+channels'))
+
+
 
 class TestUtils:
     def __init__(self):

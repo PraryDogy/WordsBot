@@ -45,6 +45,17 @@ async def get_word_stat(message: types.Message):
     await bot.send_message(message.chat.id, text=word_stat(message.chat.id, args))
 
 
+@dp.message_handler(commands=['start'])
+async def start(message: types.Message):
+    print('start')
+    with open('start.txt', 'r') as file:
+        data = file.read()
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text=data,
+        )
+
+
 @dp.inline_handler()
 async def inline_libera(inline_query: InlineQuery):
     db_user_record(inline_query.from_user.id, inline_query.from_user.username)
@@ -80,11 +91,13 @@ async def echo(message: types.Message):
             await message.delete()
             khalisi_msg = khalisi_convert(message.reply_to_message.text)
             msg_reply_id = message.reply_to_message.message_id
-            await bot.send_message(
-                chat_id=message.chat.id,
+            await bot.send_photo(
+                message.chat.id,
+                photo='AgACAgIAAx0CYSXtmQACBR5jxSj6C8tQvdZLy0etdc2Y1uk3jgACyMYxG4SkKUosfglEfCzsAQEAAwIAA3gAAy0E',
                 reply_to_message_id=msg_reply_id,
-                text=khalisi_msg
-            )
+                caption=khalisi_msg
+                )
+
         except AttributeError:
             print('no reply')
 
