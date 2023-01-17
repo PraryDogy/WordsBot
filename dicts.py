@@ -43,6 +43,17 @@ POST_CORRECTION_RULES = [
     ["е", "и"], ["и", "е"], ["а", "о"], ["о", "а"],["шь", "ф"],
     ]
 
+r_words = (
+    'ракет'
+    )
+
+r_letters = (
+    ('а', 'a'), ('б', '6'), ('в', 'B'), ('г', 'r'), ('е', 'e'), ('з', '3'),
+    ('и', 'u'), ('к', 'k'), ('м', 'M'), ('н', 'H'), ('о', 'o'),
+    ('р', 'p'), ('с', 'c'), ('т', 'T'), ('у', 'y'), ('х', 'x'),
+    ('ь', 'b')
+    )
+
 
 puppies_url_list = [
     'https://sun9-35.userapi.com/impg/7YvXrkbgrNJSPx8gCiJ1fdVjavl6ENYF5yeraw/I2kVMFuGGiM.jpg?size=437x512&quality=95&sign=6d340a3616af38ea9348b9a1216f5954&type=album',

@@ -3,6 +3,8 @@ import re
 import clipboard
 
 print('load spacy model')
+import re
+
 import pymorphy2
 import spacy
 
@@ -75,3 +77,22 @@ def khalisi(message):
                 break
         new.append(word)
     return (' '.join(new))
+
+
+def restricted_words(message: str):
+    for rus, eng in r_letters:
+        if eng in message:
+            message = message.replace(eng, rus)
+
+    for word in message.lower().split():
+        for restr_word in r_words:
+            if restr_word in word:
+                return True
+
+    return False
+
+words = 'в новый год легла pakeTa'
+a = restricted_words(words)
+
+
+print(a)
