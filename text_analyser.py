@@ -45,7 +45,6 @@ def get_nouns(db_words: tuple):
     Returns tuple of tuples `noun`, `count`.
     * `db_words`: tuple of tuples `word`, `count`
     """
-    print('start nouns')
     res = []
     for w, c in db_words:
         doc = nlp(w)

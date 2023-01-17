@@ -47,7 +47,6 @@ async def get_word_stat(message: types.Message):
 
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
-    print('start')
     with open('start.txt', 'r') as file:
         data = file.read()
     await bot.send_message(
