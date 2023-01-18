@@ -238,7 +238,10 @@ class TestAss(TestUtils):
             ass = 'У тебя все хорошо'
             value = 'на все 9000'
 
-        self.msg = '\n'.join([f"{ass} {value}см", self.time_row(usr_time)])
+        self.msg = '\n'.join([
+            'Тест на глубину задницы',
+            f"{ass} {value}см",
+            self.time_row(usr_time)])
 
 
 class ItemAss(TxtInlineItemBase):
