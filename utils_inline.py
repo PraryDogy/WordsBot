@@ -253,6 +253,66 @@ class ItemAss(TxtInlineItemBase):
             self, header, descr, thumb, TestAss(msg_usr_id).msg)
 
 
+class TestDestiny(TestUtils):
+    def __init__(self, args: str):
+        TestUtils.__init__(self)
+
+        if not args:
+            self.msg = 'Вы не задали вопрос'
+            return
+
+        values = [
+            'Да',
+            'Нет',
+            'Без сомнения',
+            'Возможно',
+            'Сегодня тебе лучше успокоиться',
+            'Все будет хорошо',
+            'У шара перерыв',
+            'Высока вероятность',
+            'Маловероятно',
+            'Точно',
+            'Или',
+            'Не сегодня'
+            ]
+
+        value = random.choice(values)
+
+        self.msg = '\n'.join([
+            'Шар судьбы поможет вам определиться',
+            f'Ваш вопрос: {args}',
+            f'Ответ шара: {value}',
+            ])
+
+
+class ItemDestiny(ImgInlineItemBase):
+    def __init__(self, args):
+        header = 'Шар судьбы'
+        descr = f'Ваш вопрос: {args}'
+        thumb = 'https://sun9-41.userapi.com/impg/YshUD09fLrhGuS2sGukKQvYT4bUxMj5Kx2zO_Q/JzxC6rT0T88.jpg?size=900x900&quality=95&sign=ce5ce688dd70583012dfb87f569ece00&type=album'
+        TxtInlineItemBase.__init__(
+            self, header, descr, thumb, TestDestiny(args).msg)
+
+
+class TestZarplata(TestUtils):
+    def __init__(self, msg_usr_id):
+        TestUtils.__init__(self)
+        value, usr_time = self.create_test(
+            msg_usr_id, ZarplataModel, random.randint(16242, 180000))
+        value = f'{int(value):,}'.replace(',', ' ')
+
+        self.msg = '\n'.join(
+            [f"Размер моей зарплаты {value}руб.", self.time_row(usr_time)])
+
+
+class ItemZarplata(TxtInlineItemBase):
+    def __init__(self, msg_usr_id: int):
+        header = 'Размер моей зарплаты'
+        descr = 'Спросим у эффективных менеджеров'
+        thumb = 'https://sun9-81.userapi.com/impg/wc9Rzt3_ZtEavbQiSBgnHHwVvb8JDC-wha6QpA/Izw-RHcYd74.jpg?size=510x510&quality=95&sign=46e52939d404e97dd1ed3911f8de33e4&type=album'
+        TxtInlineItemBase.__init__(
+            self, header, descr, thumb, TestZarplata(msg_usr_id).msg)
+
 
 class TestPuppies(TestUtils):
     def __init__(self, msg_usr_id: int):

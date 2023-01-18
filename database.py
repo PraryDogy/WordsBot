@@ -74,6 +74,11 @@ class AssModel(TestBaseModel):
     user_id = Column(Integer, ForeignKey('users.user_id'))
 
 
+class ZarplataModel(TestBaseModel):
+    __tablename__ = 'zarplata'
+    user_id = Column(Integer, ForeignKey('users.user_id'))
+
+
 class PuppyModel(TestBaseModel):
     __tablename__ = 'puppies'
     user_id = Column(Integer, ForeignKey('users.user_id'))
