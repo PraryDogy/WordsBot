@@ -118,7 +118,7 @@ async def echo(message: types.Message):
             print('no reply')
 
     db_user_record(message.from_user.id, message.from_user.username)
-    db_words_record(message.from_user.id, message.chat.id, words_regex(message.text))
+    db_words_record(message.from_user.id, message.chat.id, words_filter(message.text))
 
 
 if __name__ == '__main__':

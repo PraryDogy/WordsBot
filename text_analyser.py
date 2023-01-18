@@ -20,20 +20,25 @@ def normalize_word(word: str):
 
 
 def words_regex(message: str):
-    """
-    Returns tuple of words in lower case, normal form, excluding stopwords and
-    links.
-    """
-    message = message.split()
-
     words_reg_list = []
-    for w in message:
+    for w in message.split():
 
         link = re.match(r'(https?:\/\/[^ ]*)/', w)
         if not link:
             word = re.match(r'(\w+)', w)
             if word:
                 words_reg_list.append(word.group(1))
+
+    return words_reg_list
+
+
+def words_filter(message: str):
+    """
+    Returns tuple of words in lower case, normal form, excluding stopwords and
+    links.
+    """
+    # message = message.split()
+    words_reg_list = words_regex(message)
 
     lema = tuple(normalize_word(w) for w in words_reg_list)
     words = tuple(i for i in lema if i not in stop_words)
@@ -85,3 +90,7 @@ def khalisi_convert(message: str):
                 new.append(msg_word.replace(src, rpl))
                 break
     return (' '.join(new))
+
+
+def destiny_analyse(message):
+    message = message.split()
