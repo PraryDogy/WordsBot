@@ -126,4 +126,4 @@ if __name__ == '__main__':
         'Вы уверены, что сменили токен бота? Напишите любую букву и нажми ввод. Для отмены нажмите только ввод\n')
     if inp:
         Dbase.base.metadata.create_all(Dbase.conn)
-        executor.start_polling(dp, skip_updates=True)
+        executor.start_polling(dp, skip_updates=True, timeout=20)
