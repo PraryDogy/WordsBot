@@ -69,6 +69,11 @@ class PenisModel(TestBaseModel):
     user_id = Column(Integer, ForeignKey('users.user_id'))
 
 
+class AssModel(TestBaseModel):
+    __tablename__ = 'ass'
+    user_id = Column(Integer, ForeignKey('users.user_id'))
+
+
 class PuppyModel(TestBaseModel):
     __tablename__ = 'puppies'
     user_id = Column(Integer, ForeignKey('users.user_id'))

@@ -220,6 +220,37 @@ class ItemPenis(TxtInlineItemBase):
             self, header, descr, thumb, TestPenis(msg_usr_id).msg)
 
 
+class TestAss(TestUtils):
+    def __init__(self, msg_usr_id):
+        TestUtils.__init__(self)
+        asses = [
+            'Глубина моей задницы', 'Диаметр моего отверстия',
+            'Моя кроличья нора целых', 'Моя кольская скважина всего',
+            'Глубина моей жизненной ситуации', 'Моя марианская впадина',
+            'В меня влезет огурчик длиной'
+            ]
+        ass = random.choice(asses)
+
+        value = random.randint(0, 6000)
+        value, usr_time = self.create_test(msg_usr_id, AssModel, value)
+
+        if msg_usr_id == 248208655:
+            ass = 'У тебя все хорошо'
+            value = 'на все 9000'
+
+        self.msg = '\n'.join([f"{ass} {value}см", self.time_row(usr_time)])
+
+
+class ItemAss(TxtInlineItemBase):
+    def __init__(self, msg_usr_id: int):
+        header = 'Глубина моей задницы'
+        descr = 'Насколько глубока кроличья нора?'
+        thumb = 'https://sun9-64.userapi.com/impg/v6NOR_nbHrPkn3Ca6GQFmcJ1vCKVzeW6fUCCyg/fH1oB2Aps7Y.jpg?size=321x306&quality=95&sign=b90f1e85b5acd4c58a12dc27c5115e11&type=album'
+        TxtInlineItemBase.__init__(
+            self, header, descr, thumb, TestAss(msg_usr_id).msg)
+
+
+
 class TestPuppies(TestUtils):
     def __init__(self, msg_usr_id: int):
         TestUtils.__init__(self)

@@ -64,6 +64,7 @@ async def inline_libera(inline_query: InlineQuery):
     items.append(ItemPuppies(inline_query.from_user.id).item)
 
     items.append(ItemPenis(inline_query.from_user.id).item)
+    items.append(ItemAss(inline_query.from_user.id).item)
     items.append(ItemLibera(inline_query.from_user.id).item)
     items.append(ItemFat(inline_query.from_user.id).item)
     items.append(ItemMobi(inline_query.from_user.id).item)
