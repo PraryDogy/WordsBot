@@ -74,8 +74,20 @@ async def inline_libera(inline_query: InlineQuery):
 @dp.message_handler()
 async def echo(message: types.Message):
 
-    if message.via_bot:
-        return
+    # if message.via_bot:
+    #     return
+
+    # img = InputMediaPhoto(
+    #     media = 'AgACAgIAAx0CYSXtmQACBR5jxSj6C8tQvdZLy0etdc2Y1uk3jgACyMYxG4SkKUosfglEfCzsAQEAAwIAA3gAAy0E',
+    #     has_spoiler = True
+    # )
+
+    # await bot.send_message(
+    #     chat_id = message.chat.id,
+    #     photo=img)
+    
+    # return
+
 
     if khalisi_politic(message.text):
         await bot.send_photo(
@@ -85,7 +97,7 @@ async def echo(message: types.Message):
             caption=khalisi_convert(message.text)
             )
 
-    if '@prariewords_bot' in message.text:
+    if '@prariewords_bot' in message.text and message.chat.id != cfg.heli:
         try:
             await message.delete()
             khalisi_msg = khalisi_convert(message.reply_to_message.text)
