@@ -42,7 +42,7 @@ khalisi_words = {
 
 
 politic_words = (
-    'ракет', 'сво'
+    'ракет', 'sdfafgsfg'
     )
 
 
