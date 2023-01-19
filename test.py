@@ -1,58 +1,57 @@
 from text_analyser import *
-from dicts import destiny_question, destiny_answer
+from dicts import dest_question, dest_answer
 import random
+nlp = spacy.load("ru_core_news_md")
 
 
-def get_question_word(words_list):
-    question_type = {}
-    for word in words_list:
 
-        for k, v in destiny_question.items():
-            if word in v:
-                question_type['key'] = k
-                parsed = morph.parse(word)[0].tag
-                question_type['pos'] = parsed.POS
-                question_type['number'] = parsed.number
-                question_type['case'] = parsed.case
-                question_type['gender'] = parsed.gender
-                return question_type
+class DestinyLang:
+    def __init__(self, message):
+        self.words = words_regex(message.lower())
+
+        self.prep = []
+        self.anwers_list = []
+
+        self.get_question_word()
+        self.get_prep()
+        self.convert_answer()
+
+    def get_question_word(self):
+        for word in self.words:
+            for k, v in dest_question.items():
+                if word in v:
+                    self.src_word = morph.parse(word)[0].tag
+                    self.anwers_list = dest_answer[k]
+                    return
+    
+    def get_prep(self):
+        for word in self.words:
+            if  morph.parse(word)[0].tag.POS == 'PREP':
+                self.prep.append(word.replace('во', 'в'))
+                return
+
+    def convert_answer(self):
+        answer = random.choice(self.anwers_list)
+        answer = 'конь'
+        words_list = answer.split()
+
+        props = (self.src_word.case, self.src_word.number, self.src_word.gender)
+        self.new_answer = []
+
+        for i in words_list:
+            parsed = morph.parse(i)[0]
+
+            if parsed.tag.POS in ('NOUN', 'ADJF', 'ADJS', 'PRTF', 'PRTS'): \
+                # and 'inan' not in parsed.tag:
+                res = parsed.inflect({*props})
+                print(res)
+                self.new_answer.append(parsed.inflect({*props}).word)
+            else:
+                self.new_answer.append(i)
+
+    def create_answer(self):
+        return (' '.join(self.prep + self.new_answer)).capitalize()
 
 
-def get_prep(words_list):
-    for word in words_list:
-        parsed = morph.parse(word)[0].tag.POS
-        if parsed == 'PREP':
-            return word
-
-# message = 'Во сколько лет я умру?'
-# words_list = words_regex(message.lower())
-
-# question_type = get_question_word(words_list)
-# prep = get_prep(words_list)
-
-
-# answ_src = random.choice(destiny_answer[question_type['key']])
-# answ_res = []
-# if prep:
-#     prep = prep.replace('во', 'в')
-#     answ_res.append(prep)
-
-# for i in answ_src.split():
-#     parsed = morph.parse(i)[0]
-
-#     res = parsed.inflect({
-#         question_type['number'], question_type['case']})
-
-#     if question_type['gender']:
-#         parsed = morph.parse(res.word)[0]
-#         res = parsed.inflect({question_type['gender']})
-
-#     if res:
-#         answ_res.append(res.word)
-#     else:
-#         answ_res.append(i)
-
-# print()
-# print(message)
-# print(' '.join(answ_res).capitalize())
-# print()
+a = DestinyLang('чей мнения тут не хватает?')
+# print(a.create_answer())
