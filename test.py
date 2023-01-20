@@ -52,6 +52,24 @@ class DestinyLang:
     def create_answer(self):
         return (' '.join(self.prep + self.new_answer)).capitalize()
 
-
-a = DestinyLang('чей мнения тут не хватает?')
+# a = DestinyLang('чей мнения тут не хватает?')
 # print(a.create_answer())
+
+
+from datetime import datetime, timedelta
+
+today = datetime.today().replace(microsecond=0)
+usr_time = '2023-01-20 9:55:00'
+usr_time = datetime.strptime(usr_time, '%Y-%m-%d %H:%M:%S')
+# a = bool((today - usr_time) > timedelta(hours=3))
+
+
+when_upd = usr_time + timedelta(hours=3)
+if today.date() == (usr_time + timedelta(hours=3)).date():
+    day = 'сегодня'
+else:
+    day = 'завтра'
+a = f'Обновить можно {day} в {when_upd.strftime("%H:%M")}'
+
+
+print(a)

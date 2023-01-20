@@ -58,15 +58,22 @@ class TestUtils:
         return datetime.strptime(res[0], '%Y-%m-%d %H:%M:%S')
 
     def need_upd(self, usr_time: datetime):
-        return bool((datetime.today()-usr_time).days >= 1)
+        # return bool((datetime.today()-usr_time).days >= 1)
+        return bool((datetime.today()-usr_time) > timedelta(hours=3))
 
     def time_row(self, usr_time: datetime):
         """
         Retutns string when user can update test results in next time:
         `Обновить можно сегодня/завтра в часов:минут`
         """
-        when_upd = usr_time + timedelta(days=1)
-        if self.today.date() == (usr_time + timedelta(days=1)).date():
+        # when_upd = usr_time + timedelta(days=1)
+        # if self.today.date() == (usr_time + timedelta(days=1)).date():
+        #     day = 'сегодня'
+        # else:
+        #     day = 'завтра'
+
+        when_upd = usr_time + timedelta(hours=3)
+        if self.today.date() == (usr_time + timedelta(hours=3)).date():
             day = 'сегодня'
         else:
             day = 'завтра'
