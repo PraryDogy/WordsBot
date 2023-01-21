@@ -64,7 +64,6 @@ async def inline_libera(inline_query: InlineQuery):
 
     items = []
 
-
     for test in (
         ItemDestiny, ItemPokemons, ItemPuppies, ItemFat, ItemPenis, ItemAss,
         ItemZarplata, ItemLibera, ItemMobi, ):
