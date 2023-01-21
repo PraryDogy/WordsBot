@@ -17,7 +17,7 @@ class MessageButton(InlineKeyboardMarkup):
             text='Пройти тест', switch_inline_query_current_chat=''))
 
 
-class TestUtils:
+class Utils:
     def __init__(self):
         self.today = datetime.today().replace(microsecond=0)
 
@@ -92,9 +92,7 @@ class TestUtils:
 
         return value, usr_time
 
-
-class TxtInlineItemBase:
-    def __init__(self, header: str, descr: str, thumb_url: str, msg: str):
+    def txt_base(self, header: str, descr: str, thumb_url: str, msg: str):
         """
         * `header`: inline header
         * `descr`: inline description
@@ -102,18 +100,16 @@ class TxtInlineItemBase:
         * `msg`: message from test result
         * `item`
         """
-        self.item = InlineQueryResultArticle(
+        return InlineQueryResultArticle(
             id=hashlib.md5(header.encode()).hexdigest(),
             title=header,
             description=descr,
             thumb_url=thumb_url,
             input_message_content=InputTextMessageContent(msg),
-            reply_markup=MessageButton()
+            reply_markup=MessageButton(),
             )
 
-
-class ImgInlineItemBase:
-    def __init__(self, header: str, descr, img_url, msg):
+    def img_base(self, header: str, descr, img_url, msg):
         """
         * `header`: inline header
         * `descr`: inline description
@@ -121,7 +117,7 @@ class ImgInlineItemBase:
         * `msg`: message from test result
         `item`
         """
-        self.item = InlineQueryResultPhoto(
+        return InlineQueryResultPhoto(
             id=hashlib.md5(header.encode()).hexdigest(),
             photo_url=img_url,
             thumb_url=img_url,
@@ -132,9 +128,9 @@ class ImgInlineItemBase:
             )
 
 
-class ItemFat(TestUtils, TxtInlineItemBase):
+class ItemFat(Utils):
     def __init__(self, msg_usr_id: int):
-        TestUtils.__init__(self)
+        Utils.__init__(self)
         header = 'Насколько я жирный'
         descr = 'Тест основан на научных методиках'
         thumb = 'https://sun9-40.userapi.com/impg/XEe4VPlF5BvuAYbjZLm3MPamjWIhLrxO66oFEw/f54lKM4s6gU.jpg?size=300x300&quality=95&sign=a347fede0405ca0ec49763ebcb68a413&type=album'
@@ -149,12 +145,12 @@ class ItemFat(TestUtils, TxtInlineItemBase):
                 self.time_row(usr_time)
                 ])
 
-        TxtInlineItemBase.__init__(self, header, descr, thumb, msg)
+        self.item = self.txt_base(header, descr, thumb, msg)
 
 
-class ItemLibera(TestUtils, TxtInlineItemBase):
+class ItemLibera(Utils):
     def __init__(self, msg_usr_id: int):
-        TestUtils.__init__(self)
+        Utils.__init__(self)
 
         header = 'Насколько я либерал'
         descr = 'Анализ вашего телеграма'
@@ -169,12 +165,12 @@ class ItemLibera(TestUtils, TxtInlineItemBase):
                 f"Я либерал на {value}%",
                 self.time_row(usr_time)
                 ])
-        TxtInlineItemBase.__init__(self, header, descr, thumb, msg)
+        self.item = self.txt_base(header, descr, thumb, msg)
 
 
-class ItemMobi(TestUtils, TxtInlineItemBase):
+class ItemMobi(Utils):
     def __init__(self, msg_usr_id: int):
-        TestUtils.__init__(self)
+        Utils.__init__(self)
 
         header = 'Шанс моей мобилизации'
         descr = 'Словлю ли я волну?'
@@ -189,12 +185,12 @@ class ItemMobi(TestUtils, TxtInlineItemBase):
                 f"Шанс моей мобилизации {value}%",
                 self.time_row(usr_time)
                 ])
-        TxtInlineItemBase.__init__(self, header, descr, thumb, msg)
+        self.item = self.txt_base(header, descr, thumb, msg)
 
 
-class ItemPenis(TestUtils, TxtInlineItemBase):
+class ItemPenis(Utils):
     def __init__(self, msg_usr_id: int):
-        TestUtils.__init__(self)
+        Utils.__init__(self)
 
         header = 'Длина моего члена'
         descr = 'Скинь дикпик для точного замера'
@@ -210,12 +206,12 @@ class ItemPenis(TestUtils, TxtInlineItemBase):
                 self.time_row(usr_time)
                 ])
 
-        TxtInlineItemBase.__init__(self, header, descr, thumb, msg)
+        self.item = self.txt_base(header, descr, thumb, msg)
 
 
-class ItemAss(TestUtils, TxtInlineItemBase):
+class ItemAss(Utils):
     def __init__(self, msg_usr_id: int):
-        TestUtils.__init__(self)
+        Utils.__init__(self)
 
         header = 'Глубина моей задницы'
         descr = 'Насколько глубока кроличья нора?'
@@ -229,12 +225,12 @@ class ItemAss(TestUtils, TxtInlineItemBase):
             f"{random.choice(ass_names)} {value}см",
             self.time_row(usr_time)])
 
-        TxtInlineItemBase.__init__(self, header, descr, thumb, msg)
+        self.item = self.txt_base(header, descr, thumb, msg)
 
 
-class ItemDestiny(TestUtils, ImgInlineItemBase):
+class ItemDestiny(Utils):
     def __init__(self, args):
-        TestUtils.__init__(self)
+        Utils.__init__(self)
 
         header = 'Шар судьбы'
         descr = f'Ваш вопрос: {args}'
@@ -250,12 +246,12 @@ class ItemDestiny(TestUtils, ImgInlineItemBase):
                 f'Ответ шара: {random.choice(destiny_answers)}',
                 ])
 
-        TxtInlineItemBase.__init__(self, header, descr, thumb, msg)
+        self.item = self.txt_base(header, descr, thumb, msg)
 
 
-class ItemZarplata(TestUtils, TxtInlineItemBase):
+class ItemZarplata(Utils):
     def __init__(self, msg_usr_id: int):
-        TestUtils.__init__(self)
+        Utils.__init__(self)
 
         header = 'Размер моей зарплаты'
         descr = 'Спросим у эффективных менеджеров'
@@ -272,13 +268,12 @@ class ItemZarplata(TestUtils, TxtInlineItemBase):
                 self.time_row(usr_time)
                 ])
 
-        TxtInlineItemBase.__init__(
-            self, header, descr, thumb, msg)
+        self.item = self.txt_base(header, descr, thumb, msg)
 
 
-class ItemPuppies(TestUtils, ImgInlineItemBase):
+class ItemPuppies(Utils):
     def __init__(self, msg_usr_id):
-        TestUtils.__init__(self)
+        Utils.__init__(self)
 
         header = 'Какой я сегодня пупи'
         descr = 'При поддержке Николая Дроздова'
@@ -293,12 +288,12 @@ class ItemPuppies(TestUtils, ImgInlineItemBase):
                 self.time_row(usr_time)
                 ])
 
-        ImgInlineItemBase.__init__(self, header, descr, img_url, msg)
+        self.item = self.img_base(header, descr, img_url, msg)
 
 
-class ItemPokemons(TestUtils, ImgInlineItemBase):
+class ItemPokemons(Utils):
     def __init__(self, msg_usr_id):
-        TestUtils.__init__(self)
+        Utils.__init__(self)
 
         header = 'Какой я покемон'
         descr = 'Тест во имя Луны'
@@ -313,4 +308,4 @@ class ItemPokemons(TestUtils, ImgInlineItemBase):
                 self.time_row(usr_time)
                 ])
 
-        ImgInlineItemBase.__init__(self, header, descr, img_url, msg)
+        self.item = self.img_base(header, descr, img_url, msg)
