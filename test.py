@@ -54,3 +54,13 @@ class DestinyLang:
 
 # a = DestinyLang('чей мнения тут не хватает?')
 # print(a.create_answer())
+
+from datetime import datetime, timedelta
+
+
+usr_time = datetime.strptime('2023-01-21 22:47:59', '%Y-%m-%d %H:%M:%S')
+
+a = bool((datetime.today()-usr_time) > timedelta(hours=3))
+b = (datetime.today()-usr_time) > timedelta(hours=3)
+
+print(b)

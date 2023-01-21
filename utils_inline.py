@@ -52,7 +52,12 @@ class Utils:
         return datetime.strptime(res[0], '%Y-%m-%d %H:%M:%S')
 
     def need_upd(self, usr_time: datetime):
-        return bool((datetime.today()-usr_time) > timedelta(hours=3))
+        if (datetime.today()-usr_time) > timedelta(hours=3):
+            print(datetime.today().replace(microsecond=0))
+            print(usr_time)
+            return True
+        return False
+        # return bool((datetime.today()-usr_time) > timedelta(hours=3))
 
     def time_row(self, usr_time: datetime):
         """
