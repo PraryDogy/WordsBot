@@ -35,7 +35,10 @@ async def top_slovobludov(message: types.Message):
 
 # @dp.message_handler(content_types='photo')
 # async def get_word_stat(message: types.Message):
-#     print(get_file_id(message))
+#     try:
+#         print(get_file_id(message))
+#     except Exception:
+#         print('no file id')
 
 
 @dp.message_handler(commands=['word_stat'])
@@ -60,17 +63,18 @@ async def inline_libera(inline_query: InlineQuery):
     db_user_record(inline_query.from_user.id, inline_query.from_user.username)
 
     items = []
+
+    items.append(ItemDestiny(inline_query.query).item)
+
     items.append(ItemPokemons(inline_query.from_user.id).item)
     items.append(ItemPuppies(inline_query.from_user.id).item)
 
-    items.append(ItemPenis(inline_query.from_user.id).item)
-    items.append(ItemAss(inline_query.from_user.id).item)
-
-    items.append(ItemZarplata(inline_query.from_user.id).item)
-    items.append(ItemDestiny(inline_query.query).item)
-
-    items.append(ItemLibera(inline_query.from_user.id).item)
     items.append(ItemFat(inline_query.from_user.id).item)
+    items.append(ItemPenis(inline_query.from_user.id).item)
+
+    items.append(ItemAss(inline_query.from_user.id).item)
+    items.append(ItemZarplata(inline_query.from_user.id).item)
+    items.append(ItemLibera(inline_query.from_user.id).item)
     items.append(ItemMobi(inline_query.from_user.id).item)
 
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
@@ -79,20 +83,8 @@ async def inline_libera(inline_query: InlineQuery):
 @dp.message_handler()
 async def echo(message: types.Message):
 
-    # if message.via_bot:
-    #     return
-
-    # img = InputMediaPhoto(
-    #     media = 'AgACAgIAAx0CYSXtmQACBR5jxSj6C8tQvdZLy0etdc2Y1uk3jgACyMYxG4SkKUosfglEfCzsAQEAAwIAA3gAAy0E',
-    #     has_spoiler = True
-    # )
-
-    # await bot.send_message(
-    #     chat_id = message.chat.id,
-    #     photo=img)
-    
-    # return
-
+    if message.via_bot:
+        return
 
     if khalisi_politic(message.text):
         await bot.send_photo(
