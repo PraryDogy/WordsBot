@@ -19,7 +19,6 @@ class MessageButton(InlineKeyboardMarkup):
 
 class Utils:
     def __init__(self):
-        print('init test')
         self.today = datetime.today().replace(microsecond=0)
 
     def user_check(self, msg_usr_id: int, model: TestBaseModel):
@@ -98,40 +97,40 @@ class Utils:
 
         return value, usr_time
 
-    def txt_base(self, header: str, descr: str, thumb_url: str, msg: str):
-        """
-        * `header`: inline header
-        * `descr`: inline description
-        * `thumb_url`: inline thumbnail image url
-        * `msg`: message from test result
-        * `item`
-        """
-        return InlineQueryResultArticle(
-            id=hashlib.md5(header.encode()).hexdigest(),
-            title=header,
-            description=descr,
-            thumb_url=thumb_url,
-            input_message_content=InputTextMessageContent(msg),
-            reply_markup=MessageButton(),
-            )
+def txt_base(header: str, descr: str, thumb_url: str, msg: str):
+    """
+    * `header`: inline header
+    * `descr`: inline description
+    * `thumb_url`: inline thumbnail image url
+    * `msg`: message from test result
+    * `item`
+    """
+    return InlineQueryResultArticle(
+        id=hashlib.md5(header.encode()).hexdigest(),
+        title=header,
+        description=descr,
+        thumb_url=thumb_url,
+        input_message_content=InputTextMessageContent(msg),
+        reply_markup=MessageButton(),
+        )
 
-    def img_base(self, header: str, descr, img_url, msg):
-        """
-        * `header`: inline header
-        * `descr`: inline description
-        * `img_url`: inline image url
-        * `msg`: message from test result
-        `item`
-        """
-        return InlineQueryResultPhoto(
-            id=hashlib.md5(header.encode()).hexdigest(),
-            photo_url=img_url,
-            thumb_url=img_url,
-            title=header,
-            description=descr,
-            caption=msg,
-            reply_markup=MessageButton(),
-            )
+def img_base(header: str, descr, img_url, msg):
+    """
+    * `header`: inline header
+    * `descr`: inline description
+    * `img_url`: inline image url
+    * `msg`: message from test result
+    `item`
+    """
+    return InlineQueryResultPhoto(
+        id=hashlib.md5(header.encode()).hexdigest(),
+        photo_url=img_url,
+        thumb_url=img_url,
+        title=header,
+        description=descr,
+        caption=msg,
+        reply_markup=MessageButton(),
+        )
 
 
 class ItemFat(Utils):
@@ -151,7 +150,7 @@ class ItemFat(Utils):
                 self.time_row(usr_time)
                 ])
 
-        self.item = self.txt_base(header, descr, thumb, msg)
+        self.item = txt_base(header, descr, thumb, msg)
 
 
 class ItemLibera(Utils):
@@ -171,7 +170,7 @@ class ItemLibera(Utils):
                 f"Я либерал на {value}%",
                 self.time_row(usr_time)
                 ])
-        self.item = self.txt_base(header, descr, thumb, msg)
+        self.item = txt_base(header, descr, thumb, msg)
 
 
 class ItemMobi(Utils):
@@ -191,7 +190,7 @@ class ItemMobi(Utils):
                 f"Шанс моей мобилизации {value}%",
                 self.time_row(usr_time)
                 ])
-        self.item = self.txt_base(header, descr, thumb, msg)
+        self.item = txt_base(header, descr, thumb, msg)
 
 
 class ItemPenis(Utils):
@@ -212,7 +211,7 @@ class ItemPenis(Utils):
                 self.time_row(usr_time)
                 ])
 
-        self.item = self.txt_base(header, descr, thumb, msg)
+        self.item = txt_base(header, descr, thumb, msg)
 
 
 class ItemAss(Utils):
@@ -231,7 +230,7 @@ class ItemAss(Utils):
             f"{random.choice(ass_names)} {value}см",
             self.time_row(usr_time)])
 
-        self.item = self.txt_base(header, descr, thumb, msg)
+        self.item = txt_base(header, descr, thumb, msg)
 
 
 class ItemDestiny(Utils):
@@ -252,7 +251,7 @@ class ItemDestiny(Utils):
                 f'Ответ шара: {random.choice(destiny_answers)}',
                 ])
 
-        self.item = self.txt_base(header, descr, thumb, msg)
+        self.item = txt_base(header, descr, thumb, msg)
 
 
 class ItemZarplata(Utils):
@@ -274,7 +273,7 @@ class ItemZarplata(Utils):
                 self.time_row(usr_time)
                 ])
 
-        self.item = self.txt_base(header, descr, thumb, msg)
+        self.item = txt_base(header, descr, thumb, msg)
 
 
 class ItemPuppies(Utils):
@@ -294,7 +293,7 @@ class ItemPuppies(Utils):
                 self.time_row(usr_time)
                 ])
 
-        self.item = self.img_base(header, descr, img_url, msg)
+        self.item = img_base(header, descr, img_url, msg)
 
 
 class ItemPokemons(Utils):
@@ -314,4 +313,4 @@ class ItemPokemons(Utils):
                 self.time_row(usr_time)
                 ])
 
-        self.item = self.img_base(header, descr, img_url, msg)
+        self.item = img_base(header, descr, img_url, msg)
