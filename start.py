@@ -99,7 +99,10 @@ async def echo(message: types.Message):
                 )
 
         except AttributeError:
-            print('no reply')
+            await bot.send_message(
+                message.chat.id, 
+                text='Выберите сообщение, которое хотите отправить Кхалиси'
+            )
 
     db_user_record(message.from_user.id, message.from_user.username)
     db_words_record(message.from_user.id, message.chat.id, words_filter(message.text))
