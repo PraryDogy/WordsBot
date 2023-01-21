@@ -64,23 +64,11 @@ async def inline_libera(inline_query: InlineQuery):
 
     items = []
 
-    await sleep(1)
 
-    # for test in (
-    #     ItemDestiny, ItemPokemons, ItemPuppies, ItemFat, ItemPenis, ItemAss,
-    #     ItemZarplata, ItemLibera, ItemMobi, ):
-    #     items.append(test(inline_query.query).item)
-    
-    items.append(ItemDestiny(inline_query.query).item)
-    items.append(ItemPokemons(inline_query.query).item)
-    items.append(ItemPuppies(inline_query.query).item)
-    items.append(ItemFat(inline_query.query).item)
-    items.append(ItemPenis(inline_query.query).item)
-    items.append(ItemAss(inline_query.query).item)
-    items.append(ItemZarplata(inline_query.query).item)
-    items.append(ItemLibera(inline_query.query).item)
-    items.append(ItemMobi(inline_query.query).item)
-
+    for test in (
+        ItemDestiny, ItemPokemons, ItemPuppies, ItemFat, ItemPenis, ItemAss,
+        ItemZarplata, ItemLibera, ItemMobi, ):
+        items.append(test(inline_query.from_user.id, inline_query.query).item)
 
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
 

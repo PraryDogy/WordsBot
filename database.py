@@ -167,7 +167,7 @@ q = sqlalchemy.select(PuppyModel.id, PuppyModel.user_id)
 res = Dbase.conn.execute(q).all()
 
 for id, user_id in res:
-    if len(str(user_id)) < 5:
+    if len(str(user_id)) <= 6:
         q = sqlalchemy.delete(PuppyModel).filter(PuppyModel.id==id)
         Dbase.conn.execute(q)
 
@@ -175,6 +175,6 @@ q = sqlalchemy.select(PokemonModel.id, PokemonModel.user_id)
 res = Dbase.conn.execute(q).all()
 
 for id, user_id in res:
-    if len(str(user_id)) < 5:
+    if len(str(user_id)) <= 6:
         q = sqlalchemy.delete(PokemonModel).filter(PokemonModel.id==id)
         Dbase.conn.execute(q)
