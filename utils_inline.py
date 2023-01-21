@@ -19,6 +19,7 @@ class MessageButton(InlineKeyboardMarkup):
 
 class Utils:
     def __init__(self):
+        print('init test')
         self.today = datetime.today().replace(microsecond=0)
 
     def user_check(self, msg_usr_id: int, model: TestBaseModel):
