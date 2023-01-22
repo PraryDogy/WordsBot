@@ -159,6 +159,3 @@ def remove_dubs(model: TestBaseModel):
 tables = (
     AssModel, FatModel, LiberaModel, MobiModel, PenisModel, PokemonModel,
     PuppyModel, ZarplataModel)
-
-# for i in tables:
-#     Migration().migrate_table(i.__tablename__)
