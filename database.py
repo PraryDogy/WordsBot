@@ -165,14 +165,3 @@ def remove_dubs(model: TestBaseModel):
 tables = (
     AssModel, FatModel, LiberaModel, MobiModel, PenisModel, PokemonModel,
     PuppyModel, ZarplataModel)
-
-for i in tables:
-    vals = {'time': ''}
-    q = sqlalchemy.update(i).values(vals)
-    Dbase.conn.execute(q)
-
-Migration().migrate_table('users')
-
-vals = {'user_time': '2023-01-22 01:06:48'}
-q = sqlalchemy.update(Users).values(vals)
-Dbase.conn.execute(q)
