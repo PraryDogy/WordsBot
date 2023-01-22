@@ -90,7 +90,3 @@ def khalisi_convert(message: str):
                 new.append(msg_word.replace(src, rpl))
                 break
     return (' '.join(new))
-
-
-def destiny_analyse(message):
-    message = message.split()

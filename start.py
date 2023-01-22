@@ -70,7 +70,9 @@ async def inline_libera(inline_query: InlineQuery):
                 )
 
     # items = [img_noncached(), img_cached(), text_article()]
-    await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
+    await bot.answer_inline_query(
+        inline_query.id, results=items, cache_time=120,
+        is_personal=True)
 
 
 @dp.message_handler()
