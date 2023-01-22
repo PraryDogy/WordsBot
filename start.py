@@ -33,14 +33,6 @@ async def top_slovobludov(message: types.Message):
     await bot.send_message(chat_id=message.chat.id, text=msg)
 
 
-# @dp.message_handler(content_types='photo')
-# async def get_word_stat(message: types.Message):
-#     try:
-#         print(get_file_id(message))
-#     except Exception:
-#         print('no file id')
-
-
 @dp.message_handler(commands=['word_stat'])
 async def get_word_stat(message: types.Message):
     db_user_record(message.from_user.id, message.from_user.username)
@@ -55,24 +47,28 @@ async def start(message: types.Message):
     await bot.send_message(chat_id=message.chat.id, text=data)
 
 
+# @dp.message_handler(content_types='sticker')
+# async def get_word_stat(message: types.Message):
+#     try:
+#         print(get_file_id(message))
+#     except Exception:
+#         print('no file id')
+
+
 @dp.inline_handler()
 async def inline_libera(inline_query: InlineQuery):
     db_user_record(inline_query.from_user.id, inline_query.from_user.username)
-
     usr_time = PrepareTest().get_usr_time(inline_query.from_user.id)
-    PrepareTest().update_usr_time(usr_time, inline_query.from_user.id)
-
     items = []
-    for test in (ItemDestiny, ItemPokemons, ItemPuppies, ItemFat, ItemPenis, \
-    ItemAss, ItemZarplata, ItemLibera, ItemMobi, ):
+
+    for test in (ItemDestiny, ItemPokemons, ItemPuppies, ItemFat, ItemVgg,\
+    ItemPenis, ItemAss, ItemZarplata, ItemLibera, ItemMobi):
         items.append(
             test(inline_query.from_user.id, inline_query.query, usr_time).item
                 )
 
-    # items = [img_noncached(), img_cached(), text_article()]
-    await bot.answer_inline_query(
-        inline_query.id, results=items, cache_time=120,
-        is_personal=True)
+    await bot.answer_inline_query(inline_query.id, results=items, cache_time=3)
+    PrepareTest().update_usr_time(usr_time, inline_query.from_user.id)
 
 
 @dp.message_handler()

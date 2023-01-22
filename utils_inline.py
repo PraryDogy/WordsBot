@@ -336,35 +336,47 @@ class ItemPokemons(Utils):
 
 
 
-# def text_article():
-#     return InlineQueryResultArticle(
-#             id=hashlib.md5('text'.encode()).hexdigest(),
-#             title='text',
-#             description='text',
-#             # thumb_url=thumb_url,
-#             input_message_content=InputTextMessageContent('some text'),
-#             # reply_markup=MessageButton(),
-#             )
+class ItemVgg(Utils):
+    def __init__(self, msg_usr_id, query: str, usr_time: datetime):
+        Utils.__init__(self)
+        header = 'Какая у меня мышка'
+        descr = 'Король Борат все видит'
+        thumb = 'https://sun9-84.userapi.com/impg/Ry8m74bDDGpAq1bD4I3lqvAwIK_BHcLzviJmrw/0M6y3oRE1ek.jpg?size=300x231&quality=95&sign=c9c621121c8b5e7657af74c521d1e12d&type=album'
 
+        old_time = usr_time
 
+        value, usr_time = self.create_test(
+            msg_usr_id, VggModel, random.randint(1, 30), usr_time)
 
-# def img_noncached():
-#     header = 'Non cached photo'
-#     img_url = 'https://sun9-12.userapi.com/impg/oOGXM3AEHzVrTR77mtSmGE8HzRzb9_EN09z-0Q/OP2uh8gxsT4.jpg?size=460x300&quality=95&sign=ed7f5d437785ea571d4d95c5762c5c1f&type=album'
+        vgg = self.load_vgg(msg_usr_id, value, old_time)
 
-#     return InlineQueryResultPhoto(
-#         id=hashlib.md5(header.encode()).hexdigest(),
-#         id=uuid4(),
-#         photo_url=img_url,
-#         thumb_url=img_url,
-#         title=header,
-#         description=header,
-#         )
+        msg = '\n'.join(
+            [
+                'Тест на мышку',
+                f'Глубина моей мышки {value}см',
+                f'Тип моей мышки: {vgg.capitalize()}. {vggs_dict[vgg].capitalize()}',
+                self.time_row(usr_time)
+                ])
 
-# def img_cached():
-#     return InlineQueryResultCachedPhoto(
-#         id=hashlib.md5('any'.encode()).hexdigest(),
-#         photo_file_id='any photo file id',
-#         title='any title',
-#         description='any description'
-#     )
+        self.item = self.txt_base(header, descr, thumb, msg)
+
+    def load_vgg(self, msg_usr_id, value, usr_time):
+        vgg = random.choice(list(vggs_dict))
+
+        if self.user_check(msg_usr_id, VggModel):
+            if self.need_upd(usr_time):
+                vals = {'vgg_descr': vgg}
+                upd = sqlalchemy.update(VggModel)\
+                    .where(VggModel.user_id==msg_usr_id).values(vals)
+                Dbase.conn.execute(upd)
+            else:
+                sel = sqlalchemy.select(VggModel.vgg_descr)\
+                    .filter(VggModel.user_id==msg_usr_id)
+                vgg = Dbase.conn.execute(sel).first()[0]
+
+        else:
+            vals = {'value': str(value), 'user_id': msg_usr_id, 'vgg_descr': vgg}
+            q = sqlalchemy.insert(VggModel).values(vals)
+            Dbase.conn.execute(q)
+
+        return vgg

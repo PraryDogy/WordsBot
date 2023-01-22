@@ -88,6 +88,12 @@ class PokemonModel(TestBaseModel):
     user_id = Column(Integer, ForeignKey('users.user_id'))
 
 
+class VggModel(TestBaseModel):
+    __tablename__ = 'vgg'
+    user_id = Column(Integer, ForeignKey('users.user_id'))
+    vgg_descr = Column(Text)
+
+
 class Migration:
     def migrate_table(self, name):
         import sqlite3
