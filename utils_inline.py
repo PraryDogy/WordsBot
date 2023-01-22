@@ -19,8 +19,7 @@ class PrepareTest:
             .where(Users.user_id==msg_usr_id)
         res = Dbase.conn.execute(get_time).first()
         if not res:
-            print(f'error get user time{msg_usr_id}')
-            return self.today
+            return datetime.today().replace(microsecond=0)
         return datetime.strptime(res[0], '%Y-%m-%d %H:%M:%S')
 
     def need_upd(self, usr_time: datetime):
@@ -333,3 +332,39 @@ class ItemPokemons(Utils):
                 ])
 
         self.item = self.img_base(header, descr, img_url, msg)
+
+
+
+
+# def text_article():
+#     return InlineQueryResultArticle(
+#             id=hashlib.md5('text'.encode()).hexdigest(),
+#             title='text',
+#             description='text',
+#             # thumb_url=thumb_url,
+#             input_message_content=InputTextMessageContent('some text'),
+#             # reply_markup=MessageButton(),
+#             )
+
+
+
+# def img_noncached():
+#     header = 'Non cached photo'
+#     img_url = 'https://sun9-12.userapi.com/impg/oOGXM3AEHzVrTR77mtSmGE8HzRzb9_EN09z-0Q/OP2uh8gxsT4.jpg?size=460x300&quality=95&sign=ed7f5d437785ea571d4d95c5762c5c1f&type=album'
+
+#     return InlineQueryResultPhoto(
+#         id=hashlib.md5(header.encode()).hexdigest(),
+#         id=uuid4(),
+#         photo_url=img_url,
+#         thumb_url=img_url,
+#         title=header,
+#         description=header,
+#         )
+
+# def img_cached():
+#     return InlineQueryResultCachedPhoto(
+#         id=hashlib.md5('any'.encode()).hexdigest(),
+#         photo_file_id='any photo file id',
+#         title='any title',
+#         description='any description'
+#     )

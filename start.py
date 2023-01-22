@@ -52,27 +52,25 @@ async def get_word_stat(message: types.Message):
 async def start(message: types.Message):
     with open('txt_start.txt', 'r') as file:
         data = file.read()
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=data,
-        )
+    await bot.send_message(chat_id=message.chat.id, text=data)
 
 
 @dp.inline_handler()
 async def inline_libera(inline_query: InlineQuery):
     db_user_record(inline_query.from_user.id, inline_query.from_user.username)
-    usr_time = PrepareTest().get_usr_time(inline_query.from_user.id)
-    items = []
 
-    for test in (
-        ItemDestiny, ItemPokemons, ItemPuppies, ItemFat, ItemPenis, ItemAss,
-        ItemZarplata, ItemLibera, ItemMobi, ):
+    usr_time = PrepareTest().get_usr_time(inline_query.from_user.id)
+    PrepareTest().update_usr_time(usr_time, inline_query.from_user.id)
+
+    items = []
+    for test in (ItemDestiny, ItemPokemons, ItemPuppies, ItemFat, ItemPenis, \
+    ItemAss, ItemZarplata, ItemLibera, ItemMobi, ):
         items.append(
             test(inline_query.from_user.id, inline_query.query, usr_time).item
                 )
 
+    # items = [img_noncached(), img_cached(), text_article()]
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
-    PrepareTest().update_usr_time(usr_time, inline_query.from_user.id)
 
 
 @dp.message_handler()
