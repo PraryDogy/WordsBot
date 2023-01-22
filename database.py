@@ -29,7 +29,7 @@ class Users(Dbase.base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer)
     user_name = Column(Text)
-    last_time = Column(Text)
+    user_time = Column(Text)
 
 
 class Words(Dbase.base):
@@ -101,10 +101,9 @@ class Migration:
         rename = f"""ALTER TABLE {name} RENAME TO {name}_old"""
         create_table = f"""CREATE TABLE IF NOT EXISTS {name} (
                             "id" INTEGER NOT NULL PRIMARY KEY,
-                            "value" TEXT,
-                            "time" TEXT,
                             "user_id" INTEGER,
-                            FOREIGN KEY ("user_id")REFERENCES "users"("user_id")
+                            "user_name" TEXT,
+                            "user_time" INTEGER
                             )
                             """
         copy_data = f"""INSERT INTO {name} SELECT * FROM {name}_old"""
@@ -161,3 +160,19 @@ def remove_dubs(model: TestBaseModel):
         for id in id_list:
             q = sqlalchemy.delete(model).where(model.id==id)
             Dbase.conn.execute(q)
+
+
+tables = (
+    AssModel, FatModel, LiberaModel, MobiModel, PenisModel, PokemonModel,
+    PuppyModel, ZarplataModel)
+
+for i in tables:
+    vals = {'time': ''}
+    q = sqlalchemy.update(i).values(vals)
+    Dbase.conn.execute(q)
+
+Migration().migrate_table('users')
+
+vals = {'user_time': '2023-01-22 01:06:48'}
+q = sqlalchemy.update(Users).values(vals)
+Dbase.conn.execute(q)

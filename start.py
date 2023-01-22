@@ -61,15 +61,18 @@ async def start(message: types.Message):
 @dp.inline_handler()
 async def inline_libera(inline_query: InlineQuery):
     db_user_record(inline_query.from_user.id, inline_query.from_user.username)
-
+    usr_time = PrepareTest().get_usr_time(inline_query.from_user.id)
     items = []
 
     for test in (
         ItemDestiny, ItemPokemons, ItemPuppies, ItemFat, ItemPenis, ItemAss,
         ItemZarplata, ItemLibera, ItemMobi, ):
-        items.append(test(inline_query.from_user.id, inline_query.query).item)
+        items.append(
+            test(inline_query.from_user.id, inline_query.query, usr_time).item
+                )
 
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
+    PrepareTest().update_usr_time(usr_time, inline_query.from_user.id)
 
 
 @dp.message_handler()
