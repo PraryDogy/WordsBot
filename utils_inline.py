@@ -256,6 +256,10 @@ class ItemDestiny(Utils):
         for word in words_regex(query):
             if word in dest_q_word:
                 msg = khalisi_convert(query.lower()).capitalize()
+                msg = '\n'.join(
+                    [
+                    'К шару прилетела Кхалиси, и вот, что они передали:',
+                    msg])
                 self.item = self.txt_base(header, descr, thumb, msg)
                 return
 
