@@ -45,7 +45,6 @@ class TestBaseModel(Dbase.base):
     __abstract__ = True
     id = Column(Integer, primary_key=True)
     value = Column(Text)
-    time = Column(Text)
     user_id = Column(Integer)
 
 
@@ -101,12 +100,12 @@ class Migration:
         rename = f"""ALTER TABLE {name} RENAME TO {name}_old"""
         create_table = f"""CREATE TABLE IF NOT EXISTS {name} (
                             "id" INTEGER NOT NULL PRIMARY KEY,
-                            "user_id" INTEGER,
-                            "user_name" TEXT,
-                            "user_time" INTEGER
+                            "value" TEXT,
+                            "user_id" INTEGER
                             )
                             """
-        copy_data = f"""INSERT INTO {name} SELECT * FROM {name}_old"""
+        # copy_data = f"""INSERT INTO {name} SELECT * FROM {name}_old"""
+        copy_data = f"""INSERT INTO {name} SELECT id, value, user_id FROM {name}_old"""
         comm = """COMMIT"""
         enable_fk = """PRAGMA foreign_keys=off"""
         remove_old = f"""DROP TABLE {name}_old"""
@@ -117,11 +116,6 @@ class Migration:
             cur.execute(i)
 
         conn.commit()
-
-    def full_migration(self):
-        for i in ('libera', 'fat', 'mobi', 'puppies'):
-            self.migrate_table(i)
-
 
 def rem_words(word: str):
     q = sqlalchemy.select(Words.id).where(Words.word==word)
@@ -165,3 +159,6 @@ def remove_dubs(model: TestBaseModel):
 tables = (
     AssModel, FatModel, LiberaModel, MobiModel, PenisModel, PokemonModel,
     PuppyModel, ZarplataModel)
+
+# for i in tables:
+#     Migration().migrate_table(i.__tablename__)
