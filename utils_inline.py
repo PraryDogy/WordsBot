@@ -8,7 +8,7 @@ from aiogram.types import *
 
 from dicts import *
 from database import *
-
+from text_analyser import *
 
 class PrepareTest:
     def get_usr_time(self, msg_usr_id: int):
@@ -250,14 +250,20 @@ class ItemDestiny(Utils):
 
         if not query:
             msg = 'Вы не задали вопрос'
+            self.item = self.txt_base(header, descr, thumb, msg)
+            return
 
-        else:
-            msg = '\n'.join([
-                'Шар судьбы поможет вам определиться',
-                f'Ваш вопрос: {query}',
-                f'Ответ шара: {random.choice(destiny_answers)}',
-                ])
+        for word in words_regex(query):
+            if word in dest_q_word:
+                msg = khalisi_convert(query.lower()).capitalize()
+                self.item = self.txt_base(header, descr, thumb, msg)
+                return
 
+        msg = '\n'.join([
+            'Шар судьбы поможет вам определиться',
+            f'Ваш вопрос: {query}',
+            f'Ответ шара: {random.choice(dest_a_main)}',
+            ])
         self.item = self.txt_base(header, descr, thumb, msg)
 
 
