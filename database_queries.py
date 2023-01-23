@@ -1,5 +1,5 @@
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import sqlalchemy
 
@@ -17,7 +17,10 @@ def db_user_record(msg_user_id: int, msg_username: str):
     db_user = Dbase.conn.execute(get_user).first()
 
     if not db_user:
-        vals = {'user_id': msg_user_id, 'user_name': msg_username}
+        vals = {
+            'user_id': msg_user_id,
+            'user_name': msg_username,
+            'user_time': datetime.today().replace(microsecond=0) - timedelta(days=1)}
         new_user = sqlalchemy.insert(Users).values(vals)
         Dbase.conn.execute(new_user)
 

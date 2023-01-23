@@ -5,7 +5,8 @@ from bot_config import TOKEN
 from database_queries import *
 from text_analyser import *
 from utils_handler import *
-from utils_inline import *
+from inline_utils import *
+from inline_tests import *
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
@@ -58,17 +59,21 @@ async def get_word_stat(message: types.Message):
 @dp.inline_handler()
 async def inline_libera(inline_query: InlineQuery):
     db_user_record(inline_query.from_user.id, inline_query.from_user.username)
-    usr_time = PrepareTest().get_usr_time(inline_query.from_user.id)
-    items = []
 
+    today = datetime.today().replace(microsecond=0)
+    user_id = inline_query.from_user.id
+    user_time = get_user_time(user_id, today)
+    need_update = need_upd(today, user_time)
+    query = inline_query.query
+    update_user_time(need_update, today, user_id)
+
+    items = []
     for test in (ItemDestiny, ItemPokemons, ItemPuppies, ItemFat, ItemVgg,\
     ItemPenis, ItemAss, ItemZarplata, ItemLibera, ItemMobi):
         items.append(
-            test(inline_query.from_user.id, inline_query.query, usr_time).item
-                )
+            test(user_id, user_time, today, need_update, query).item)
 
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=3)
-    PrepareTest().update_usr_time(usr_time, inline_query.from_user.id)
 
 
 @dp.message_handler()
