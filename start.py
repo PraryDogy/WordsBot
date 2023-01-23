@@ -48,12 +48,12 @@ async def start(message: types.Message):
     await bot.send_message(chat_id=message.chat.id, text=data)
 
 
-@dp.message_handler(content_types='photo')
-async def get_word_stat(message: types.Message):
-    try:
-        print(get_file_id(message))
-    except Exception:
-        print('no file id')
+# @dp.message_handler(content_types='photo')
+# async def get_word_stat(message: types.Message):
+#     try:
+#         print(get_file_id(message))
+#     except Exception:
+#         print('no file id')
 
 
 @dp.inline_handler()
