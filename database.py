@@ -162,6 +162,5 @@ def remove_dubs(model: TestBaseModel):
             Dbase.conn.execute(q)
 
 
-tables = (
-    AssModel, FatModel, LiberaModel, MobiModel, PenisModel, PokemonModel,
-    PuppyModel, ZarplataModel)
+tables = list(Dbase.base.metadata.tables.keys())
+[tables.remove(i) for i in ('users', 'words')]
