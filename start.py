@@ -47,12 +47,12 @@ async def start(message: types.Message):
     await bot.send_message(chat_id=message.chat.id, text=data)
 
 
-# @dp.message_handler(content_types='sticker')
-# async def get_word_stat(message: types.Message):
-#     try:
-#         print(get_file_id(message))
-#     except Exception:
-#         print('no file id')
+@dp.message_handler(content_types='photo')
+async def get_word_stat(message: types.Message):
+    try:
+        print(get_file_id(message))
+    except Exception:
+        print('no file id')
 
 
 @dp.inline_handler()
@@ -80,7 +80,7 @@ async def echo(message: types.Message):
     if khalisi_politic(message.text):
         await bot.send_photo(
             message.chat.id,
-            photo='AgACAgIAAx0CYSXtmQACBR5jxSj6C8tQvdZLy0etdc2Y1uk3jgACyMYxG4SkKUosfglEfCzsAQEAAwIAA3gAAy0E',
+            photo='AgACAgIAAxkBAAIBV2POwpjYW1G09NsaIn9UWcVfTAVMAAL2wjEbcDFwSvLDY7j9liSpAQADAgADeAADLQQ',
             reply_to_message_id=message.message_id,
             caption=khalisi_convert(message.text)
             )
@@ -92,7 +92,7 @@ async def echo(message: types.Message):
             msg_reply_id = message.reply_to_message.message_id
             await bot.send_photo(
                 message.chat.id,
-                photo='AgACAgIAAx0CYSXtmQACBR5jxSj6C8tQvdZLy0etdc2Y1uk3jgACyMYxG4SkKUosfglEfCzsAQEAAwIAA3gAAy0E',
+                photo='AgACAgIAAxkBAAIBV2POwpjYW1G09NsaIn9UWcVfTAVMAAL2wjEbcDFwSvLDY7j9liSpAQADAgADeAADLQQ',
                 reply_to_message_id=msg_reply_id,
                 caption=khalisi_msg
                 )
