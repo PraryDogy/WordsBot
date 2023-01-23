@@ -68,7 +68,8 @@ async def inline_libera(inline_query: InlineQuery):
     ItemPenis, ItemAss, ItemZarplata, ItemLibera, ItemMobi):
         items.append(
             test(
-                inline_query.from_user.id, user_time, today, need_update,
+                inline_query.from_user.id,
+                user_time, today, need_update,
                 inline_query.query).item)
 
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=0)
