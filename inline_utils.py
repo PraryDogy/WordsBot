@@ -87,10 +87,8 @@ class Utils:
         `Обновить можно сегодня/завтра в часов:минут`
         """
         if self.need_update:
-            print('need')
             when_upd = self.today + timedelta(hours=3)
         else:
-            print('no')
             when_upd = self.user_time + timedelta(hours=3)
 
         if self.today.date() == (when_upd).date():
