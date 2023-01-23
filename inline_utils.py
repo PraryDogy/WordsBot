@@ -23,16 +23,20 @@ def get_user_time(user_id, today):
     return datetime.strptime(res[0], '%Y-%m-%d %H:%M:%S')
 
 
-def need_upd(today, user_time):
-    return bool((today-user_time) > timedelta(hours=3))
-
-
 def update_user_time(need_update, today, user_id):
     if need_update:
         vals = {'user_time': str(today)}
         q = sqlalchemy.update(Users).filter(Users.user_id==user_id)\
             .values(vals)
         Dbase.conn.execute(q)
+
+
+def prepare_test(user_id):
+    today = datetime.today().replace(microsecond=0)
+    user_time = get_user_time(user_id, today)
+    need_update = bool((today-user_time) > timedelta(hours=3))
+    return (user_time, today, need_update)
+
 
 
 class MessageButton(InlineKeyboardMarkup):
