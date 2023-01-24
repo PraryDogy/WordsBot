@@ -6,9 +6,11 @@ import sqlalchemy
 from database import *
 
 
-def db_words_record(user_id, chat_id, word_list):
+def db_words_record(user: str, word_list: list):
     if not word_list:
         return
+
+    user_id, chat_id = user.split('/')
 
     q = (
         sqlalchemy.select(Words.word, Words.count).

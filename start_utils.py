@@ -20,6 +20,9 @@ def db_user_record(msg_user_id: int, msg_username: str):
         Users.user_id, Users.user_name).filter(Users.user_id == msg_user_id)
     db_user = Dbase.conn.execute(get_user).first()
 
+    if not msg_username:
+        msg_username = 'Без имени'
+
     if not db_user:
         vals = {
             'user_id': msg_user_id,

@@ -28,7 +28,7 @@ class Users(Dbase.base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer)
     user_name = Column(Text)
-    last_time = Column(Text)
+    user_time = Column(Text)
 
 
 class Words(Dbase.base):
@@ -38,3 +38,6 @@ class Words(Dbase.base):
     count = Column(Integer)
     user_id = Column(Integer)
     chat_id = Column(Integer)
+
+
+Dbase.base.metadata.create_all(Dbase.conn)

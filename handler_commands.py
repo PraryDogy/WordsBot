@@ -16,7 +16,7 @@ def users_words_write():
         return
 
     for k, v in users_words_dict.items():
-        db_words_record(k, v[0], v[1])
+        db_words_record(k, v)
     
     start = time()
     users_words_dict.clear()
@@ -27,10 +27,10 @@ def users_words(user_id, chat_id, message: str):
     norm_words = words_normalize(find_words)
     res_words = words_stopwords(norm_words)
 
-    if not users_words_dict.get(user_id, 0):
-        users_words_dict[user_id] = (chat_id, res_words)
+    if not users_words_dict.get(f'{user_id}/{chat_id}'):
+        users_words_dict[f'{user_id}/{chat_id}'] = res_words
     else:
-        users_words_dict[user_id][1].extend(res_words)
+        users_words_dict[f'{user_id}/{chat_id}'].extend(res_words)
 
     if time() - start >= 180:
         users_words_write()
