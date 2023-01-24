@@ -68,7 +68,7 @@ class ItemMobi(Utils):
         msg = '\n'.join(
             [
                 'Тест на мобилизацию',
-                f"Шанс моей мобилизации {values}%",
+                f"Шанс моей мобилизации {values['value']}%",
                 self.time_row()
                 ])
         self.item = self.txt_base(header, descr, thumb, msg)
@@ -128,12 +128,13 @@ class ItemDestiny(Utils):
             self.item = self.txt_base(header, descr, thumb, msg)
             return
 
-        for word in words_regex(query):
+        for word in words_find(query.split()):
             if word in dest_q_word:
                 msg = khalisi_convert(query.lower()).capitalize()
                 msg = '\n'.join(
                     [
-                    'К шару прилетела Кхалиси, и вот, что они передали:',
+                    f'Ваш вопрос: {query}'
+                    'К шару прилетела Кхалиси, и вот, что она передала тебе:',
                     msg])
                 self.item = self.txt_base(header, descr, thumb, msg)
                 return

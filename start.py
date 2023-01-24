@@ -1,12 +1,10 @@
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import *
-from asyncio import sleep
+
 from bot_config import TOKEN
-from database_queries import *
-from text_analyser import *
-from utils_handler import *
-from inline_utils import *
+from handler_commands import *
 from inline_tests import *
+from start_utils import *
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
@@ -108,7 +106,8 @@ async def echo(message: types.Message):
             )
 
     db_user_record(message.from_user.id, message.from_user.username)
-    db_words_record(message.from_user.id, message.chat.id, words_filter(message.text))
+    # db_words_record(message.from_user.id, message.chat.id, get_words(message.text))
+    users_words(message.from_user.id, message.chat.id, message.text)
 
 
 if __name__ == '__main__':

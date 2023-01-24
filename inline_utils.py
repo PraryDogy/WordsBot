@@ -11,34 +11,6 @@ from database import *
 from text_analyser import *
 
 
-def get_user_time(user_id, today):
-    """
-    Returns time from database by user_id in datetime format.
-    """
-    get_time = sqlalchemy.select(Users.user_time)\
-        .where(Users.user_id==user_id)
-    res = Dbase.conn.execute(get_time).first()
-    if not res:
-        return today
-    return datetime.strptime(res[0], '%Y-%m-%d %H:%M:%S')
-
-
-def update_user_time(need_update, today, user_id):
-    if need_update:
-        vals = {'user_time': str(today)}
-        q = sqlalchemy.update(Users).filter(Users.user_id==user_id)\
-            .values(vals)
-        Dbase.conn.execute(q)
-
-
-def prepare_test(user_id):
-    today = datetime.today().replace(microsecond=0)
-    user_time = get_user_time(user_id, today)
-    need_update = bool((today-user_time) > timedelta(hours=3))
-    return (user_time, today, need_update)
-
-
-
 class MessageButton(InlineKeyboardMarkup):
     def __init__(self, row_width=3, inline_keyboard=None, **kwargs):
         super().__init__(row_width, inline_keyboard, **kwargs)
