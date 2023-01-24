@@ -21,17 +21,17 @@ def db_words_record(user_id, chat_id, word_list):
 
     q = (
         sqlalchemy.update(Words)
-        .filter(Words.word.in_(old_words), Words.user_id==user_id)
+        .filter(Words.word.in_(old_words), Words.user_id==user_id, Words.chat_id==chat_id)
         .values({Words.count: sqlalchemy.case(old_words, value=Words.word)})
         )
+
     if old_words:
         Dbase.conn.execute(q)
 
     new_words = dict(Counter([i for i in word_list if i not in old_words]))
 
     values = [{
-        'word': x, 'count': y,
-        'user_id': user_id, 'chat_id': chat_id
+        'word': x, 'count': y, 'user_id': user_id, 'chat_id': chat_id
         } for x, y in new_words.items()]
     q = sqlalchemy.insert(Words).values(values)
 
