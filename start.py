@@ -79,7 +79,6 @@ async def echo(message: types.Message):
     if message.via_bot:
         return
 
-    # dp.loop.create_task(khalisi(message, bot))
     await khalisi(message, bot)
 
     db_user_record(message.from_user.id, message.from_user.username)
