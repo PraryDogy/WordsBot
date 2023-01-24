@@ -6,6 +6,8 @@ import sqlalchemy
 
 from database import *
 from dicts import *
+from text_analyser import *
+from aiogram import Bot
 
 
 def db_user_record(msg_user_id: int, msg_username: str):
@@ -79,3 +81,45 @@ def khalisi_politic(message: str):
             if p_word in msg_word:
                 return True
     return False
+
+
+async def khalisi(message: str, bot: Bot):
+    if khalisi_politic(message.text):
+        if len(message.text) <= 1024:
+            print(1)
+            await bot.send_photo(
+                message.chat.id,
+                photo='AgACAgIAAxkBAAIBV2POwpjYW1G09NsaIn9UWcVfTAVMAAL2wjEbcDFwSvLDY7j9liSpAQADAgADeAADLQQ',
+                reply_to_message_id=message.message_id,
+                caption=khalisi_convert(message.text)
+                )
+        else:
+            await bot.send_message(
+                message.chat.id,
+                reply_to_message_id=message.message_id,
+                text='Слишком длинное сообщение для госпожи Кхалиси'
+                )
+
+    if '@prariewords_bot' in message.text:
+        try:
+            khalisi_msg = khalisi_convert(message.reply_to_message.text)
+            msg_reply_id = message.reply_to_message.message_id
+            if len(message.reply_to_message.text) <= 1024:
+                await bot.send_photo(
+                    message.chat.id,
+                    photo='AgACAgIAAxkBAAIBV2POwpjYW1G09NsaIn9UWcVfTAVMAAL2wjEbcDFwSvLDY7j9liSpAQADAgADeAADLQQ',
+                    reply_to_message_id=msg_reply_id,
+                    caption=khalisi_msg
+                    )
+            else:
+                await bot.send_message(
+                    message.chat.id,
+                    reply_to_message_id=message.message_id,
+                    text='Слишком длинное сообщение для госпожи Кхалиси'
+                    )
+        except AttributeError:
+            await bot.send_message(
+                message.chat.id,
+                reply_to_message_id=message.message_id,
+                text='Выберите сообщение, которое хотите отправить Кхалиси'
+            )

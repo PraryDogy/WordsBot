@@ -79,34 +79,10 @@ async def echo(message: types.Message):
     if message.via_bot:
         return
 
-    if khalisi_politic(message.text):
-        await bot.send_photo(
-            message.chat.id,
-            photo='AgACAgIAAxkBAAIBV2POwpjYW1G09NsaIn9UWcVfTAVMAAL2wjEbcDFwSvLDY7j9liSpAQADAgADeAADLQQ',
-            reply_to_message_id=message.message_id,
-            caption=khalisi_convert(message.text)
-            )
-
-    if '@prariewords_bot' in message.text and message.chat.id != cfg.heli:
-        try:
-            await message.delete()
-            khalisi_msg = khalisi_convert(message.reply_to_message.text)
-            msg_reply_id = message.reply_to_message.message_id
-            await bot.send_photo(
-                message.chat.id,
-                photo='AgACAgIAAxkBAAIBV2POwpjYW1G09NsaIn9UWcVfTAVMAAL2wjEbcDFwSvLDY7j9liSpAQADAgADeAADLQQ',
-                reply_to_message_id=msg_reply_id,
-                caption=khalisi_msg
-                )
-
-        except AttributeError:
-            await bot.send_message(
-                message.chat.id, 
-                text='Выберите сообщение, которое хотите отправить Кхалиси'
-            )
+    # dp.loop.create_task(khalisi(message, bot))
+    await khalisi(message, bot)
 
     db_user_record(message.from_user.id, message.from_user.username)
-    # db_words_record(message.from_user.id, message.chat.id, get_words(message.text))
     users_words(message.from_user.id, message.chat.id, message.text)
 
 
