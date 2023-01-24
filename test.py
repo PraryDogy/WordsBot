@@ -42,13 +42,39 @@ class Words(Dbase.base):
 from sqlalchemy import bindparam
 from collections import Counter
 
-words = {555: ['мама', 'вода', 'вода', 'вода', 'вода', 'вода', 'вода']}
-count = dict(Counter(words[555]))
 
-q = (
-    sqlalchemy.update(Words)
-    .filter(Words.word.in_(count), Words.user_id==555)
-    .values({Words.count: case(count, value=Words.word)})
-    )
 
-res = Dbase.conn.execute(q)
+
+def user_words_write(user_id, chat_id, word_list):
+    q = (
+        sqlalchemy.select(Words.word, Words.count).
+        filter(Words.user_id==555, Words.chat_id==chat_id, Words.word.in_(word_list))
+        )
+
+    db_words = dict(Dbase.conn.execute(q).all())
+    msg_words = dict(Counter(word_list))
+    count = {k: db_words[k] + msg_words[k] for k in (db_words)}
+
+    q = (
+        sqlalchemy.update(Words)
+        .filter(Words.word.in_(count), Words.user_id==user_id)
+        .values({Words.count: case(count, value=Words.word)})
+        )
+    Dbase.conn.execute(q)
+
+    new_words = [i for i in word_list if i not in db_words]
+    count = dict(Counter(new_words))
+    values = [{
+        'word': x, 'count': y,
+        'user_id': user_id, 'chat_id': chat_id
+        } for x, y in count.items()]
+
+    if values:
+        q = sqlalchemy.insert(Words).values(values)
+        Dbase.conn.execute(q)
+
+# word_list = ['мама', 'мама', 'мама', 'вода', 'вода', 'вода', 'масло', 'жрачка', 'масло', 'масло', 'хуйня', 'лох']
+# user_words_write(user_id=555, chat_id=123, word_list=word_list)
+
+
+
