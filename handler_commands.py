@@ -1,15 +1,48 @@
+from time import time
+
 import sqlalchemy
 
 from database import *
-from database_queries import *
+from handler_utils import *
 from text_analyser import *
 
+start = time()
+users_words_dict = {}
+
+def users_words_write():
+    global start
+
+    if not users_words_dict:
+        return
+
+    for k, v in users_words_dict.items():
+        db_words_record(k, v[0], v[1])
+    
+    print(users_words_dict)
+    start = time()
+    users_words_dict.clear()
+
+
+def users_words(user_id, chat_id, message: str):
+    find_words = words_find(message.split())
+    norm_words = words_normalize(find_words)
+    res_words = words_stopwords(norm_words)
+
+    if not users_words_dict.get(user_id, 0):
+        users_words_dict[user_id] = (chat_id, res_words)
+    else:
+        users_words_dict[user_id][1].extend(res_words)
+
+    if time() - start >= 180:
+        users_words_write()
 
 
 def user_words_top(msg_chat_id, msg_username, args: str):
     """
     Returns text with top 10 words of user in current chat.
     """
+    users_words_write()
+
     if not args:
         user = db_user_get(msg_username)
     else:
@@ -39,6 +72,8 @@ def chat_words_top(msg_chat_id, msg_username):
     Telegram `/chat_words`. 
     Returns text with top 10 words in current chat.
     """
+    users_words_write()
+
     words_db = db_chat_words_get(msg_chat_id, 500)
 
     words_sum = {}
@@ -64,6 +99,7 @@ def top_boltunov(msg_chat_id, msg_username):
     Returns `text` with top 10 users by words count and top 10 users by unique
     words count.
     """
+    users_words_write()
     user_words = []
     msg = []
 
@@ -89,6 +125,8 @@ def top_boltunov(msg_chat_id, msg_username):
 
 
 def word_stat(msg_chat_id, args: str):
+    users_words_write()
+
     if not args:
         return 'Пример команды /word_stat слово.'
 
@@ -114,6 +152,5 @@ def word_stat(msg_chat_id, args: str):
 
     msg_list.append(f'Было сказано: {count} раз.')
     msg_list.append(f'Произносило: {people} человек.')
-    msg_list.append('Попробуйте написать корень слова для лучшего результата.')
 
     return '\n'.join(msg_list)

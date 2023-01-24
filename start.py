@@ -1,12 +1,10 @@
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import *
-from asyncio import sleep
+
 from bot_config import TOKEN
-from database_queries import *
-from text_analyser import *
-from utils_handler import *
-from inline_utils import *
+from handler_commands import *
 from inline_tests import *
+from start_utils import *
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
@@ -81,34 +79,10 @@ async def echo(message: types.Message):
     if message.via_bot:
         return
 
-    if khalisi_politic(message.text):
-        await bot.send_photo(
-            message.chat.id,
-            photo='AgACAgIAAxkBAAIBV2POwpjYW1G09NsaIn9UWcVfTAVMAAL2wjEbcDFwSvLDY7j9liSpAQADAgADeAADLQQ',
-            reply_to_message_id=message.message_id,
-            caption=khalisi_convert(message.text)
-            )
-
-    if '@prariewords_bot' in message.text and message.chat.id != cfg.heli:
-        try:
-            await message.delete()
-            khalisi_msg = khalisi_convert(message.reply_to_message.text)
-            msg_reply_id = message.reply_to_message.message_id
-            await bot.send_photo(
-                message.chat.id,
-                photo='AgACAgIAAxkBAAIBV2POwpjYW1G09NsaIn9UWcVfTAVMAAL2wjEbcDFwSvLDY7j9liSpAQADAgADeAADLQQ',
-                reply_to_message_id=msg_reply_id,
-                caption=khalisi_msg
-                )
-
-        except AttributeError:
-            await bot.send_message(
-                message.chat.id, 
-                text='Выберите сообщение, которое хотите отправить Кхалиси'
-            )
+    await khalisi(message, bot)
 
     db_user_record(message.from_user.id, message.from_user.username)
-    db_words_record(message.from_user.id, message.chat.id, words_filter(message.text))
+    users_words(message.from_user.id, message.chat.id, message.text)
 
 
 if __name__ == '__main__':
