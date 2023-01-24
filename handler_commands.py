@@ -18,7 +18,6 @@ def users_words_write():
     for k, v in users_words_dict.items():
         db_words_record(k, v[0], v[1])
     
-    print(users_words_dict)
     start = time()
     users_words_dict.clear()
 
