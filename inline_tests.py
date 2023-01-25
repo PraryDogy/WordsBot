@@ -133,7 +133,7 @@ class ItemDestiny(Utils):
                 msg = khalisi_convert(query.lower()).capitalize()
                 msg = '\n'.join(
                     [
-                    f'Ваш вопрос: {query}'
+                    f'Ваш вопрос: {query}',
                     'К шару прилетела Кхалиси, и вот, что она передала тебе:',
                     msg])
                 self.item = self.txt_base(header, descr, thumb, msg)
