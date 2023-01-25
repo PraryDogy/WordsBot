@@ -62,8 +62,6 @@ async def inline_libera(inline_query: InlineQuery):
     user_time = get_user_time(inline_query.from_user.id, today)
     need_update = bool((today-user_time) > timedelta(hours=3))
 
-    print(user_time)
-
     update_user_time(need_update, today, inline_query.from_user.id)
 
     items = []

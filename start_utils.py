@@ -82,7 +82,6 @@ def khalisi_politic(message: str):
 async def khalisi(message: str, bot: Bot):
     if khalisi_politic(message.text):
         if len(message.text) <= 1024:
-            print(1)
             await bot.send_photo(
                 message.chat.id,
                 photo='AgACAgIAAxkBAAIBV2POwpjYW1G09NsaIn9UWcVfTAVMAAL2wjEbcDFwSvLDY7j9liSpAQADAgADeAADLQQ',
