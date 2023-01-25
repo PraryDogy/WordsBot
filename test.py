@@ -1,4 +1,8 @@
-with open ('txt_food.txt', 'r') as file:
-    food_list = file.read().split('\n')
+import inline_tests
 
-food = ', '.join(random.sample(food_list, 5))
+import inspect
+import sys
+
+
+classes = [cls_name for cls_name, cls_obj in inspect.getmembers(sys.modules['inline_tests']) if inspect.isclass(cls_obj)]
+print(classes)

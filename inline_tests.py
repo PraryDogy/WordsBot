@@ -214,33 +214,6 @@ class ItemPokemons(Utils):
         self.item = self.img_base(header, descr, values['value'], msg)
 
 
-class ItemVgg(Utils):
-    def __init__(self, user_id, user_time, today, need_update, query):
-        super().__init__(user_id, user_time, today, need_update, query)
-
-        header = 'Какая у меня мышка'
-        descr = 'Король Борат все видит'
-        thumb = 'https://sun9-84.userapi.com/impg/Ry8m74bDDGpAq1bD4I3lqvAwIK_BHcLzviJmrw/0M6y3oRE1ek.jpg?size=300x231&quality=95&sign=c9c621121c8b5e7657af74c521d1e12d&type=album'
-
-        values = self.create_test(
-            VggModel,
-            {
-                'value': random.randint(1, 30),
-                'vgg_descr': random.choice(list(vggs_dict))
-                }
-            )
-
-        msg = '\n'.join(
-            [
-                'Тест на мышку',
-                f'Глубина моей мышки {values["value"]}см',
-                f'Тип моей мышки: {values["vgg_descr"].capitalize()}. {vggs_dict[values["vgg_descr"]].capitalize()}',
-                self.time_row()
-                ])
-
-        self.item = self.txt_base(header, descr, thumb, msg)
-
-
 class ItemEat(Utils):
     def __init__(self, user_id, user_time, today, need_update, query):
         super().__init__(user_id, user_time, today, need_update, query)

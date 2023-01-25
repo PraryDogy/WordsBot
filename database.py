@@ -88,12 +88,6 @@ class PokemonModel(TestBaseModel):
     user_id = Column(Integer, ForeignKey('users.user_id'))
 
 
-class VggModel(TestBaseModel):
-    __tablename__ = 'vgg'
-    user_id = Column(Integer, ForeignKey('users.user_id'))
-    vgg_descr = Column(Text)
-
-
 class EatModel(TestBaseModel):
     __tablename__ = 'eat'
     user_id = Column(Integer)
@@ -129,45 +123,7 @@ class Migration:
 
         conn.commit()
 
-def rem_words(word: str):
-    q = sqlalchemy.select(Words.id).where(Words.word==word)
-    res = Dbase.conn.execute(q).fetchall()
-    ids = tuple(i[0] for i in res)
-
-    for i in ids:
-        q = sqlalchemy.delete(Words).where(Words.id==i)
-        Dbase.conn.execute(q)
-
-
-def right_joins():
-    q = sqlalchemy.select(Words.word, Words.count).join(
-        Users, Users.user_id==Words.user_id).where(
-        Users.user_name=='Evlosh').order_by(-Words.count)
-    return Dbase.conn.execute(q).all()
-
-
-def remove_dubs(model: TestBaseModel):
-    q = sqlalchemy.select(model.id, model.user_id)
-    res = Dbase.conn.execute(q).all()
-    ids = {}
-
-    for id, usr_id in res:
-        if not ids.get(usr_id):
-            ids[usr_id] = [id]
-        else:
-            ids[usr_id].append(id)
-
-    ids_to_rem = {}
-    for k, v in ids.items():
-        if len(v) > 1:
-            ids_to_rem[k] = v[:-1]
-
-    for id_list in ids_to_rem.values():
-        for id in id_list:
-            q = sqlalchemy.delete(model).where(model.id==id)
-            Dbase.conn.execute(q)
-
 
 tables = list(Dbase.base.metadata.tables.keys())
-[tables.remove(i) for i in ('users', 'words')]
+[tables.remove(i) for i in ('users', 'words', 'eat')]
 

@@ -64,9 +64,11 @@ async def inline_libera(inline_query: InlineQuery):
 
     update_user_time(need_update, today, inline_query.from_user.id)
 
+
     items = []
-    for test in (ItemDestiny, ItemPokemons, ItemPuppies, ItemEat, ItemFat, ItemVgg,\
-    ItemPenis, ItemAss, ItemZarplata, ItemLibera, ItemMobi, ):
+    for test in (
+        ItemDestiny, ItemPokemons, ItemPuppies, ItemEat, ItemFat, ItemPenis, 
+        ItemAss, ItemZarplata, ItemLibera, ItemMobi, ):
         items.append(
             test(
                 inline_query.from_user.id,
