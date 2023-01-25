@@ -1,5 +1,3 @@
-from collections import Counter
-
 import sqlalchemy
 import sqlalchemy.ext.declarative
 from sqlalchemy import Column, Integer, Text

@@ -58,13 +58,6 @@ def update_user_time(need_update, today, user_id):
         Dbase.conn.execute(q)
 
 
-def prepare_test(user_id):
-    today = datetime.today().replace(microsecond=0)
-    user_time = get_user_time(user_id, today)
-    need_update = bool((today-user_time) > timedelta(hours=3))
-    return (user_time, today, need_update)
-
-
 def get_file_id(message):
     reg = r'"file_id": "\S*"'
     res = re.findall(reg, str(message))

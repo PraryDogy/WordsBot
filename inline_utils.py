@@ -47,11 +47,10 @@ class Utils:
         Dbase.conn.execute(update_record)
 
     def user_get(self, model: TestBaseModel):
-        """Returns user_row"""
+        """Returns user's row as dict"""
         select_value = sqlalchemy.select(model)\
             .where(model.user_id==self.user_id)
-        res = Dbase.conn.execute(select_value).all()
-        return [r._asdict() for r in res][0]
+        return Dbase.conn.execute(select_value).mappings().first()
 
     def time_row(self):
         """

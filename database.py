@@ -164,3 +164,4 @@ def remove_dubs(model: TestBaseModel):
 
 tables = list(Dbase.base.metadata.tables.keys())
 [tables.remove(i) for i in ('users', 'words')]
+

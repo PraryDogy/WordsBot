@@ -22,15 +22,15 @@ def users_words_write():
     users_words_dict.clear()
 
 
-def users_words(user_id, chat_id, message: str):
+def catch_words(user_id, chat_id, message: str):
     find_words = words_find(message.split())
     norm_words = words_normalize(find_words)
     res_words = words_stopwords(norm_words)
 
-    if not users_words_dict.get(f'{user_id}/{chat_id}'):
-        users_words_dict[f'{user_id}/{chat_id}'] = res_words
+    if not users_words_dict.get((user_id, chat_id)):
+        users_words_dict[(user_id, chat_id)] = res_words
     else:
-        users_words_dict[f'{user_id}/{chat_id}'].extend(res_words)
+        users_words_dict[(user_id, chat_id)].extend(res_words)
 
     if time() - start >= 180:
         users_words_write()

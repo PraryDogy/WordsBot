@@ -58,7 +58,10 @@ async def start(message: types.Message):
 async def inline_libera(inline_query: InlineQuery):
     db_user_record(inline_query.from_user.id, inline_query.from_user.username)
 
-    user_time, today, need_update = prepare_test(inline_query.from_user.id)
+    today = datetime.today().replace(microsecond=0)
+    user_time = get_user_time(inline_query.from_user.id, today)
+    need_update = bool((today-user_time) > timedelta(hours=3))
+
     update_user_time(need_update, today, inline_query.from_user.id)
 
     items = []
@@ -82,7 +85,7 @@ async def echo(message: types.Message):
     await khalisi(message, bot)
 
     db_user_record(message.from_user.id, message.from_user.username)
-    users_words(message.from_user.id, message.chat.id, message.text)
+    catch_words(message.from_user.id, message.chat.id, message.text)
 
 
 if __name__ == '__main__':
