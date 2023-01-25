@@ -239,3 +239,31 @@ class ItemVgg(Utils):
                 ])
 
         self.item = self.txt_base(header, descr, thumb, msg)
+
+
+class ItemEat(Utils):
+    def __init__(self, user_id, user_time, today, need_update, query):
+        super().__init__(user_id, user_time, today, need_update, query)
+
+        header = 'Сколько я могу скушать?'
+        descr = 'Поможет вести диету'
+        thumb = 'https://sun9-26.userapi.com/impg/Ooe3EknSDRIJbNHEMJCFUbQDZqznzldLiSEgbw/GOAMC92C0cc.jpg?size=696x519&quality=95&sign=230aa7451455c7894615d6ad5fde065e&type=album'
+
+        values = self.create_test(
+            EatModel,
+            {
+                'value': random.randint(0, 3000),
+                'food_list': ', '.join(random.sample(food_list, 5)),
+            }
+        )
+    
+        msg = '\n'.join(
+            [
+                "Помощь в диете",
+                f"В ближайшие пару часов я могу съесть {values['value']}грамм еды",
+                f"Что я могу съесть: {values['food_list']}",
+                self.time_row()
+            ]
+        )
+
+        self.item = self.txt_base(header, descr, thumb, msg)

@@ -94,6 +94,12 @@ class VggModel(TestBaseModel):
     vgg_descr = Column(Text)
 
 
+class EatModel(TestBaseModel):
+    __tablename__ = 'eat'
+    user_id = Column(Integer)
+    food_list = Column(Text)
+
+
 class Migration:
     def migrate_table(self, name):
         import sqlite3
