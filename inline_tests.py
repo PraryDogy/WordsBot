@@ -260,7 +260,7 @@ class ItemEat(Utils):
         msg = '\n'.join(
             [
                 "Помощь в диете",
-                f"В ближайшие пару часов я могу съесть {values['value']}грамм еды",
+                f"В ближайшие пару часов я могу съесть {values['value']} грамм еды",
                 f"Что я могу съесть: {values['food_list']}",
                 self.time_row()
             ]

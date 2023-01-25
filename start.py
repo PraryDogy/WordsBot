@@ -75,7 +75,8 @@ async def inline_libera(inline_query: InlineQuery):
                 user_time, today, need_update,
                 inline_query.query).item)
 
-    await bot.answer_inline_query(inline_query.id, results=items, is_personal=True)
+    await bot.answer_inline_query(
+        inline_query.id, results=items, is_personal=True, cache_time=0)
 
 
 @dp.message_handler()
