@@ -163,7 +163,7 @@ class ItemZarplata(Utils):
         msg = '\n'.join(
             [
                 'Тест на зарплату',
-                f"Размер моей зарплаты {str(values['value']).replace(',', ' ')}руб.",
+                f"Размер моей зарплаты {int(values['value']):,} руб.".replace(',', ' '),
                 self.time_row()
                 ])
 
