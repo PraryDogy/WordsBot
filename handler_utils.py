@@ -19,26 +19,30 @@ def db_words_record(user: tuple, word_list: list):
 
     db_words = dict(Dbase.conn.execute(q).all())
     msg_words = dict(Counter(word_list))
-    old_words = {k: db_words[k] + msg_words[k] for k in (db_words)}
 
-    q = (
+    old_words = {k: db_words[k] + msg_words[k] for k in (db_words)}
+    new_words = dict(Counter([i for i in word_list if i not in old_words]))
+
+    upd = (
         sqlalchemy.update(Words)
         .filter(Words.word.in_(old_words), Words.user_id==user_id, Words.chat_id==chat_id)
         .values({Words.count: sqlalchemy.case(old_words, value=Words.word)})
         )
 
+    ins = (
+        sqlalchemy.insert(Words)
+        .values(
+            [{
+                'word': k, 'count': v, 'user_id': user_id, 'chat_id': chat_id
+                } for k, v in new_words.items()
+                ])
+                )
+
     if old_words:
-        Dbase.conn.execute(q)
+        Dbase.conn.execute(upd)
 
-    new_words = dict(Counter([i for i in word_list if i not in old_words]))
-
-    values = [{
-        'word': x, 'count': y, 'user_id': user_id, 'chat_id': chat_id
-        } for x, y in new_words.items()]
-    q = sqlalchemy.insert(Words).values(values)
-
-    if values:
-        Dbase.conn.execute(q)
+    if new_words:
+        Dbase.conn.execute(ins)
 
 
 def db_user_get(username: str):
