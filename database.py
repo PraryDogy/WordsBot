@@ -127,7 +127,4 @@ class Migration:
 
 tables = list(Dbase.base.metadata.tables.keys())
 [tables.remove(i) for i in ('users', 'words', 'eat')]
-
-Migration().migrate_table('users')
-
 Dbase.base.metadata.create_all(Dbase.conn)
