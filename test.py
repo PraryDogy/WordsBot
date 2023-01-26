@@ -1,8 +1,5 @@
-import inline_tests
+import itertools
 
-import inspect
-import sys
+d = {'1': 1, '2':2, '3': 3, '4':4, '5':5, '6':6}
 
 
-classes = [cls_name for cls_name, cls_obj in inspect.getmembers(sys.modules['inline_tests']) if inspect.isclass(cls_obj)]
-print(classes)

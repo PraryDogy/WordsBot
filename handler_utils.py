@@ -75,13 +75,13 @@ def db_chat_words_get(msg_chat_id, words_limit=None):
 
 def db_user_words_get(usr_id, msg_chat_id, words_limit=None):
     """
-    Returns tuple tuples (`word`, `count`) for current user and chat, ordered by count.
+    Returns dict (word: count) for current user and chat, ordered by count.
     * `words_limit`: optional, `int`.
     """
     q = sqlalchemy.select(Words.word, Words.count)\
         .where(Words.user_id==usr_id, Words.chat_id==msg_chat_id)\
         .order_by(-Words.count).limit(words_limit)
-    return Dbase.conn.execute(q).all()
+    return dict(Dbase.conn.execute(q).all())
 
 
 def db_sim_words(msg_chat_id, input_word):

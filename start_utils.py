@@ -80,21 +80,6 @@ def khalisi_politic(message: str):
 
 
 async def khalisi(message: str, bot: Bot):
-    if khalisi_politic(message.text):
-        if len(message.text) <= 1024:
-            await bot.send_photo(
-                message.chat.id,
-                photo='AgACAgIAAxkBAAIBV2POwpjYW1G09NsaIn9UWcVfTAVMAAL2wjEbcDFwSvLDY7j9liSpAQADAgADeAADLQQ',
-                reply_to_message_id=message.message_id,
-                caption=khalisi_convert(message.text)
-                )
-        else:
-            await bot.send_message(
-                message.chat.id,
-                reply_to_message_id=message.message_id,
-                text='Слишком длинное сообщение для госпожи Кхалиси'
-                )
-
     if '@prariewords_bot' in message.text:
         try:
             khalisi_msg = khalisi_convert(message.reply_to_message.text)
@@ -113,8 +98,9 @@ async def khalisi(message: str, bot: Bot):
                     text='Слишком длинное сообщение для госпожи Кхалиси'
                     )
         except AttributeError:
-            await bot.send_message(
-                message.chat.id,
-                reply_to_message_id=message.message_id,
-                text='Выберите сообщение, которое хотите отправить Кхалиси'
-            )
+            pass
+            # await bot.send_message(
+            #     message.chat.id,
+            #     reply_to_message_id=message.message_id,
+            #     text='Выберите сообщение, которое хотите отправить Кхалиси'
+            # )

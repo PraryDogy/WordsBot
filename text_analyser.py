@@ -26,7 +26,7 @@ def words_find(words_list: list):
 
 def words_normalize(words_list: list):
     """
-    Returns tuple of words in lower case, normal form.
+    Returns list of words in lower case, normal form.
     """
     norm_words = []
     for i in words_list:
@@ -39,17 +39,15 @@ def words_stopwords(words_list: list):
     return [i for i in words_list if i not in stop_words]
 
 
-def get_nouns(words_list: tuple):
+def get_nouns(words: list):
     """
-    Returns tuple of tuples `noun`, `count`.
-    * `db_words`: tuple of tuples `word`, `count`
+    Returns nouns list.
     """
     res = []
-    for w, c in words_list:
-        doc = nlp(w)
-        for word in doc:
+    for w in words:
+        for word in nlp(w):
             if word.pos_ in ('NOUN', 'PROPN'):
-                res.append((word.text, c))
+                res.append(word.text)
     return res
 
 

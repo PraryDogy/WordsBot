@@ -50,8 +50,8 @@ def user_words_top(msg_chat_id, msg_username, args: str):
     if not user:
         return 'Нет данных о пользователе'
 
-    db_words = db_user_words_get(user[0], msg_chat_id, 500)
-    db_nouns = get_nouns(db_words)[:10]
+    words = db_user_words_get(user[0], msg_chat_id, 500)
+    nouns = {nn: words[nn] for nn in get_nouns(words.keys())}
 
     msg = []
     if not args:
@@ -59,9 +59,9 @@ def user_words_top(msg_chat_id, msg_username, args: str):
     else:
         msg.append(f'@{msg_username}, топ 10 слов пользователя {user[1]}:')
 
-    [msg.append(f'{x}: {y}') for x, y in db_words[:10]]
+    msg.extend([(f'{x}: {y}') for x, y in tuple(words.items())[:10]])
     msg.append('\nТоп 10 существительных:')
-    [msg.append(f'{x}: {y}') for x, y in db_nouns]
+    msg.extend([(f'{x}: {y}') for x, y in tuple(nouns.items())[:10]])
 
     return '\n'.join(msg)
 
@@ -79,7 +79,8 @@ def chat_words_top(msg_chat_id, msg_username):
     for letter, number in words_db:
             words_sum[letter] = words_sum.get(letter, 0) + number
 
-    nouns_sum = get_nouns(words_sum.items())
+    # nouns_sum = get_nouns(words_sum.items())
+    nouns_sum = {nn: words_sum[nn] for nn in get_nouns(words_sum.keys())}
 
     words_top = sorted(words_sum.items(), key = lambda x: x[1], reverse=1)[:10]
     nouns_top = sorted(nouns_sum, key = lambda x: x[1], reverse=1)[:10]
