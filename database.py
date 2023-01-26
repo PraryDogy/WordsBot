@@ -1,6 +1,6 @@
 import sqlalchemy
 import sqlalchemy.ext.declarative
-from sqlalchemy import Column, ForeignKey, Integer, Text
+from sqlalchemy import Column, ForeignKey, Integer, Text, DateTime
 
 import cfg
 
@@ -29,7 +29,7 @@ class Users(Dbase.base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer)
     user_name = Column(Text)
-    user_time = Column(Text)
+    user_time = Column(DateTime)
 
 
 class Words(Dbase.base):
@@ -106,12 +106,13 @@ class Migration:
         rename = f"""ALTER TABLE {name} RENAME TO {name}_old"""
         create_table = f"""CREATE TABLE IF NOT EXISTS {name} (
                             "id" INTEGER NOT NULL PRIMARY KEY,
-                            "value" TEXT,
-                            "user_id" INTEGER
+                            "user_id" INTEGER,
+                            "user_name" TEXT,
+                            "user_time" DATATIME
                             )
                             """
-        # copy_data = f"""INSERT INTO {name} SELECT * FROM {name}_old"""
-        copy_data = f"""INSERT INTO {name} SELECT id, value, user_id FROM {name}_old"""
+        copy_data = f"""INSERT INTO {name} SELECT * FROM {name}_old"""
+        # copy_data = f"""INSERT INTO {name} SELECT id, value, user_id FROM {name}_old"""
         comm = """COMMIT"""
         enable_fk = """PRAGMA foreign_keys=off"""
         remove_old = f"""DROP TABLE {name}_old"""
@@ -127,3 +128,6 @@ class Migration:
 tables = list(Dbase.base.metadata.tables.keys())
 [tables.remove(i) for i in ('users', 'words', 'eat')]
 
+Migration().migrate_table('users')
+
+Dbase.base.metadata.create_all(Dbase.conn)

@@ -22,104 +22,87 @@ def users_words_write():
     users_words_dict.clear()
 
 
-def catch_words(user_id, chat_id, message: str):
-    find_words = words_find(message.split())
-    norm_words = words_normalize(find_words)
-    res_words = words_stopwords(norm_words)
+def catch_words(user_id: int, chat_id: int, message: str):
+    words = words_stopwords(
+        words_normalize(
+            words_find(message.split())
+            ))
 
     if not users_words_dict.get((user_id, chat_id)):
-        users_words_dict[(user_id, chat_id)] = res_words
+        users_words_dict[(user_id, chat_id)] = words
     else:
-        users_words_dict[(user_id, chat_id)].extend(res_words)
+        users_words_dict[(user_id, chat_id)].extend(words)
 
     if time() - start >= 180:
         users_words_write()
 
 
-def user_words_top(msg_chat_id, msg_username, args: str):
-    """
-    Returns text with top 10 words of user in current chat.
-    """
+def user_words_top(chat_id: int, user: dict, limit: int):
     users_words_write()
 
-    if not args:
-        user = db_user_get(msg_username)
-    else:
-        user = db_user_get(args.replace('@', ''))
-
-    if not user:
-        return 'Нет данных о пользователе'
-
-    words = db_user_words_get(user[0], msg_chat_id, 500)
+    words = user_get_words(user['user_id'], chat_id, limit)
     nouns = {nn: words[nn] for nn in get_nouns(words.keys())}
 
-    msg = []
-    if not args:
-        msg.append(f'@{msg_username}, ваш топ 10 слов:')
-    else:
-        msg.append(f'@{msg_username}, топ 10 слов пользователя {user[1]}:')
-
-    msg.extend([(f'{x}: {y}') for x, y in tuple(words.items())[:10]])
-    msg.append('\nТоп 10 существительных:')
-    msg.extend([(f'{x}: {y}') for x, y in tuple(nouns.items())[:10]])
+    msg = [
+        f"@{user['user_name']}, ваш топ 10 слов:",
+        *[(f"{x}: {y}") for x, y in tuple(words.items())[:10]],
+        '\nТоп 10 существительных:',
+        *[(f'{x}: {y}') for x, y in tuple(nouns.items())[:10]]
+        ]
 
     return '\n'.join(msg)
 
 
-def chat_words_top(msg_chat_id, msg_username):
-    """
-    Telegram `/chat_words`. 
-    Returns text with top 10 words in current chat.
-    """
+def chat_words_top(chat_id: int, user: dict, limit: int):
     users_words_write()
 
-    words_db = db_chat_words_get(msg_chat_id, 500)
+    chat_words = chat_words_get(chat_id, limit)
 
-    words_sum = {}
-    for letter, number in words_db:
-            words_sum[letter] = words_sum.get(letter, 0) + number
+    words_count = {}
+    for word, count in chat_words:
+            words_count[word] = words_count.get(word, 0) + count
 
-    # nouns_sum = get_nouns(words_sum.items())
-    nouns_sum = {nn: words_sum[nn] for nn in get_nouns(words_sum.keys())}
+    nouns_count = {nn: words_count[nn] for nn in get_nouns(words_count.keys())}
 
-    words_top = sorted(words_sum.items(), key = lambda x: x[1], reverse=1)[:10]
-    nouns_top = sorted(nouns_sum, key = lambda x: x[1], reverse=1)[:10]
+    words_top = sorted(words_count.items(), key = lambda x: x[1], reverse=1)[:10]
+    nouns_top = sorted(nouns_count.items(), key = lambda x: x[1], reverse=1)[:10]
 
-    msg = []
-    msg.append(f'@{msg_username}, топ 10 слов чата:')
-    [msg.append(f'{x}: {y}') for x, y in words_top]
-    msg.append('\nТоп 10 существительных чата:')
-    [msg.append(f'{x}: {y}') for x, y in nouns_top]
+    msg = [
+       f"@{user['user_name']}, топ 10 слов чата:",
+        *[(f"{x}: {y}") for x, y in words_top],
+        "\nТоп 10 существительных чата:",
+        *[(f"{x}: {y}") for x, y in nouns_top]
+        ]
 
     return '\n'.join(msg)
 
 
-def top_boltunov(msg_chat_id, msg_username):
-    """
-    Returns `text` with top 10 users by words count and top 10 users by unique
-    words count.
-    """
+def top_boltunov(msg_chat_id: int, user: dict):
     users_words_write()
     user_words = []
-    msg = []
 
-    for db_user_id, db_user_name in db_all_usernames_get():
+    for user_id, user_name in db_all_usernames_get():
 
-        q = sqlalchemy.select(
-            Dbase.sq_sum(Words.count),
-            Dbase.sq_count(Words.word))\
-            .where(Words.user_id==db_user_id, Words.chat_id==msg_chat_id)
+        q = (
+            sqlalchemy.select(
+                Dbase.sq_sum(Words.count),
+                Dbase.sq_count(Words.word))
+            .filter(
+                Words.user_id==user_id,
+                Words.chat_id==msg_chat_id)
+                )
         all_words_c, uniq_words_c = Dbase.conn.execute(q).first()
 
         uniq = int(100*(uniq_words_c/all_words_c)) if uniq_words_c else False
-        user_words.append((db_user_name, all_words_c, uniq)) if all_words_c else False
+        user_words.append((user_name, all_words_c, uniq)) if all_words_c else False
 
-    user_words = sorted(user_words, key=lambda i: i[1], reverse=1)
+    user_words = sorted(user_words, key=lambda i: i[1], reverse=1)[:10]
 
-    msg.append(f'@{msg_username}, топ 10 пиздюшек.')
-    msg.append('Имя, количество слов, процент уникальных:\n')
-    for name, words, perc in user_words[:10]:
-        msg.append(f'{name}: {words}, {perc}%')
+    msg = [
+        f"@{user['user_name']}, топ 10 пиздюшек.",
+        "Имя, количество слов, процент уникальных:\n",
+        *[f"{name}: {words}, {perc}%" for name, words, perc in user_words]
+        ]
 
     return '\n'.join(msg)
 

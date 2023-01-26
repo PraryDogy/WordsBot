@@ -45,15 +45,6 @@ def db_words_record(user: tuple, word_list: list):
         Dbase.conn.execute(ins)
 
 
-def db_user_get(username: str):
-    """
-    Returns `user_id`, `username` or None
-    """
-    q = sqlalchemy.select(Users.user_id, Users.user_name)\
-        .filter(Dbase.sq_lower(Users.user_name)==username.lower())
-    return Dbase.conn.execute(q).first()
-
-
 def db_all_usernames_get():
     """
     Returns tuple (user_id, user_name) for all users.
@@ -62,18 +53,17 @@ def db_all_usernames_get():
     return Dbase.conn.execute(q).all()
 
 
-def db_chat_words_get(msg_chat_id, words_limit=None):
-    """
-    Returns tuple tuples (`word`, `count`) for chat.
-    * `words_limit`: optional, `int`.
-    """
-    q = sqlalchemy.select(Words.word, Words.count)\
-        .where(Words.chat_id==msg_chat_id).order_by(-Words.count)\
-        .limit(words_limit)
+def chat_words_get(chat_id: int, limit: int):
+    q = (
+        sqlalchemy.select(Words.word, Words.count)
+        .filter(Words.chat_id==chat_id)
+        .order_by(-Words.count)
+        .limit(limit)
+        )
     return Dbase.conn.execute(q).fetchall()
 
 
-def db_user_words_get(usr_id, msg_chat_id, words_limit=None):
+def user_get_words(usr_id, msg_chat_id, words_limit: int):
     """
     Returns dict (word: count) for current user and chat, ordered by count.
     * `words_limit`: optional, `int`.

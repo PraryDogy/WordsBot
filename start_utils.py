@@ -10,52 +10,55 @@ from text_analyser import *
 from aiogram import Bot
 
 
-def db_user_record(msg_user_id: int, msg_username: str):
-    """
-    Checks database `Users` table for user by `user_id` from message.
-    Creates new record if user not exists.
-    Updates username of exists user if it was changed.
-    """
-    get_user = sqlalchemy.select(
-        Users.user_id, Users.user_name).filter(Users.user_id == msg_user_id)
-    db_user = Dbase.conn.execute(get_user).first()
-
-    if not msg_username:
-        msg_username = 'Без имени'
-
-    if not db_user:
-        vals = {
-            'user_id': msg_user_id,
-            'user_name': msg_username,
-            'user_time': datetime.today().replace(microsecond=0) - timedelta(days=1)}
-        new_user = sqlalchemy.insert(Users).values(vals)
-        Dbase.conn.execute(new_user)
-
-    elif msg_username != db_user[1]:
-        vals = {'user_name': msg_username}
-        update_user = sqlalchemy.update(Users)\
-            .where(Users.user_id==msg_user_id).values(vals)
-        Dbase.conn.execute(update_user)
+def user_get(user_id: int):
+    q = (
+        sqlalchemy.select(Users)
+        .filter(Users.user_id == user_id)
+        )
+    try:
+        return dict(Dbase.conn.execute(q).first())
+    except TypeError:
+        return False
 
 
-def get_user_time(user_id, today):
-    """
-    Returns time from database by user_id in datetime format.
-    """
-    get_time = sqlalchemy.select(Users.user_time)\
-        .where(Users.user_id==user_id)
-    res = Dbase.conn.execute(get_time).first()
-    if not res:
-        return today
-    return datetime.strptime(res[0], '%Y-%m-%d %H:%M:%S')
+def user_update_name(user: dict, msg_user_name):
+    if user['user_name'] != msg_user_name:
+        q = (
+            sqlalchemy.update(Users)
+            .filter(Users.user_id==user['user_id'])
+            .values({'user_name': msg_user_name})
+            )
+        return Dbase.conn.execute(q)
+    return False
 
 
-def update_user_time(need_update, today, user_id):
-    if need_update:
-        vals = {'user_time': str(today)}
-        q = sqlalchemy.update(Users).filter(Users.user_id==user_id)\
-            .values(vals)
-        Dbase.conn.execute(q)
+def user_create(user_id, user_name):
+    new_user = {
+            'user_id': user_id,
+            'user_name': user_name,
+            'user_time': datetime.today() - timedelta(days=1)
+            }
+    q = (sqlalchemy.insert(Users).values(new_user))
+    Dbase.conn.execute(q)
+    return new_user
+
+
+def user_update_time(user_id: int, today: datetime):
+    q = (
+        sqlalchemy.update(Users)
+        .filter(Users.user_id==user_id)
+        .values({'user_time': today})
+        )
+    Dbase.conn.execute(q)
+
+
+def user_actions(user_id: int, user_name: str):
+    user = user_get(user_id)
+    if not user:
+        return user_create(user_id, user_name)
+    else:
+        user_update_name(user, user_name)
+    return user
 
 
 def get_file_id(message):
@@ -64,19 +67,6 @@ def get_file_id(message):
     file_id = res[-1].split(' ')[-1].strip('"')
     clipboard.copy(file_id)
     return file_id
-
-
-def khalisi_politic(message: str):
-    for rus, eng in ru_eng_abc.items():
-        if eng in message:
-            message = message.replace(eng, rus)
-
-    words_list = message.lower().split()
-    for msg_word in words_list:
-        for p_word in politic_words:
-            if p_word in msg_word:
-                return True
-    return False
 
 
 async def khalisi(message: str, bot: Bot):
@@ -99,8 +89,3 @@ async def khalisi(message: str, bot: Bot):
                     )
         except AttributeError:
             pass
-            # await bot.send_message(
-            #     message.chat.id,
-            #     reply_to_message_id=message.message_id,
-            #     text='Выберите сообщение, которое хотите отправить Кхалиси'
-            # )

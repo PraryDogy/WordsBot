@@ -2,9 +2,10 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import *
 
 from bot_config import TOKEN
-from handler_commands import *
+from handler_commands import (catch_words, chat_words_top, top_boltunov,
+                              user_words_top, word_stat)
 from inline_tests import *
-from start_utils import *
+from start_utils import khalisi, user_actions, user_update_time
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
@@ -12,31 +13,31 @@ dp = Dispatcher(bot)
 
 @dp.message_handler(commands=['user_words'])
 async def send_my_words(message: types.Message):
-    db_user_record(message.from_user.id, message.from_user.username)
-    args = message.get_args()
-    msg = user_words_top(message.chat.id, message.from_user.username, args)
+    user = user_actions(message.from_user.id, message.from_user.username)
+    msg = user_words_top(message.chat.id, user, 500)
     await bot.send_message(chat_id=message.chat.id, text=msg)
 
 
 @dp.message_handler(commands=['chat_words'])
 async def send_chat_words(message: types.Message):
-    db_user_record(message.from_user.id, message.from_user.username)
-    top = chat_words_top(message.chat.id, message.from_user.username)
+    user = user_actions(message.from_user.id, message.from_user.username)
+    top = chat_words_top(message.chat.id, user, 500)
     await bot.send_message(chat_id=message.chat.id, text=top)
 
 
 @dp.message_handler(commands=['top_boltunov'])
 async def top_slovobludov(message: types.Message):
-    db_user_record(message.from_user.id, message.from_user.username)
-    msg = top_boltunov(message.chat.id, message.from_user.username)
+    user = user_actions(message.from_user.id, message.from_user.username)
+    msg = top_boltunov(message.chat.id, user)
     await bot.send_message(chat_id=message.chat.id, text=msg)
 
 
 @dp.message_handler(commands=['word_stat'])
 async def get_word_stat(message: types.Message):
-    db_user_record(message.from_user.id, message.from_user.username)
+    user_actions(message.from_user.id, message.from_user.username)
     args = message.get_args()
-    await bot.send_message(message.chat.id, text=word_stat(message.chat.id, args))
+    await bot.send_message(
+        message.chat.id, text=word_stat(message.chat.id, args))
 
 
 @dp.message_handler(commands=['start'])
@@ -56,14 +57,12 @@ async def start(message: types.Message):
 
 @dp.inline_handler()
 async def inline_libera(inline_query: InlineQuery):
-    db_user_record(inline_query.from_user.id, inline_query.from_user.username)
+    user = user_actions(inline_query.from_user.id, inline_query.from_user.username)
+    today = datetime.today()
+    need_update = bool((today - user['user_time']) > timedelta(hours=3))
 
-    today = datetime.today().replace(microsecond=0)
-    user_time = get_user_time(inline_query.from_user.id, today)
-    need_update = bool((today-user_time) > timedelta(hours=3))
-
-    update_user_time(need_update, today, inline_query.from_user.id)
-
+    if need_update:
+        user_update_time(user['user_id'], today)
 
     items = []
     for test in (
@@ -71,8 +70,7 @@ async def inline_libera(inline_query: InlineQuery):
         ItemAss, ItemZarplata, ItemLibera, ItemMobi, ):
         items.append(
             test(
-                inline_query.from_user.id,
-                user_time, today, need_update,
+                user['user_id'], user['user_time'], today, need_update,
                 inline_query.query).item)
 
     await bot.answer_inline_query(
@@ -87,7 +85,7 @@ async def echo(message: types.Message):
 
     await khalisi(message, bot)
 
-    db_user_record(message.from_user.id, message.from_user.username)
+    user_actions(message.from_user.id, message.from_user.username)
     catch_words(message.from_user.id, message.chat.id, message.text)
 
 
@@ -95,5 +93,4 @@ if __name__ == '__main__':
     inp = input(
         'Вы уверены, что сменили токен бота? Напишите любую букву и нажми ввод. Для отмены нажмите только ввод\n')
     if inp:
-        Dbase.base.metadata.create_all(Dbase.conn)
         executor.start_polling(dp, skip_updates=True, timeout=20)
