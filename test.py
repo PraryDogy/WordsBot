@@ -9,11 +9,12 @@ chat_id = 1
 queries = []
 
 for user_id in (1, 2):
-    q = (
-        sqlalchemy.select(Words.user_id, sq_sum(Words.count), sq_count(Words.word))
-            .filter(Words.user_id==user_id, Words.chat_id==chat_id)
-            )
-    queries.append(q)
+    queries.append(
+        sqlalchemy.select(
+            Words.user_id, sq_sum(Words.count), sq_count(Words.word))
+        .filter(
+            Words.user_id==user_id, Words.chat_id==chat_id)
+        )
 
 query = sqlalchemy.union(*queries)
 

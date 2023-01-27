@@ -13,7 +13,7 @@ class Dbase():
     engine = sqlalchemy.create_engine(
         'sqlite:///' + 'test_db.db',
         connect_args={'check_same_thread':False,},
-        echo= False
+        echo= True
         )
     conn = engine.connect()
     base = sqlalchemy.ext.declarative.declarative_base()
@@ -38,4 +38,4 @@ class Words(Dbase.base):
     chat_id = Column(Integer)
 
 
-Dbase.base.metadata.create_all(Dbase.conn)
+# Dbase.base.metadata.create_all(Dbase.conn)
