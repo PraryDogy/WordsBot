@@ -5,21 +5,21 @@ import sqlalchemy
 from database import *
 from handler_utils import *
 from text_analyser import *
+from handler_words import WordsWriter
+
 
 start = time()
-users_words_dict = {}
+users_words = {}
 
 def users_words_write():
     global start
 
-    if not users_words_dict:
+    if not users_words:
         return
 
-    for k, v in users_words_dict.items():
-        db_words_record(k, v)
-    
+    WordsWriter(users_words)
     start = time()
-    users_words_dict.clear()
+    users_words.clear()
 
 
 def catch_words(user_id: int, chat_id: int, message: str):
@@ -28,12 +28,13 @@ def catch_words(user_id: int, chat_id: int, message: str):
             words_find(message.split())
             ))
 
-    if not users_words_dict.get((user_id, chat_id)):
-        users_words_dict[(user_id, chat_id)] = words
+    if not users_words.get((user_id, chat_id)):
+        users_words[(user_id, chat_id)] = words
     else:
-        users_words_dict[(user_id, chat_id)].extend(words)
+        users_words[(user_id, chat_id)].extend(words)
 
-    if time() - start >= 180:
+    if time() - start >= 600:
+        print(users_words)
         users_words_write()
 
 
