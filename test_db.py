@@ -38,4 +38,4 @@ class Words(Dbase.base):
     chat_id = Column(Integer)
 
 
-Dbase.base.metadata.create_all(Dbase.conn)
+# Dbase.base.metadata.create_all(Dbase.conn)
