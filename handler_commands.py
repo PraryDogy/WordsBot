@@ -33,7 +33,7 @@ def catch_words(user_id: int, chat_id: int, message: str):
     else:
         users_words[(user_id, chat_id)].extend(words)
 
-    if time() - start >= 600:
+    if time() - start >= 3600:
         print(users_words)
         users_words_write()
 

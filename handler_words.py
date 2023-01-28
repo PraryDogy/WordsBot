@@ -2,7 +2,7 @@ from collections import Counter
 
 import sqlalchemy
 
-from test_db import *
+from database import *
 
 # users = {
 #     (111, 300): ['Вода', 'Кислота', 'Рвота','Тортик', 'Коты', 'Коты', "111 300"],
