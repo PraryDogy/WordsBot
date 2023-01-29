@@ -1,13 +1,11 @@
 import random
-from datetime import datetime
 
-import sqlalchemy
-from aiogram.types import *
-
-from dicts import *
-from database import *
-from text_analyser import *
-from inline_utils import *
+from database import (AssModel, EatModel, FatModel, LiberaModel, MobiModel,
+                      PenisModel, PokemonModel, PuppyModel, ZarplataModel)
+from dicts import (ass_names, dest_a_main, dest_q_word, food_list, penis_names,
+                   pokemon_dict, puppies_captions, puppies_url_list)
+from inline_utils import Utils
+from text_analyser import khalisi_convert, words_find
 
 
 class ItemFat(Utils):

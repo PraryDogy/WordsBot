@@ -1,10 +1,14 @@
+from datetime import datetime, timedelta
+
 from aiogram import Bot, Dispatcher, executor, types
-from aiogram.types import *
+from aiogram.types import InlineQuery
 
 from bot_config import TOKEN
-from handler_commands import (catch_words, chat_words_top, top_boltunov,
-                              user_words_top, word_stat)
-from inline_tests import *
+from handlers import (catch_words, chat_words_top, top_boltunov,
+                      user_words_top, word_stat)
+from inline_tests import (ItemAss, ItemDestiny, ItemEat, ItemFat, ItemLibera,
+                          ItemMobi, ItemPenis, ItemPokemons, ItemPuppies,
+                          ItemZarplata)
 from start_utils import khalisi, user_actions, user_update_time
 
 bot = Bot(token=TOKEN)
@@ -38,6 +42,17 @@ async def get_word_stat(message: types.Message):
     args = message.get_args()
     await bot.send_message(
         message.chat.id, text=word_stat(message.chat.id, args))
+
+# from test import gpt
+
+# @dp.message_handler(commands=['destiny'])
+# async def start(message: types.Message):
+#     # bot = ChatGPT()
+#     # response = bot.ask("Когда появился человек?")
+
+#     await gpt()
+
+#     await bot.send_message(chat_id=message.chat.id, text='')
 
 
 @dp.message_handler(commands=['start'])

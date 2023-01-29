@@ -1,20 +1,19 @@
 import hashlib
 import math
 import random
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import sqlalchemy
-from aiogram.types import *
+from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
+                           InlineQueryResultArticle, InlineQueryResultPhoto,
+                           InputTextMessageContent)
 
-from dicts import *
-from database import *
-from text_analyser import *
+from database import Dbase, TestBaseModel
 
 
 class MessageButton(InlineKeyboardMarkup):
     def __init__(self, row_width=3, inline_keyboard=None, **kwargs):
         super().__init__(row_width, inline_keyboard, **kwargs)
-        # InlineKeyboardMarkup.__init__(self, row_width=3)
         self.add(InlineKeyboardButton(
             text='Пройти тест', switch_inline_query_current_chat=''))
 

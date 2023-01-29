@@ -1,12 +1,9 @@
 import re
 
-print('load spacy model')
-import re
-
 import pymorphy2
 import spacy
 
-from dicts import *
+from dicts import khalisi_words, stop_words
 
 'python -m spacy download ru_core_news_md'
 nlp = spacy.load("ru_core_news_md")

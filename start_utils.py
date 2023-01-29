@@ -3,11 +3,10 @@ from datetime import datetime, timedelta
 
 import clipboard
 import sqlalchemy
-
-from database import *
-from dicts import *
-from text_analyser import *
 from aiogram import Bot
+
+from database import Dbase, Users
+from text_analyser import khalisi_convert
 
 
 def user_get(user_id: int):
