@@ -6,7 +6,7 @@ from dicts import (ass_names, dest_a_main, dest_q_word, food_list, penis_names,
                    pokemon_dict, puppies_captions, puppies_url_list)
 from inline_utils import Utils
 from text_analyser import khalisi_convert, words_find
-
+import cfg
 
 class ItemFat(Utils):
     def __init__(self, user_id, user_time, today, need_update, query):
@@ -17,6 +17,9 @@ class ItemFat(Utils):
         thumb = 'https://sun9-40.userapi.com/impg/XEe4VPlF5BvuAYbjZLm3MPamjWIhLrxO66oFEw/f54lKM4s6gU.jpg?size=300x300&quality=95&sign=a347fede0405ca0ec49763ebcb68a413&type=album'
 
         values = self.create_test(FatModel, {'value': random.randint(0, 100)})
+
+        if user_id in cfg.gold_users:
+            values['value'] = random.randint(0, 10)
 
         msg = '\n'.join(
             [
@@ -85,6 +88,9 @@ class ItemPenis(Utils):
             {'value': 49.5 if self.gold_chance() else random.randint(0, 40)}
             )
 
+        if user_id in cfg.gold_users:
+            values['value'] = random.randint(30, 40)
+
         msg = '\n'.join(
             [
                 'Тест на длину',
@@ -104,6 +110,9 @@ class ItemAss(Utils):
         thumb = 'https://sun9-64.userapi.com/impg/v6NOR_nbHrPkn3Ca6GQFmcJ1vCKVzeW6fUCCyg/fH1oB2Aps7Y.jpg?size=321x306&quality=95&sign=b90f1e85b5acd4c58a12dc27c5115e11&type=album'
 
         values = self.create_test(AssModel,{'value': random.randint(0, 40)})
+
+        if user_id in cfg.gold_users:
+            values['value'] = random.randint(30, 40)
 
         msg = '\n'.join([
             'Тест на глубину задницы',
@@ -157,6 +166,9 @@ class ItemZarplata(Utils):
             ZarplataModel,
             {'value': random.randint(16242, 180000)}
             )
+        
+        if user_id in cfg.gold_users:
+            values['value'] = random.randint(300000, 1000000)
 
         msg = '\n'.join(
             [

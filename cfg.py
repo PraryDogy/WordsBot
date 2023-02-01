@@ -8,3 +8,9 @@ peugeot_name = 'PeugeotKiller'
 
 heli = -1001297579871
 new_trup = -1001891371765
+
+
+gold_users = [
+    240950204, #morkowik
+    431874154, #christy
+    ]
