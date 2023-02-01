@@ -3,7 +3,7 @@ from collections import Counter
 import sqlalchemy
 
 from database import Dbase, Words
-
+import itertools
 
 class WordsWriter:
     def __init__(self, users):
@@ -24,17 +24,32 @@ class WordsWriter:
         """
         queries = [
             sqlalchemy.select(
-                Words.user_id, Words.chat_id, Words.word, Words.count)
+                Words.user_id, Words.chat_id, Words.word, Words.count
+                )
             .filter(
-                Words.user_id == k[0], Words.chat_id == k[1],
-                Words.word.in_(v))
-            for k, v in users.items()
+                Words.user_id == user_id, Words.chat_id == chat_id,
+                Words.word == w
+                )
+            for (user_id, chat_id), words in users.items()
+            for w in words
             ]
 
-        return [
-            dict(i) for i in Dbase.conn.execute(
-            sqlalchemy.union_all(*queries)).fetchall()
+        SQL_MAX = 300
+        q_chunks = [
+            queries[i:i+SQL_MAX]
+            for i in range(0, len(queries), SQL_MAX)
             ]
+
+        results = [
+            (
+                Dbase.conn.execute(sqlalchemy.union_all(*q))
+                .mappings()
+                .fetchall()
+                )
+            for q in q_chunks
+            ]
+
+        return list(itertools.chain.from_iterable(results))
 
     def db_words_count(self, db_words):
         """
