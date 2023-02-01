@@ -39,10 +39,3 @@ def db_words_get(users: dict):
         ]
 
     return list(itertools.chain.from_iterable(results))
-
-
-users = {(1, 2): ['вода', 'вода']}
-a = db_words_get(users)
-
-
-print(a)
