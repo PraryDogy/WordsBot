@@ -49,7 +49,7 @@ class Utils:
         """Returns user's row as dict"""
         select_value = sqlalchemy.select(model)\
             .where(model.user_id==self.user_id)
-        return Dbase.conn.execute(select_value).mappings().first()
+        return dict(Dbase.conn.execute(select_value).mappings().first())
 
     def time_row(self):
         """

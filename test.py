@@ -47,4 +47,3 @@ def db_words_get(users: dict):
 
 # for a, b in enumerate(a):
 #     print(a, b)
-
