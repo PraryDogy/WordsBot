@@ -27,7 +27,7 @@ def db_words_get(users: dict):
             Words.word == w
             )
         for (user_id, chat_id), words in users.items()
-        for w in words
+        for w in set(words)
         ]
 
     SQL_MAX = 300
@@ -41,9 +41,8 @@ def db_words_get(users: dict):
     return list(itertools.chain.from_iterable(results))
 
 
-# users = {(1, 2): ['hui' for i in range (1000)]}
-# a = db_words_get(users)
+users = {(1, 2): ['вода', 'вода']}
+a = db_words_get(users)
 
 
-# for a, b in enumerate(a):
-#     print(a, b)
+print(a)

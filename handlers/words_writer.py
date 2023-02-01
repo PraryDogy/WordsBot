@@ -31,7 +31,7 @@ class WordsWriter:
                 Words.word == w
                 )
             for (user_id, chat_id), words in users.items()
-            for w in words
+            for w in set(words)
             ]
 
         SQL_MAX = 300
