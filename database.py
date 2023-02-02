@@ -130,8 +130,3 @@ class Migration:
 tables = list(Dbase.base.metadata.tables.keys())
 [tables.remove(i) for i in ('users', 'words', 'eat')]
 Dbase.base.metadata.create_all(Dbase.conn)
-
-
-import sqlite3
-conn = sqlite3.connect("database.db")
-cur = conn.cursor()
