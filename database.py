@@ -30,6 +30,7 @@ class Users(Dbase.base):
     user_id = Column(Integer)
     user_name = Column(Text)
     user_time = Column(DateTime)
+    times = Column(Text)
 
 
 class Words(Dbase.base):
@@ -108,7 +109,8 @@ class Migration:
                             "id" INTEGER NOT NULL PRIMARY KEY,
                             "user_id" INTEGER,
                             "user_name" TEXT,
-                            "user_time" DATATIME
+                            "user_time" DATATIME,
+                            "times" TEXT
                             )
                             """
         copy_data = f"""INSERT INTO {name} SELECT * FROM {name}_old"""
@@ -128,3 +130,8 @@ class Migration:
 tables = list(Dbase.base.metadata.tables.keys())
 [tables.remove(i) for i in ('users', 'words', 'eat')]
 Dbase.base.metadata.create_all(Dbase.conn)
+
+
+import sqlite3
+conn = sqlite3.connect("database.db")
+cur = conn.cursor()

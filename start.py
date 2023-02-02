@@ -9,7 +9,7 @@ from handlers import (msg_catch_words, chat_words_top, top_boltunov,
 from inline_tests import (ItemAss, ItemDestiny, ItemEat, ItemFat, ItemLibera,
                           ItemMobi, ItemPenis, ItemPokemons, ItemPuppies,
                           ItemZarplata)
-from start_utils import khalisi, user_data, user_update_time
+from start_utils import khalisi, user_data, user_update_time, user_update_times
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
@@ -101,6 +101,7 @@ async def echo(message: types.Message):
     await khalisi(message, bot)
 
     user_data(message.from_user.id, message.from_user.username)
+    user_update_times(message.from_user.id)
     msg_catch_words(message.from_user.id, message.chat.id, message.text)
 
 

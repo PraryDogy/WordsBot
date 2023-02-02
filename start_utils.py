@@ -35,10 +35,14 @@ def user_create(user_id, user_name):
     new_user = {
             'user_id': user_id,
             'user_name': user_name,
-            'user_time': datetime.today() - timedelta(days=1)
+            'user_time': datetime.today() - timedelta(days=1),
+            'times': datetime.today().replace(microsecond=0)
             }
-    q = (sqlalchemy.insert(Users).values(new_user))
-    Dbase.conn.execute(q)
+
+    Dbase.conn.execute(
+        sqlalchemy.insert(Users)
+        .values(new_user)
+        )
     return new_user
 
 
@@ -58,6 +62,33 @@ def user_data(user_id: int, user_name: str):
     else:
         user_update_name(user, user_name)
     return user
+
+
+def user_update_times(user_id: int):
+    q = (
+        sqlalchemy.select(Users.times)
+        .filter(Users.user_id==user_id)
+        )
+    user_times: str = Dbase.conn.execute(q).first()[0]
+    today = str(datetime.today().replace(microsecond=0))
+
+    if not user_times:
+        Dbase.conn.execute(
+            sqlalchemy.update(Users)
+            .filter(Users.user_id==user_id)
+            .values(
+                {"times": today}
+                )
+            )
+
+    else:
+        Dbase.conn.execute(
+            sqlalchemy.update(Users)
+            .filter(Users.user_id==user_id)
+            .values(
+                {"times": f"{user_times},{today}"}
+                )
+            )
 
 
 def get_file_id(message):
