@@ -13,7 +13,7 @@ def chat_words_get(chat_id: int, limit: int):
     return Dbase.conn.execute(q).fetchall()
 
 
-def user_get_words(usr_id, msg_chat_id, words_limit: int):
+def user_words_get(usr_id, msg_chat_id, words_limit: int):
     """
     Returns dict (word: count) for current user and chat, ordered by count.
     * `words_limit`: optional, `int`.

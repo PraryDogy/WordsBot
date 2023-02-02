@@ -4,7 +4,7 @@ from text_analyser import (get_nouns, morph, words_find, words_normalize,
                            words_stopwords)
 
 from .handler_utils import (chat_words_get, db_sim_words, db_word_count,
-                            db_word_people, user_get_words)
+                            db_word_people, user_words_get)
 from .users_top import UsersTop
 from .words_writer import WordsWriter
 
@@ -44,7 +44,7 @@ def msg_catch_words(user_id: int, chat_id: int, message: str):
 @dec_words_post
 def user_words_top(chat_id: int, user: dict, limit: int):
 
-    words = user_get_words(
+    words = user_words_get(
         user['user_id'], chat_id, limit)
 
     nouns = {
