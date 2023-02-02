@@ -9,7 +9,7 @@ from handlers import (msg_catch_words, chat_words_top, top_boltunov,
 from inline_tests import (ItemAss, ItemDestiny, ItemEat, ItemFat, ItemLibera,
                           ItemMobi, ItemPenis, ItemPokemons, ItemPuppies,
                           ItemZarplata)
-from start_utils import khalisi, user_actions, user_update_time
+from start_utils import khalisi, user_data, user_update_time
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
@@ -17,28 +17,28 @@ dp = Dispatcher(bot)
 
 @dp.message_handler(commands=['user_words'])
 async def send_my_words(message: types.Message):
-    user = user_actions(message.from_user.id, message.from_user.username)
+    user = user_data(message.from_user.id, message.from_user.username)
     msg = user_words_top(message.chat.id, user, 500)
     await bot.send_message(chat_id=message.chat.id, text=msg)
 
 
 @dp.message_handler(commands=['chat_words'])
 async def send_chat_words(message: types.Message):
-    user = user_actions(message.from_user.id, message.from_user.username)
+    user = user_data(message.from_user.id, message.from_user.username)
     top = chat_words_top(message.chat.id, user, 500)
     await bot.send_message(chat_id=message.chat.id, text=top)
 
 
 @dp.message_handler(commands=['top_boltunov'])
 async def top_slovobludov(message: types.Message):
-    user = user_actions(message.from_user.id, message.from_user.username)
+    user = user_data(message.from_user.id, message.from_user.username)
     msg = top_boltunov(message.chat.id, user)
     await bot.send_message(chat_id=message.chat.id, text=msg)
 
 
 @dp.message_handler(commands=['word_stat'])
 async def get_word_stat(message: types.Message):
-    user_actions(message.from_user.id, message.from_user.username)
+    user_data(message.from_user.id, message.from_user.username)
     args = message.get_args()
     await bot.send_message(
         message.chat.id, text=word_stat(message.chat.id, args))
@@ -72,7 +72,7 @@ async def start(message: types.Message):
 
 @dp.inline_handler()
 async def inline_libera(inline_query: InlineQuery):
-    user = user_actions(inline_query.from_user.id, inline_query.from_user.username)
+    user = user_data(inline_query.from_user.id, inline_query.from_user.username)
     today = datetime.today()
     need_update = bool((today - user['user_time']) > timedelta(hours=3))
 
@@ -100,7 +100,7 @@ async def echo(message: types.Message):
 
     await khalisi(message, bot)
 
-    user_actions(message.from_user.id, message.from_user.username)
+    user_data(message.from_user.id, message.from_user.username)
     msg_catch_words(message.from_user.id, message.chat.id, message.text)
 
 

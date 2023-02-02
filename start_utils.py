@@ -51,7 +51,7 @@ def user_update_time(user_id: int, today: datetime):
     Dbase.conn.execute(q)
 
 
-def user_actions(user_id: int, user_name: str):
+def user_data(user_id: int, user_name: str):
     user = user_get(user_id)
     if not user:
         return user_create(user_id, user_name)
