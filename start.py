@@ -4,7 +4,7 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import InlineQuery
 
 from bot_config import TOKEN
-from handlers import (catch_words, chat_words_top, top_boltunov,
+from handlers import (msg_catch_words, chat_words_top, top_boltunov,
                       user_words_top, word_stat)
 from inline_tests import (ItemAss, ItemDestiny, ItemEat, ItemFat, ItemLibera,
                           ItemMobi, ItemPenis, ItemPokemons, ItemPuppies,
@@ -101,7 +101,7 @@ async def echo(message: types.Message):
     await khalisi(message, bot)
 
     user_actions(message.from_user.id, message.from_user.username)
-    catch_words(message.from_user.id, message.chat.id, message.text)
+    msg_catch_words(message.from_user.id, message.chat.id, message.text)
 
 
 if __name__ == '__main__':
