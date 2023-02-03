@@ -100,7 +100,7 @@ def get_file_id(message):
 
 
 async def khalisi(message: str, bot: Bot):
-    if '@prariewords_bot' in message.text:
+    if 'кхалиси' in message.text.lower():
         try:
             khalisi_msg = khalisi_convert(message.reply_to_message.text)
             msg_reply_id = message.reply_to_message.message_id
