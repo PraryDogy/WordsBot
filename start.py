@@ -43,18 +43,6 @@ async def get_word_stat(message: types.Message):
     await bot.send_message(
         message.chat.id, text=word_stat(message.chat.id, args))
 
-# from test import gpt
-
-# @dp.message_handler(commands=['destiny'])
-# async def start(message: types.Message):
-#     # bot = ChatGPT()
-#     # response = bot.ask("Когда появился человек?")
-
-#     await gpt()
-
-#     await bot.send_message(chat_id=message.chat.id, text='')
-
-
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
     with open('txt_start.txt', 'r') as file:
@@ -90,6 +78,12 @@ async def inline_libera(inline_query: InlineQuery):
 
     await bot.answer_inline_query(
         inline_query.id, results=items, is_personal=True, cache_time=0)
+
+
+@dp.channel_post_handler(content_types='text')
+async def channel_khalisi(message: types.Message):
+    await khalisi(message, bot)
+
 
 
 @dp.message_handler()

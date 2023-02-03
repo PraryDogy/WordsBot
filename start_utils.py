@@ -107,7 +107,7 @@ async def khalisi(message: str, bot: Bot):
             if len(message.reply_to_message.text) <= 1024:
                 await bot.send_photo(
                     message.chat.id,
-                    photo='AgACAgIAAxkBAAIBV2POwpjYW1G09NsaIn9UWcVfTAVMAAL2wjEbcDFwSvLDY7j9liSpAQADAgADeAADLQQ',
+                    photo="https://sun9-12.userapi.com/impg/oOGXM3AEHzVrTR77mtSmGE8HzRzb9_EN09z-0Q/OP2uh8gxsT4.jpg?size=460x300&quality=95&sign=ed7f5d437785ea571d4d95c5762c5c1f&type=album",
                     reply_to_message_id=msg_reply_id,
                     caption=khalisi_msg
                     )
@@ -117,5 +117,5 @@ async def khalisi(message: str, bot: Bot):
                     reply_to_message_id=message.message_id,
                     text='Слишком длинное сообщение для госпожи Кхалиси'
                     )
-        except AttributeError:
-            pass
+        except AttributeError as er:
+            print(er)
