@@ -1,7 +1,9 @@
+from functools import wraps
 from time import time
 
 from text_analyser import (get_nouns, morph, words_find, words_normalize,
                            words_stopwords)
+from utils import UserData
 
 from .handler_utils import (chat_words_get, db_sim_words, db_word_count,
                             db_word_people, user_words_get)
@@ -20,32 +22,58 @@ def words_post():
 
 
 def dec_words_post(func):
-    def wrapper(*args):
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
         words_post() if users_words else False
-        return func(*args)
+        return func(*args, **kwargs)
+
     return wrapper
 
 
-def msg_catch_words(user_id: int, chat_id: int, message: str):
+def dec_user_data(func):
 
-    words = words_find(message.split())
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        user = UserData(
+            user_id=kwargs["user_id"],
+            user_name=kwargs["user_name"]
+            ).user_data_get()
+        kwargs.update(user)
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+@dec_user_data
+def msg_catch_words(*args, **kwargs):
+    """
+    user_id, user_name, chat_id, message
+    """
+    words = words_find(kwargs["message"].split())
     words = words_normalize(words)
     words = words_stopwords(words)
 
-    if not users_words.get((user_id, chat_id)):
-        users_words[(user_id, chat_id)] = words
+    if not users_words.get((kwargs["user_id"], kwargs["chat_id"])):
+        users_words[(kwargs["user_id"], kwargs["chat_id"])] = words
     else:
-        users_words[(user_id, chat_id)].extend(words)
+        users_words[(kwargs["user_id"], kwargs["chat_id"])].extend(words)
 
     if time() - start >= 3600:
         words_post()
 
 
 @dec_words_post
-def user_words_top(chat_id: int, user: dict, limit: int):
+@dec_user_data
+def user_words_top(*args, **kwargs):
+    """
+    user_id, user_name, chat_id, limit
+    limit: how many words load from database to create top words,
+    500 recomended.
+    """
 
     words = user_words_get(
-        user['user_id'], chat_id, limit)
+        kwargs["user_id"], kwargs["chat_id"], kwargs["limit"])
 
     nouns = {
         nn: words[nn]
@@ -53,7 +81,7 @@ def user_words_top(chat_id: int, user: dict, limit: int):
         }
 
     msg = (
-        f"@{user['user_name']}, ваш топ 10 слов:",
+        f"@{kwargs['user_name']}, ваш топ 10 слов:",
         *[
             f"{x}: {y}"
             for x, y in tuple(words.items())[:10]
@@ -69,9 +97,14 @@ def user_words_top(chat_id: int, user: dict, limit: int):
 
 
 @dec_words_post
-def chat_words_top(chat_id: int, user: dict, limit: int):
-
-    chat_words = chat_words_get(chat_id, limit)
+@dec_user_data
+def chat_words_top(*args, **kwargs):
+    """
+    user_id, user_name, chat_id, limit
+    limit: how many words load from database to create top words,
+    500 recomended.
+    """
+    chat_words = chat_words_get(kwargs["chat_id"], kwargs["limit"])
 
     words_count = {}
     for word, count in chat_words:
@@ -95,7 +128,7 @@ def chat_words_top(chat_id: int, user: dict, limit: int):
         )[:10]
 
     msg = (
-       f"@{user['user_name']}, топ 10 слов чата:",
+       f"@{kwargs['user_name']}, топ 10 слов чата:",
         *[
             f"{x}: {y}"
             for x, y in words_top
@@ -111,11 +144,15 @@ def chat_words_top(chat_id: int, user: dict, limit: int):
 
 
 @dec_words_post
-def top_boltunov(chat_id: int, user: dict):
-    top = UsersTop(chat_id).strings_list
+@dec_user_data
+def top_boltunov(*args, **kwargs):
+    """
+    user_id, user_name, chat_id
+    """
+    top = UsersTop(kwargs["chat_id"]).strings_list
 
     msg = (
-        f"@{user['user_name']}, топ 10 пиздюшек.",
+        f"@{kwargs['user_name']}, топ 10 пиздюшек.",
         "Имя, количество слов, процент уникальных:\n",
         '\n'.join(top)
         )
@@ -124,24 +161,28 @@ def top_boltunov(chat_id: int, user: dict):
 
 
 @dec_words_post
-def word_stat(msg_chat_id, args: str):
-    if not args:
+@dec_user_data
+def word_stat(*args, **kwargs):
+    """
+    word, user_id, user_name, chat_id
+    """
+    if not kwargs["word"]:
         return 'Пример команды /word_stat слово.'
 
     similars = set()
-    word_variants = (i.word for i in morph.parse(args)[0].lexeme)
+    word_variants = (i.word for i in morph.parse(kwargs["word"])[0].lexeme)
 
     for i in word_variants:
-        similars.update(db_sim_words(msg_chat_id, i))
+        similars.update(db_sim_words(kwargs["chat_id"], i))
 
     if not similars:
         return 'Нет данных о таком слове.'
 
-    count = db_word_count(msg_chat_id, similars)
-    people = len(db_word_people(msg_chat_id, similars))
+    count = db_word_count(kwargs["chat_id"], similars)
+    people = len(db_word_people(kwargs["chat_id"], similars))
 
     msg_list = []
-    msg_list.append(f'Статистика слова {args}.')
+    msg_list.append(f'Статистика слова {kwargs["word"]}.')
 
     similar_words = ", ".join(sorted(similars))
 

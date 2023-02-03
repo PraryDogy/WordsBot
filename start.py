@@ -17,31 +17,47 @@ dp = Dispatcher(bot)
 
 @dp.message_handler(commands=['user_words'])
 async def send_my_words(message: types.Message):
-    user = user_data(message.from_user.id, message.from_user.username)
-    msg = user_words_top(message.chat.id, user, 500)
+    msg = user_words_top(
+        user_id = message.from_user.id,
+        user_name = message.from_user.username,
+        chat_id = message.chat.id,
+        limit=500
+        )
     await bot.send_message(chat_id=message.chat.id, text=msg)
 
 
 @dp.message_handler(commands=['chat_words'])
 async def send_chat_words(message: types.Message):
-    user = user_data(message.from_user.id, message.from_user.username)
-    top = chat_words_top(message.chat.id, user, 500)
-    await bot.send_message(chat_id=message.chat.id, text=top)
+    msg = chat_words_top(
+        user_id = message.from_user.id,
+        user_name = message.from_user.username,
+        chat_id = message.chat.id,
+        limit=500
+        )
+    await bot.send_message(chat_id=message.chat.id, text=msg)
 
 
 @dp.message_handler(commands=['top_boltunov'])
 async def top_slovobludov(message: types.Message):
-    user = user_data(message.from_user.id, message.from_user.username)
-    msg = top_boltunov(message.chat.id, user)
+    msg = top_boltunov(
+        user_id = message.from_user.id,
+        user_name = message.from_user.username,
+        chat_id = message.chat.id,
+        )
     await bot.send_message(chat_id=message.chat.id, text=msg)
 
 
 @dp.message_handler(commands=['word_stat'])
 async def get_word_stat(message: types.Message):
-    user_data(message.from_user.id, message.from_user.username)
-    args = message.get_args()
-    await bot.send_message(
-        message.chat.id, text=word_stat(message.chat.id, args))
+
+    msg = word_stat(
+        word = message.get_args(),
+        user_id = message.from_user.id,
+        user_name = message.from_user.username,
+        chat_id = message.chat.id,
+        )
+    await bot.send_message(message.chat.id, text=msg)
+
 
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
@@ -85,7 +101,6 @@ async def channel_khalisi(message: types.Message):
     await khalisi(message, bot)
 
 
-
 @dp.message_handler()
 async def echo(message: types.Message):
 
@@ -94,9 +109,14 @@ async def echo(message: types.Message):
 
     await khalisi(message, bot)
 
-    user_data(message.from_user.id, message.from_user.username)
-    user_update_times(message.from_user.id)
-    msg_catch_words(message.from_user.id, message.chat.id, message.text)
+    # user_update_times(message.from_user.id)
+
+    msg_catch_words(
+        user_id = message.from_user.id,
+        user_name = message.from_user.username,
+        chat_id = message.chat.id,
+        message = message.text
+        )
 
 
 if __name__ == '__main__':
