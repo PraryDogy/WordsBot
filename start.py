@@ -3,16 +3,13 @@ from datetime import datetime, timedelta
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import InlineQuery
 
-from bot_config import TOKEN
+from bot_config import dp, bot
 from handlers import (msg_catch_words, chat_words_top, top_boltunov,
                       user_words_top, word_stat)
 from inline_tests import (ItemAss, ItemDestiny, ItemEat, ItemFat, ItemLibera,
                           ItemMobi, ItemPenis, ItemPokemons, ItemPuppies,
                           ItemZarplata)
 from start_utils import khalisi, user_data, user_update_time, user_update_times
-
-bot = Bot(token=TOKEN)
-dp = Dispatcher(bot)
 
 
 @dp.message_handler(commands=['user_words'])
@@ -59,11 +56,11 @@ async def get_word_stat(message: types.Message):
     await bot.send_message(message.chat.id, text=msg)
 
 
-@dp.message_handler(commands=['start'])
-async def start(message: types.Message):
-    with open('txt_start.txt', 'r') as file:
-        data = file.read()
-    await bot.send_message(chat_id=message.chat.id, text=data)
+# @dp.message_handler(commands=['start'])
+# async def start(message: types.Message):
+#     with open('txt_start.txt', 'r') as file:
+#         data = file.read()
+#     await bot.send_message(chat_id=message.chat.id, text=data)
 
 
 # @dp.message_handler(content_types='photo')
