@@ -2,4 +2,5 @@ aiogram==2.24
 SQLAlchemy==1.4.45
 pymorphy2==0.9.1
 clipboard==0.0.4
-spacy
+pydantic=1.10.2
+spacy==3.4.4
