@@ -148,7 +148,7 @@ class ItemDestiny(Utils):
                 msg = '\n'.join(
                     [
                     f'Ваш вопрос: {query}',
-                    'К шару прилетела Кхалиси, и вот, что она передала тебе:',
+                    'К шару прилетела Дейнерис, и вот, что она передала тебе:',
                     khalisi])
                 self.item = self.txt_base(header, descr, thumb, msg)
                 return

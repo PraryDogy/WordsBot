@@ -8,12 +8,6 @@ class UsersTop:
     def __init__(self, chat_id):
         self.chat_id = chat_id
 
-        if not self.__check_null():
-            self.strings_list = [(
-                "Подождите некоторое время, чтобы бот собрал статистику"
-                )]
-            return
-
         users_ids = self.__load_users_ids()
         word_stats = self.__load_stat(users_ids)
         word_stats.sort(key=lambda x: x[1], reverse=1)
@@ -22,14 +16,6 @@ class UsersTop:
             self.__load_users_names(users_ids),
             word_stats
             )
-
-    def __check_null(self):
-        q = (
-            sqlalchemy.select(Words)
-            .filter(Words.chat_id == self.chat_id)
-            )
-        if not Dbase.conn.execute(q).all():
-            return False
 
     def __load_users_ids(self):
         """
