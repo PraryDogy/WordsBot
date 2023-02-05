@@ -102,7 +102,12 @@ def get_file_id(message):
 async def khalisi(message: str, bot: Bot):
     if 'кхалиси' in message.text.lower():
         try:
-            khalisi_msg = khalisi_convert(message.reply_to_message.text)
+            khalisi_msg = ' '.join(
+                khalisi_convert(
+                    message.reply_to_message.text.lower().split()
+                    )
+                    )
+
             msg_reply_id = message.reply_to_message.message_id
             if len(message.reply_to_message.text) <= 1024:
                 await bot.send_photo(
