@@ -5,10 +5,10 @@ from text_analyser import (get_nouns, morph, words_find, words_normalize,
                            words_stopwords)
 from utils import UserData
 
-from .handler_utils import (chat_words_get, db_sim_words, db_word_count,
+from handler_utils import (chat_words_get, db_sim_words, db_word_count,
                             db_word_people, user_words_get)
-from .users_top import UsersTop
-from .words_writer import WordsWriter
+from users_top import UsersTop
+from words_writer import WordsWriter
 
 start = time()
 users_words = {}
@@ -52,7 +52,7 @@ def msg_catch_words(*args, **kwargs):
     """
     words = words_find(kwargs["message"].split())
     words = words_normalize(words)
-    words = words_stopwords(words)
+    words = list(words_stopwords(words))
 
     if not users_words.get((kwargs["user_id"], kwargs["chat_id"])):
         users_words[(kwargs["user_id"], kwargs["chat_id"])] = words

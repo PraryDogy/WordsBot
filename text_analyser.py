@@ -10,6 +10,14 @@ nlp = spacy.load("ru_core_news_md")
 morph = pymorphy2.MorphAnalyzer()
 
 
+def khalisi_convert(words_list: list):
+    for word in words_list:
+        for khal_word in khalisi_words:
+            if khal_word in word:
+                yield(word.replace(khal_word, khalisi_words[khal_word]))
+                break
+
+
 def words_find(words_list: list):
     for w in words_list:
         if re.match(r'[a-zA-Zа-яА-Я]+', w):

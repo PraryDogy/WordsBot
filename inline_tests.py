@@ -137,12 +137,17 @@ class ItemDestiny(Utils):
 
         for word in words_find(query.split()):
             if word in dest_q_word:
-                msg = khalisi_convert(query.lower()).capitalize()
+
+                khalisi = ' '.join(khalisi_convert(
+                    query.lower().split()
+                    )
+                    ).capitalize()
+
                 msg = '\n'.join(
                     [
                     f'Ваш вопрос: {query}',
                     'К шару прилетела Кхалиси, и вот, что она передала тебе:',
-                    msg])
+                    khalisi])
                 self.item = self.txt_base(header, descr, thumb, msg)
                 return
 

@@ -4,8 +4,8 @@ from aiogram import executor, types
 from aiogram.types import InlineQuery
 
 from bot_config import bot, dp
-from message_handlers import (chat_words_top, msg_catch_words, top_boltunov,
-                      user_words_top, word_stat)
+from handler_commands import (chat_words_top, msg_catch_words, top_boltunov,
+                              user_words_top, word_stat)
 from inline_tests import (ItemAss, ItemDestiny, ItemEat, ItemFat, ItemLibera,
                           ItemMobi, ItemPenis, ItemPokemons, ItemPuppies,
                           ItemZarplata)
@@ -56,11 +56,11 @@ async def get_word_stat(message: types.Message):
     await bot.send_message(message.chat.id, text=msg)
 
 
-# @dp.message_handler(commands=['start'])
-# async def start(message: types.Message):
-#     with open('txt_start.txt', 'r') as file:
-#         data = file.read()
-#     await bot.send_message(chat_id=message.chat.id, text=data)
+@dp.message_handler(commands=['start'])
+async def start(message: types.Message):
+    with open('txt_start.txt', 'r') as file:
+        data = file.read()
+    await bot.send_message(chat_id=message.chat.id, text=data)
 
 
 # @dp.message_handler(content_types='photo')
