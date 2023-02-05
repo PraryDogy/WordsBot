@@ -93,9 +93,8 @@ async def inline_libera(inline_query: InlineQuery):
         inline_query.id, results=items, is_personal=True, cache_time=0)
 
 
-@dp.channel_post_handler(content_types='text')
-async def channel_khalisi(message: types.Message):
-    await khalisi(message, bot)
+dp.register_channel_post_handler(khalisi, regexp='кхалиси')
+dp.register_message_handler(khalisi, regexp='кхалиси')
 
 
 @dp.message_handler()
@@ -103,8 +102,6 @@ async def echo(message: types.Message):
 
     if message.via_bot:
         return
-
-    await khalisi(message, bot)
 
     user_update_times(message.from_user.id)
 
