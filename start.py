@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 
-from aiogram import Bot, Dispatcher, executor, types
+from aiogram import executor, types
 from aiogram.types import InlineQuery
 
-from bot_config import dp, bot
-from handlers import (msg_catch_words, chat_words_top, top_boltunov,
+from bot_config import bot, dp
+from message_handlers import (chat_words_top, msg_catch_words, top_boltunov,
                       user_words_top, word_stat)
 from inline_tests import (ItemAss, ItemDestiny, ItemEat, ItemFat, ItemLibera,
                           ItemMobi, ItemPenis, ItemPokemons, ItemPuppies,
