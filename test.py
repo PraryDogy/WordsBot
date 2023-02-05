@@ -5,4 +5,3 @@ def testing(name):
         f"from __main__ import {name}",
         number=10
         )
-

@@ -106,7 +106,7 @@ async def echo(message: types.Message):
 
     await khalisi(message, bot)
 
-    # user_update_times(message.from_user.id)
+    user_update_times(message.from_user.id)
 
     msg_catch_words(
         user_id = message.from_user.id,

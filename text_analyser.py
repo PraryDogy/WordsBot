@@ -44,3 +44,4 @@ def get_nouns(words: list):
         for word in nlp(w):
             if word.pos_ in ('NOUN', 'PROPN'):
                 yield(word.text)
+
