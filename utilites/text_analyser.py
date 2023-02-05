@@ -38,15 +38,6 @@ def words_stopwords(words_list: list):
             yield(i)
 
 
-def words_filter(words_list: list):
-    return [
-        i
-        for i in words_stopwords(words_normalize(words_find(
-            words_list
-            )))
-            ]
-
-
 def get_nouns(words: list):
     for w in words:
         for word in nlp(w):

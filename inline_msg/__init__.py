@@ -1,0 +1,1 @@
+from .handler_tests import create_msg as inline_tests

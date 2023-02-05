@@ -1,12 +1,14 @@
 import random
 
+import bot_config
 from database import (AssModel, EatModel, FatModel, LiberaModel, MobiModel,
                       PenisModel, PokemonModel, PuppyModel, ZarplataModel)
 from dicts import (ass_names, dest_a_main, dest_q_word, food_list, penis_names,
                    pokemon_dict, puppies_captions, puppies_url_list)
-from inline_utils import Utils
-from text_analyser import khalisi_convert, words_find
-import cfg
+from utilites import khalisi_convert, words_find
+
+from .utils import Utils
+
 
 class ItemFat(Utils):
     def __init__(self, user_id, user_time, today, need_update, query):
@@ -18,7 +20,7 @@ class ItemFat(Utils):
 
         values = self.create_test(FatModel, {'value': random.randint(0, 100)})
 
-        if user_id in cfg.gold_users:
+        if user_id in bot_config.gold_users:
             values['value'] = random.randint(0, 10)
 
         msg = '\n'.join(
@@ -88,7 +90,7 @@ class ItemPenis(Utils):
             {'value': 49.5 if self.gold_chance() else random.randint(0, 40)}
             )
 
-        if user_id in cfg.gold_users:
+        if user_id in bot_config.gold_users:
             values['value'] = random.randint(30, 40)
 
         msg = '\n'.join(
@@ -111,7 +113,7 @@ class ItemAss(Utils):
 
         values = self.create_test(AssModel,{'value': random.randint(0, 40)})
 
-        if user_id in cfg.gold_users:
+        if user_id in bot_config.gold_users:
             values['value'] = random.randint(30, 40)
 
         msg = '\n'.join([
@@ -172,7 +174,7 @@ class ItemZarplata(Utils):
             {'value': random.randint(16242, 180000)}
             )
         
-        if user_id in cfg.gold_users:
+        if user_id in bot_config.gold_users:
             values['value'] = random.randint(300000, 1000000)
 
         msg = '\n'.join(

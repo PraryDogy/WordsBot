@@ -1,8 +1,8 @@
 import sqlalchemy
 import sqlalchemy.ext.declarative
-from sqlalchemy import Column, ForeignKey, Integer, Text, DateTime
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text
 
-import cfg
+DATABASE = 'database.db'
 
 
 class Dbase():
@@ -13,7 +13,7 @@ class Dbase():
     *var base: declatative_base for models and actions
     """
     engine = sqlalchemy.create_engine(
-        'sqlite:///' + cfg.DATABASE,
+        'sqlite:///' + DATABASE,
         connect_args={'check_same_thread':False,},
         echo= False
         )
@@ -99,7 +99,7 @@ class Migration:
     def migrate_table(self, name):
         import sqlite3
 
-        conn = sqlite3.connect(cfg.DATABASE)
+        conn = sqlite3.connect(DATABASE)
         cur = conn.cursor()
 
         disable_fk = """PRAGMA foreign_keys=off"""
