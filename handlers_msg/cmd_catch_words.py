@@ -5,10 +5,9 @@ import sqlalchemy
 from aiogram import types
 
 from database import Dbase, Users
-from utilites import (dec_update_user, update_db_words, users_words,
-                      words_find, words_normalize, words_stopwords,
-                      words_timer)
-
+from utilites import (dec_times_append, dec_update_user, update_db_words,
+                      users_words, words_find, words_normalize,
+                      words_stopwords, words_timer)
 
 def user_update_times(message: types.Message):
     q = (
@@ -16,14 +15,14 @@ def user_update_times(message: types.Message):
         .filter(Users.user_id==message.from_user.id)
         )
     user_times: str = Dbase.conn.execute(q).first()[0]
-    today = str(datetime.today().replace(microsecond=0))
+    today = datetime.today().replace(microsecond=0)
 
     if not user_times:
         Dbase.conn.execute(
             sqlalchemy.update(Users)
             .filter(Users.user_id==message.from_user.id)
             .values(
-                {"times": today}
+                {"times": str(today) + ','}
                 )
             )
 
@@ -32,12 +31,12 @@ def user_update_times(message: types.Message):
             sqlalchemy.update(Users)
             .filter(Users.user_id==message.from_user.id)
             .values(
-                {"times": f"{user_times},{today}"}
+                {"times": f"{user_times},{today},"}
                 )
             )
 
-
 @dec_update_user
+# @dec_times_append
 async def msg_catch_words(message: types.Message):
     """
     user_id, user_name, chat_id, message
@@ -54,4 +53,4 @@ async def msg_catch_words(message: types.Message):
     if time() - words_timer >= 3600:
         update_db_words()
 
-    user_update_times(message)
+    # user_update_times(message)

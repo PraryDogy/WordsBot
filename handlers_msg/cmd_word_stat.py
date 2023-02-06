@@ -3,7 +3,8 @@ from aiogram import types
 
 from bot_config import bot
 from database import Dbase, Words
-from utilites import dec_update_db_words, dec_update_user, morph
+from utilites import (dec_times_write, dec_update_db_words, dec_update_user,
+                      morph)
 
 
 def db_sim_words(msg_chat_id, input_word):

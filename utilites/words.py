@@ -8,6 +8,8 @@ from aiogram import types
 
 from database import Dbase, Words
 
+from .main import sql_unions
+
 words_timer: time = time()
 users_words: dict = {}
 
@@ -41,22 +43,7 @@ class WordsWriter:
             for w in set(words)
             ]
 
-        SQL_MAX = 300
-        q_chunks = [
-            queries[i:i+SQL_MAX]
-            for i in range(0, len(queries), SQL_MAX)
-            ]
-
-        results = [
-            (
-                Dbase.conn.execute(sqlalchemy.union_all(*q))
-                .mappings()
-                .fetchall()
-                )
-            for q in q_chunks
-            ]
-
-        return list(itertools.chain.from_iterable(results))
+        return sql_unions(queries)
 
     def db_words_count(self, db_words):
         """

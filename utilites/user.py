@@ -37,7 +37,7 @@ class UserData:
                 'user_id': self.user_id,
                 'user_name': self.user_name,
                 'user_time': self.today - timedelta(days=1),
-                'times': self.today
+                'times': str(self.today) + ','
                 }
 
         Dbase.conn.execute(
