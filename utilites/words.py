@@ -9,12 +9,13 @@ from aiogram import types
 from database import Dbase, Words
 
 from .main import sql_unions
+from .text_analyser import words_find, words_normalize, words_stopwords
 
-words_timer: time = time()
+timer: time = time()
 users_words: dict = {}
 
 
-class WordsWriter:
+class UpdateWords:
     def __init__(self):
         db_count = self.db_words_count(self.db_words_get())
         msg_count = self.msg_words_count()
@@ -156,18 +157,43 @@ class WordsWriter:
         Dbase.conn.execute(q, vals)
 
 
-def update_db_words():
-    global words_timer
-    WordsWriter()
-    words_timer = time()
+def words_update():
+    global timer
+    UpdateWords()
+    timer = time()
     users_words.clear()
 
 
-def dec_update_db_words(func):
+def words_append(message: types.Message):
+    """
+    Appends words from this message for this user_id and chat_id
+    to users dict
+    """
+    words = words_find(message.text.split())
+    words = words_normalize(words)
+    words = list(words_stopwords(words))
 
+    if not users_words.get((message.from_user.id, message.chat.id)):
+        users_words[(message.from_user.id, message.chat.id)] = words
+    else:
+        users_words[(message.from_user.id, message.chat.id)].extend(words)
+
+
+def words_update_timer():
+    """
+    Updates database words every hour
+    """
+    if time() - timer >= 3600:
+        words_update() if users_words else False
+
+
+def dec_words_update(func):
+    """
+    Force update database words
+    """
     @wraps(func)
     def wrapper(message: types.message):
-        update_db_words() if users_words else False
+        words_update() if users_words else False
         return func(message)
 
     return wrapper

@@ -3,7 +3,7 @@ from aiogram import types
 
 from bot_config import bot
 from database import Dbase, Words
-from utilites import dec_update_db_words, dec_update_user, get_nouns
+from utilites import dec_words_update, dec_update_user, get_nouns
 
 
 def chat_words_get(chat_id: int, limit: int):
@@ -57,7 +57,7 @@ def create_msg(message: types.Message, limit: int):
 
 
 @dec_update_user
-@dec_update_db_words
+@dec_words_update
 async def send_msg(message: types.Message):
     msg = create_msg(message, limit=500)
     await bot.send_message(chat_id=message.chat.id, text=msg)

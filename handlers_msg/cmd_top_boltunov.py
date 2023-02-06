@@ -2,7 +2,7 @@ from aiogram import types
 
 from bot_config import bot
 from database import Dbase, Users, Words, sqlalchemy
-from utilites import dec_update_db_words, dec_update_user
+from utilites import dec_words_update, dec_update_user
 
 class UsersTop:
     def __init__(self, chat_id):
@@ -84,7 +84,7 @@ def create_msg(message: types.Message):
     return '\n'.join(msg)
 
 @dec_update_user
-@dec_update_db_words
+@dec_words_update
 async def send_msg(message: types.Message):
     msg = create_msg(message)
     await bot.send_message(chat_id=message.chat.id, text=msg)

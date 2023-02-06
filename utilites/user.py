@@ -5,7 +5,7 @@ import sqlalchemy
 from aiogram import types
 
 from database import Dbase, Users
-
+import json
 
 class UserData:
     def __init__(self, message: types.Message):
@@ -37,7 +37,7 @@ class UserData:
                 'user_id': self.user_id,
                 'user_name': self.user_name,
                 'user_time': self.today - timedelta(days=1),
-                'times': str(self.today) + ','
+                'times': json.dumps([self.today], default=str)
                 }
 
         Dbase.conn.execute(
@@ -55,6 +55,10 @@ class UserData:
 
 
 def dec_update_user(func):
+    """
+    Creates new database record for user if user not exists in database.
+    Updates username if user changed username
+    """
 
     @wraps(func)
     def wrapper(message: types.message):

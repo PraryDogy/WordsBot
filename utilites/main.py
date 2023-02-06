@@ -6,6 +6,7 @@ from database import Dbase
 
 
 def sql_unions(queries: list):
+    "returns list( dict{ user_id: times(deserialized list) } )"
 
     SQL_MAX = 300
     q_chunks = [

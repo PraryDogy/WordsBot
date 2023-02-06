@@ -19,10 +19,12 @@ def khalisi_convert(words_list: list):
 
 
 def words_find(words_list: list):
-    for w in words_list:
-        if re.match(r'[a-zA-Zа-яА-Я]+', w):
-            if not re.match(r'http\S+', w):
-                yield (w)
+    for i in words_list:
+        if not re.match(r'http\S+', i):
+            try:
+                yield re.match(r'[a-zA-Zа-яА-Я]+', i).group(0)
+            except AttributeError:
+                pass
 
 
 def words_normalize(words_list: list):
