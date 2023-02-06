@@ -95,6 +95,12 @@ class EatModel(TestBaseModel):
     food_list = Column(Text)
 
 
+class DucksModel(TestBaseModel):
+    __tablename__ = 'ducks'
+    user_id = Column(Integer)
+    number = Column(Text)
+
+
 class Migration:
     def migrate_table(self, name):
         import sqlite3

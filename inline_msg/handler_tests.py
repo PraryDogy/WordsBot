@@ -7,7 +7,7 @@ from utilites import UserData, dec_update_user
 
 from .tests import (ItemAss, ItemDestiny, ItemEat, ItemFat, ItemLibera,
                     ItemMobi, ItemPenis, ItemPokemons, ItemPuppies,
-                    ItemZarplata)
+                    ItemZarplata, ItemDucks)
 
 
 @dec_update_user
@@ -27,8 +27,10 @@ async def create_msg(inline_query: types.InlineQuery):
             today, need_update, inline_query.query).item
             
             for test in (
-                ItemDestiny, ItemPokemons, ItemPuppies, ItemEat, ItemFat,
-                ItemPenis, ItemAss, ItemZarplata, ItemLibera, ItemMobi
+                ItemDestiny, ItemPuppies, ItemPokemons, ItemDucks,
+                ItemEat,
+                ItemFat, ItemPenis, ItemAss, ItemZarplata, ItemLibera,
+                ItemMobi
                 )
                 ]
 

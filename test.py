@@ -17,3 +17,29 @@
 #         f"from __main__ import {name}",
 #         number=10
 #         )
+
+
+import clipboard
+from time import sleep
+
+def parse_urls():
+    paste = '1'
+    counter = 0
+
+    while 'google' not in paste:
+        new_paste = clipboard.paste()
+
+        if new_paste != paste:
+
+            paste = new_paste
+
+            with open('_urls.txt', 'a') as file:
+                file.write(new_paste + '\n')
+
+                counter += 1
+                print(counter)
+                print('write url')
+        
+        sleep(0.1)
+
+

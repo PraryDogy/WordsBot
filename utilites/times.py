@@ -104,6 +104,10 @@ def dec_times_update(func):
 
     @wraps(func)
     def wrapper(message: types.Message):
+        # print()
+        # print(datetime.today().replace(microsecond=0))
+        # print(users_times)
+        # print()
         times_update() if users_times else False
         return func(message)
 

@@ -1,3 +1,24 @@
+with open('url_ducks.txt', 'r') as file:
+    ducks_url = file.read().split('\n')
+
+ducks_num = [
+    *(str(i) for i in range(1, 16)),
+    "16, 17, 18",
+    *(str(i) for i in range(19, 56)),
+    "56, 57, 58",
+    *(str(i) for i in range(59, 93)),
+    "93, 94",
+    *(str(i) for i in range(95, 102)),
+    "102, 103",
+    *(str(i) for i in range(104, 125)),
+    ]
+
+ducks = {
+    url: num
+    for url, num in zip(ducks_url, ducks_num)
+        }
+
+
 with open ('txt_food.txt', 'r') as file:
     food_list = file.read().split('\n')
 

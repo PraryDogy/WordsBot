@@ -1,10 +1,12 @@
 import random
 
 import bot_config
-from database import (AssModel, EatModel, FatModel, LiberaModel, MobiModel,
-                      PenisModel, PokemonModel, PuppyModel, ZarplataModel)
-from dicts import (ass_names, dest_a_main, dest_q_word, food_list, penis_names,
-                   pokemon_dict, puppies_captions, puppies_url_list)
+from database import (AssModel, DucksModel, EatModel, FatModel, LiberaModel,
+                      MobiModel, PenisModel, PokemonModel, PuppyModel,
+                      ZarplataModel)
+from dicts import (ass_names, dest_a_main, dest_q_word, ducks, food_list,
+                   penis_names, pokemon_dict, puppies_captions,
+                   puppies_url_list)
 from utilites import khalisi_convert, words_find
 
 from .utils import Utils
@@ -257,3 +259,27 @@ class ItemEat(Utils):
         )
 
         self.item = self.txt_base(header, descr, thumb, msg)
+
+
+class ItemDucks(Utils):
+    def __init__(self, user_id, user_time, today, need_update, query):
+        super().__init__(user_id, user_time, today, need_update, query)
+
+        header = 'Какая я уточка?'
+        descr = 'Узнай свою красоту'
+
+        new_duck = random.choice(list(ducks.keys()))
+        values = self.create_test(
+            DucksModel,
+            {'value': new_duck, 'number': ducks[new_duck]}
+            )
+
+        msg = '\n'.join(
+            [
+                "Тест на уточку",
+                f"Я уточка №{values['number']}",
+                self.time_row()
+                ]
+                )
+
+        self.item = self.img_base(header, descr, values['value'], msg)
