@@ -1,6 +1,6 @@
 from . import (AssModel, DucksModel, EatModel, FatModel, LiberaModel,
                MobiModel, PenisModel, PokemonModel, PuppyModel, ZarplataModel,
-               ass_names, destiny_answers, destiny_questions, ducks, food,
+               ass_names, destiny_answers, destiny_questions, ducks_url, food,
                gold_users, khalisi_convert, penis_names, pokemons,
                puppies_words, puppies_url, random, words_find)
 from .utils import Utils
@@ -271,10 +271,10 @@ class Ducks(Utils):
         header = 'Какая я уточка?'
         descr = 'Узнай свою красоту'
 
-        new_duck = random.choice(list(ducks.keys()))
+        new_duck = random.choice(list(ducks_url.keys()))
         values = self.create_test(
             DucksModel,
-            {'value': new_duck, 'number': ducks[new_duck]}
+            {'value': new_duck, 'number': ducks_url[new_duck]}
             )
 
         msg = '\n'.join(

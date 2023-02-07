@@ -23,4 +23,3 @@ def sql_unions(queries: list):
 
     return list(itertools.chain.from_iterable(results))
 
-

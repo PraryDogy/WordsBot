@@ -1,9 +1,8 @@
-# from . import json
 import json
 
 
 __all__ = (
-    "ducks",
+    "ducks_url",
     "food",
     "puppies_words",
     "puppies_url",
@@ -16,52 +15,36 @@ __all__ = (
     "khalisi_words"
 )
 
-with open("dicts/ducks.txt", "r") as file:
-    ducks_url: list = file.read().split('\n')
+with open("dicts/ducks_url.json", "r") as file:
+    ducks_url: list = json.loads(file.read())
 
-ducks_num = [
-    *(str(i) for i in range(1, 16)),
-    "16, 17, 18",
-    *(str(i) for i in range(19, 56)),
-    "56, 57, 58",
-    *(str(i) for i in range(59, 93)),
-    "93, 94",
-    *(str(i) for i in range(95, 102)),
-    "102, 103",
-    *(str(i) for i in range(104, 125)),
-    ]
+with open ("dicts/food.json", "r") as file:
+    food: list = json.loads(file.read())
 
-ducks = {
-    url: num
-    for url, num in zip(ducks_url, ducks_num)
-        }
+with open("dicts/puppies_words.json", "r") as file:
+    puppies_words: list = json.loads(file.read())
 
-with open ("dicts/food.txt", "r") as file:
-    food: list = file.read().split('\n')
+with open("dicts/puppies_url.json", "r") as file:
+    puppies_url: list = json.loads(file.read())
 
-with open("dicts/puppies_words.txt", "r") as file:
-    puppies_words: list = file.read().split("\n")
+with open("dicts/penis_names.json", "r") as file:
+    penis_names: list = json.loads(file.read())
 
-with open("dicts/puppies_url.txt", "r") as file:
-    puppies_url: list = file.read().split("\n")
+with open("dicts/ass_names.json", "r") as file:
+    ass_names: list = json.loads(file.read())
 
-with open("dicts/penises.txt", "r") as file:
-    penis_names: list = file.read().split("\n")
+with open("dicts/stop_words.json", "r") as file:
+    stop_words: list = json.loads(file.read())
 
-with open("dicts/ass.txt", "r") as file:
-    ass_names: list = file.read().split("\n")
+with open("dicts/destiny_answers.json", "r") as file:
+    destiny_answers: list = json.loads(file.read())
 
-with open("dicts/stop_words.txt", "r") as file:
-    stop_words: list = file.read().split("\n")
+with open("dicts/destiny_questions.json", "r") as file:
+    destiny_questions: list = json.loads(file.read())
 
-with open("dicts/destiny_answers.txt", "r") as file:
-    destiny_answers: list = file.read().split("\n")
-
-with open("dicts/destiny_questions.txt", "r") as file:
-    destiny_questions: list = file.read().split("\n")
-
-with open("dicts/pokemons.txt", "r") as file:
+with open("dicts/pokemons.json", "r") as file:
     pokemons: dict = json.loads(file.read())
 
-with open("dicts/khalisi.txt", "r") as file:
+with open("dicts/khalisi_words.json", "r") as file:
     khalisi_words: dict = json.loads(file.read())
+

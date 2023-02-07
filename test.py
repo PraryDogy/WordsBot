@@ -47,8 +47,6 @@ def parse_urls():
         sleep(0.1)
 
 
-parse_urls()
-
 # from datetime import datetime, timedelta
 
 # user_time = "2023-02-06 23:00:00"
