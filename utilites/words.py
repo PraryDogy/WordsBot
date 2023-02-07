@@ -1,15 +1,11 @@
-import itertools
-from collections import Counter
-from functools import wraps
-from time import time
+from . import (Counter, Dbase, Words, sql_unions, sqlalchemy, time, types,
+               words_find, words_normalize, words_stopwords, wraps)
 
-import sqlalchemy
-from aiogram import types
-
-from database import Dbase, Words
-
-from .main import sql_unions
-from .text_analyser import words_find, words_normalize, words_stopwords
+__all__ = (
+    "words_append",
+    "words_update_timer",
+    "dec_words_update_force",
+    )
 
 timer: time = time()
 users_words: dict = {}
@@ -187,7 +183,7 @@ def words_update_timer():
         words_update() if users_words else False
 
 
-def dec_words_update(func):
+def dec_words_update_force(func):
     """
     Force update database words
     """

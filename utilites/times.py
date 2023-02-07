@@ -1,14 +1,11 @@
-import json
-from datetime import datetime
-from functools import wraps
-from time import time
+from . import (Dbase, Users, datetime, json, sql_unions, sqlalchemy, time,
+               types, wraps)
 
-import sqlalchemy
-from aiogram import types
-
-from database import Dbase, Users, Words
-
-from .main import sql_unions
+__all__ = (
+    "dec_times_update_force",
+    "dec_times_update_timer",
+    "dec_times_append",
+    )
 
 timer: time = time()
 users_times: dict = {}
@@ -90,25 +87,7 @@ def dec_times_append(func):
     """
     @wraps(func)
     def wrapper(message: types.Message):
-        times_append(message) if users_times else False
-        return func(message)
-
-    return wrapper
-
-
-def dec_times_update(func):
-    """
-    Force update list of times in database
-    for any user_id who send text messages
-    """
-
-    @wraps(func)
-    def wrapper(message: types.Message):
-        # print()
-        # print(datetime.today().replace(microsecond=0))
-        # print(users_times)
-        # print()
-        times_update() if users_times else False
+        times_append(message)
         return func(message)
 
     return wrapper
@@ -124,7 +103,22 @@ def dec_times_update_timer(func):
     @wraps(func)
     def wrapper(message: types.Message):
         if time() - timer >= 3600:
+            print(users_times)
             times_update() if users_times else False
         return func(message)
     
+    return wrapper
+
+
+def dec_times_update_force(func):
+    """
+    Force update list of times in database
+    for any user_id who send text messages
+    """
+
+    @wraps(func)
+    def wrapper(message: types.Message):
+        times_update() if users_times else False
+        return func(message)
+
     return wrapper

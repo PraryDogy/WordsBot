@@ -43,3 +43,11 @@ def parse_urls():
         sleep(0.1)
 
 
+
+
+# from datetime import datetime, timedelta
+
+# user_time = "2023-02-06 23:00:00"
+# user_time = datetime.strptime(user_time, "%Y-%m-%d %H:%M:%S")
+
+# when_update = user_time + timedelta(hours=3)

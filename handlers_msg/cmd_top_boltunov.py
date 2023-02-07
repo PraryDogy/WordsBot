@@ -1,8 +1,11 @@
-from aiogram import types
+from . import (Dbase, Users, Words, bot, dec_update_user, dec_words_update_force,
+               sqlalchemy, types)
 
-from bot_config import bot
-from database import Dbase, Users, Words, sqlalchemy
-from utilites import dec_words_update, dec_update_user
+__all__ = (
+    "send_msg"
+    )
+
+
 
 class UsersTop:
     def __init__(self, chat_id):
@@ -84,7 +87,7 @@ def create_msg(message: types.Message):
     return '\n'.join(msg)
 
 @dec_update_user
-@dec_words_update
+@dec_words_update_force
 async def send_msg(message: types.Message):
     msg = create_msg(message)
     await bot.send_message(chat_id=message.chat.id, text=msg)

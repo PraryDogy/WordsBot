@@ -1,10 +1,9 @@
-import sqlalchemy
-from aiogram import types
+from . import (Dbase, Words, bot, dec_update_user, dec_words_update_force, morph,
+               sqlalchemy, types)
 
-from bot_config import bot
-from database import Dbase, Words
-from utilites import (dec_times_update, dec_words_update, dec_update_user,
-                      morph)
+__all__ = (
+    "send_msg"
+    )
 
 
 def db_sim_words(msg_chat_id, input_word):
@@ -60,7 +59,7 @@ def create_msg(message: types.Message):
     return '\n'.join(msg_list)
 
 @dec_update_user
-@dec_words_update
+@dec_words_update_force
 async def send_msg(message: types.Message):
     msg = create_msg(message)
     await bot.send_message(message.chat.id, text=msg)

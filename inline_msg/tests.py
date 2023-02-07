@@ -1,18 +1,26 @@
-import random
-
-import bot_config
-from database import (AssModel, DucksModel, EatModel, FatModel, LiberaModel,
-                      MobiModel, PenisModel, PokemonModel, PuppyModel,
-                      ZarplataModel)
-from dicts import (ass_names, dest_a_main, dest_q_word, ducks, food_list,
-                   penis_names, pokemon_dict, puppies_captions,
-                   puppies_url_list)
-from utilites import khalisi_convert, words_find
-
+from . import (AssModel, DucksModel, EatModel, FatModel, LiberaModel,
+               MobiModel, PenisModel, PokemonModel, PuppyModel, ZarplataModel,
+               ass_names, destiny_answers, destiny_questions, ducks, food,
+               gold_users, khalisi_convert, penis_names, pokemons,
+               puppies_words, puppies_url, random, words_find)
 from .utils import Utils
 
+__all__ = (
+    "Ass",
+    "Destiny",
+    "Ducks",
+    "Eat",
+    "Fat",
+    "Libera",
+    "Mobi",
+    "Penis",
+    "Pokemons",
+    "Puppies",
+    "Zarplata",
+    )
 
-class ItemFat(Utils):
+
+class Fat(Utils):
     def __init__(self, user_id, user_time, today, need_update, query):
         super().__init__(user_id, user_time, today, need_update, query)
 
@@ -22,7 +30,7 @@ class ItemFat(Utils):
 
         values = self.create_test(FatModel, {'value': random.randint(0, 100)})
 
-        if user_id in bot_config.gold_users:
+        if user_id in gold_users:
             values['value'] = random.randint(0, 10)
 
         msg = '\n'.join(
@@ -35,7 +43,7 @@ class ItemFat(Utils):
         self.item = self.txt_base(header, descr, thumb, msg)
 
 
-class ItemLibera(Utils):
+class Libera(Utils):
     def __init__(self, user_id, user_time, today, need_update, query):
         super().__init__(user_id, user_time, today, need_update, query)
 
@@ -57,7 +65,7 @@ class ItemLibera(Utils):
         self.item = self.txt_base(header, descr, thumb, msg)
 
 
-class ItemMobi(Utils):
+class Mobi(Utils):
     def __init__(self, user_id, user_time, today, need_update, query):
         super().__init__(user_id, user_time, today, need_update, query)
 
@@ -79,7 +87,7 @@ class ItemMobi(Utils):
         self.item = self.txt_base(header, descr, thumb, msg)
 
 
-class ItemPenis(Utils):
+class Penis(Utils):
     def __init__(self, user_id, user_time, today, need_update, query):
         super().__init__(user_id, user_time, today, need_update, query)
 
@@ -92,7 +100,7 @@ class ItemPenis(Utils):
             {'value': 49.5 if self.gold_chance() else random.randint(0, 40)}
             )
 
-        if user_id in bot_config.gold_users:
+        if user_id in gold_users:
             values['value'] = random.randint(30, 40)
 
         msg = '\n'.join(
@@ -105,7 +113,7 @@ class ItemPenis(Utils):
         self.item = self.txt_base(header, descr, thumb, msg)
 
 
-class ItemAss(Utils):
+class Ass(Utils):
     def __init__(self, user_id, user_time, today, need_update, query):
         super().__init__(user_id, user_time, today, need_update, query)
 
@@ -115,7 +123,7 @@ class ItemAss(Utils):
 
         values = self.create_test(AssModel,{'value': random.randint(0, 40)})
 
-        if user_id in bot_config.gold_users:
+        if user_id in gold_users:
             values['value'] = random.randint(30, 40)
 
         msg = '\n'.join([
@@ -126,7 +134,7 @@ class ItemAss(Utils):
         self.item = self.txt_base(header, descr, thumb, msg)
 
 
-class ItemDestiny(Utils):
+class Destiny(Utils):
     def __init__(self, user_id, user_time, today, need_update, query):
         super().__init__(user_id, user_time, today, need_update, query)
 
@@ -140,30 +148,25 @@ class ItemDestiny(Utils):
             return
 
         for word in words_find(query.split()):
-            if word in dest_q_word:
+            if word in destiny_questions:
 
-                khalisi = ' '.join(khalisi_convert(
-                    query.lower().split()
-                    )
-                    ).capitalize()
-
-                msg = '\n'.join(
-                    [
+                msg = '\n'.join([
                     f'Ваш вопрос: {query}',
-                    'К шару прилетела Дейнерис, и вот, что она передала тебе:',
-                    khalisi])
+                    'Задайте вопрос на "да" или "нет".'
+                    ])
+
                 self.item = self.txt_base(header, descr, thumb, msg)
                 return
 
         msg = '\n'.join([
             'Шар судьбы поможет вам определиться',
             f'Ваш вопрос: {query}',
-            f'Ответ шара: {random.choice(dest_a_main)}',
+            f'Ответ шара: {random.choice(destiny_answers)}',
             ])
         self.item = self.txt_base(header, descr, thumb, msg)
 
 
-class ItemZarplata(Utils):
+class Zarplata(Utils):
     def __init__(self, user_id, user_time, today, need_update, query):
         super().__init__(user_id, user_time, today, need_update, query)
 
@@ -176,7 +179,7 @@ class ItemZarplata(Utils):
             {'value': random.randint(16242, 180000)}
             )
         
-        if user_id in bot_config.gold_users:
+        if user_id in gold_users:
             values['value'] = random.randint(300000, 1000000)
 
         msg = '\n'.join(
@@ -189,7 +192,7 @@ class ItemZarplata(Utils):
         self.item = self.txt_base(header, descr, thumb, msg)
 
 
-class ItemPuppies(Utils):
+class Puppies(Utils):
     def __init__(self, user_id, user_time, today, need_update, query):
         super().__init__(user_id, user_time, today, need_update, query)
 
@@ -198,20 +201,20 @@ class ItemPuppies(Utils):
 
         values = self.create_test(
             PuppyModel,
-            {'value': random.choice(puppies_url_list)}
+            {'value': random.choice(puppies_url)}
             )
 
         msg = '\n'.join(
             [
                 'Тест на пупи\n'
-                f'{random.choice(puppies_captions)}',
+                f'{random.choice(puppies_words)}',
                 self.time_row()
                 ])
 
         self.item = self.img_base(header, descr, values['value'], msg)
 
 
-class ItemPokemons(Utils):
+class Pokemons(Utils):
     def __init__(self, user_id, user_time, today, need_update, query):
         super().__init__(user_id, user_time, today, need_update, query)
 
@@ -220,20 +223,20 @@ class ItemPokemons(Utils):
 
         values = self.create_test(
             PokemonModel,
-            {'value': random.choice(list(pokemon_dict.keys()))}
+            {'value': random.choice(list(pokemons.keys()))}
             )
 
         msg = '\n'.join(
             [
                 'Тест на покемона',
-                f'{pokemon_dict[values["value"]].capitalize()}',
+                f'{pokemons[values["value"]].capitalize()}',
                 self.time_row()
                 ])
 
         self.item = self.img_base(header, descr, values['value'], msg)
 
 
-class ItemEat(Utils):
+class Eat(Utils):
     def __init__(self, user_id, user_time, today, need_update, query):
         super().__init__(user_id, user_time, today, need_update, query)
 
@@ -245,7 +248,7 @@ class ItemEat(Utils):
             EatModel,
             {
                 'value': random.randint(0, 3000),
-                'food_list': ', '.join(random.sample(food_list, 5)),
+                'food_list': ', '.join(random.sample(food, 5)),
             }
         )
     
@@ -261,7 +264,7 @@ class ItemEat(Utils):
         self.item = self.txt_base(header, descr, thumb, msg)
 
 
-class ItemDucks(Utils):
+class Ducks(Utils):
     def __init__(self, user_id, user_time, today, need_update, query):
         super().__init__(user_id, user_time, today, need_update, query)
 

@@ -1,8 +1,8 @@
-import itertools
+from . import Dbase, itertools, sqlalchemy
 
-import sqlalchemy
-
-from database import Dbase
+__all__ = (
+    "sql_unions",
+    )
 
 
 def sql_unions(queries: list):

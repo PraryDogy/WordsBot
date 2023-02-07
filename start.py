@@ -1,12 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
-from aiogram import executor, types
-from aiogram.types import InlineQuery
+from aiogram import executor
 
-from bot_config import bot, dp
+from bot_config import dp
 from handlers_msg import (chat_words_top, khalisi_msg, msg_catch_words, start,
                           top_boltunov, user_words_top, word_stat)
-from inline_msg import inline_tests
+from inline_msg import create_inline
 
 # dp.register_message_handler(get_file_id,content_types='photo')
 dp.register_message_handler(start, commands=['start'])
@@ -21,11 +20,16 @@ dp.register_message_handler(khalisi_msg, regexp='кхалиси')
 
 dp.register_message_handler(msg_catch_words)
 
-dp.register_inline_handler(inline_tests)
+dp.register_inline_handler(create_inline)
 
 
 if __name__ == '__main__':
+
     inp = input(
-        'Вы уверены, что сменили токен бота? Напишите любую букву и нажми ввод. Для отмены нажмите только ввод\n')
+            "Вы уверены, что сменили токен бота? Напишите любую букву и "
+            "нажмите ввод. Для отмены нажмите только ввод.\n"
+        )
     if inp:
+        print("\nstart:", datetime.today().replace(microsecond=0))
         executor.start_polling(dp, skip_updates=True, timeout=20)
+

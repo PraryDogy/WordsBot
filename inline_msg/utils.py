@@ -1,20 +1,15 @@
-import hashlib
-import math
-import random
-from datetime import timedelta
+from . import (Dbase, TestBaseModel, hashlib, math, random, sqlalchemy,
+               timedelta, types)
 
-import sqlalchemy
-from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
-                           InlineQueryResultArticle, InlineQueryResultPhoto,
-                           InputTextMessageContent)
-
-from database import Dbase, TestBaseModel
+__all__ = (
+    "Utils",
+    )
 
 
-class MessageButton(InlineKeyboardMarkup):
+class MessageButton(types.InlineKeyboardMarkup):
     def __init__(self, row_width=3, inline_keyboard=None, **kwargs):
         super().__init__(row_width, inline_keyboard, **kwargs)
-        self.add(InlineKeyboardButton(
+        self.add(types.InlineKeyboardButton(
             text='Пройти тест', switch_inline_query_current_chat=''))
 
 
@@ -93,12 +88,12 @@ class Utils:
         * `msg`: message from test result
         * `item`
         """
-        return InlineQueryResultArticle(
+        return types.InlineQueryResultArticle(
             id=hashlib.md5(header.encode()).hexdigest(),
             title=header,
             description=descr,
             thumb_url=thumb_url,
-            input_message_content=InputTextMessageContent(msg),
+            input_message_content=types.InputTextMessageContent(msg),
             reply_markup=MessageButton(),
             )
 
@@ -110,7 +105,7 @@ class Utils:
         * `msg`: message from test result
         `item`
         """
-        return InlineQueryResultPhoto(
+        return types.InlineQueryResultPhoto(
             id=hashlib.md5(header.encode()).hexdigest(),
             photo_url=img_url,
             thumb_url=img_url,

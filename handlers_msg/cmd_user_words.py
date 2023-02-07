@@ -1,9 +1,9 @@
-import sqlalchemy
-from aiogram import types
+from . import (Dbase, Words, bot, dec_update_user, dec_words_update_force, get_nouns,
+               sqlalchemy, types)
 
-from bot_config import bot
-from database import Dbase, Words
-from utilites import dec_words_update, dec_update_user, get_nouns
+__all__ = (
+    "send_msg"
+    )
 
 
 def user_words_get(usr_id, msg_chat_id, limit: int):
@@ -49,7 +49,7 @@ def create_msg(message: types.Message, limit: int):
 
 
 @dec_update_user
-@dec_words_update
+@dec_words_update_force
 async def send_msg(message: types.Message):
     msg = create_msg(message, limit=500)
     await bot.send_message(chat_id=message.chat.id, text=msg)

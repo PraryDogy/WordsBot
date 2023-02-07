@@ -1,9 +1,13 @@
-import re
+from . import spacy, pymorphy2, khalisi_words, re, stop_words
 
-import pymorphy2
-import spacy
+__all__ = (
+    "khalisi_convert",
+    "words_find",
+    "words_normalize",
+    "words_stopwords",
+    "get_nouns",
+    )
 
-from dicts import khalisi_words, stop_words
 
 'python -m spacy download ru_core_news_md'
 nlp = spacy.load("ru_core_news_md")

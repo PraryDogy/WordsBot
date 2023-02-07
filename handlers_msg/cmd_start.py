@@ -1,6 +1,8 @@
-from aiogram import types
+from . import bot, types
 
-from bot_config import bot
+__all__ = (
+    "send_msg"
+    )
 
 
 async def send_msg(message: types.Message):

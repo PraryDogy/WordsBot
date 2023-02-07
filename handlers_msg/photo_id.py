@@ -1,9 +1,8 @@
-import re
+from . import clipboard, re, types
 
-import clipboard
-from aiogram import types
-
-from bot_config import dp
+__all__ = (
+    "msg_file_id"
+    )
 
 
 def get_file_id(message):

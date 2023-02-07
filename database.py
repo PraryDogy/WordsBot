@@ -122,7 +122,7 @@ class Migration:
         copy_data = f"""INSERT INTO {name} SELECT * FROM {name}_old"""
         # copy_data = f"""INSERT INTO {name} SELECT id, value, user_id FROM {name}_old"""
         comm = """COMMIT"""
-        enable_fk = """PRAGMA foreign_keys=off"""
+        enable_fk = """PRAGMA foreign_keys=on"""
         remove_old = f"""DROP TABLE {name}_old"""
 
         for i in (

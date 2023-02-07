@@ -1,11 +1,10 @@
-from datetime import datetime, timedelta
-from functools import wraps
+from . import Dbase, Users, datetime, json, sqlalchemy, timedelta, types, wraps
 
-import sqlalchemy
-from aiogram import types
+__all__ = (
+    "UserData",
+    "dec_update_user",
+    )
 
-from database import Dbase, Users
-import json
 
 class UserData:
     def __init__(self, message: types.Message):

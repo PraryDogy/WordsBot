@@ -1,6 +1,9 @@
-from bot_config import bot
-from utilites import khalisi_convert
-from aiogram import types
+from . import bot, khalisi_convert, types
+
+__all__ = (
+    "send_msg"
+    )
+
 
 async def send_msg(message: types.Message):
     try:
