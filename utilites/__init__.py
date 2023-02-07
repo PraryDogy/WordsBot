@@ -22,7 +22,6 @@ from .times import (dec_times_append, dec_times_update_force,
 from .user import UserData, dec_update_user
 from .words import dec_words_update_force, words_append, words_update_timer
 
-
 __all__ = (
     "sql_unions",
     "get_nouns",

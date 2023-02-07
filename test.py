@@ -23,6 +23,10 @@ import clipboard
 from time import sleep
 
 def parse_urls():
+
+    with open('_urls.txt', 'w') as file:
+        pass
+
     paste = '1'
     counter = 0
 
@@ -43,7 +47,7 @@ def parse_urls():
         sleep(0.1)
 
 
-
+parse_urls()
 
 # from datetime import datetime, timedelta
 

@@ -103,7 +103,6 @@ def dec_times_update_timer(func):
     @wraps(func)
     def wrapper(message: types.Message):
         if time() - timer >= 3600:
-            print(users_times)
             times_update() if users_times else False
         return func(message)
     

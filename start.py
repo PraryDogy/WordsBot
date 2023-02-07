@@ -1,3 +1,4 @@
+import atexit
 from datetime import datetime
 
 from aiogram import executor
@@ -6,6 +7,7 @@ from bot_config import dp
 from handlers_msg import (chat_words_top, khalisi_msg, msg_catch_words, start,
                           top_boltunov, user_words_top, word_stat)
 from inline_msg import create_inline
+from utilites import dec_times_update_force, dec_words_update_force
 
 # dp.register_message_handler(get_file_id,content_types='photo')
 dp.register_message_handler(start, commands=['start'])
@@ -22,8 +24,14 @@ dp.register_message_handler(msg_catch_words)
 
 dp.register_inline_handler(create_inline)
 
+@dec_times_update_force
+@dec_words_update_force
+def on_exit(args):
+    pass
+
 
 if __name__ == '__main__':
+    atexit.register(on_exit, '')
 
     inp = input(
             "Вы уверены, что сменили токен бота? Напишите любую букву и "
