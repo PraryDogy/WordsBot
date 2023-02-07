@@ -47,9 +47,17 @@ def parse_urls():
         sleep(0.1)
 
 
-# from datetime import datetime, timedelta
+from datetime import datetime, timedelta
+import humanize
 
-# user_time = "2023-02-06 23:00:00"
-# user_time = datetime.strptime(user_time, "%Y-%m-%d %H:%M:%S")
+humanize.i18n.activate("ru_RU")
 
-# when_update = user_time + timedelta(hours=3)
+user_time = "2023-02-08 00:01:00"
+user_time = datetime.strptime(user_time, "%Y-%m-%d %H:%M:%S")
+when_update = user_time + timedelta(hours=3)
+
+human = humanize.precisedelta(
+    when_update, minimum_unit="seconds", format="%0.0f")
+human = human.split(' и ')[0].replace(',', '')
+
+print(human)

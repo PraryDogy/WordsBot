@@ -16,7 +16,7 @@ __all__ = (
 )
 
 with open("dicts/ducks_url.json", "r") as file:
-    ducks_url: list = json.loads(file.read())
+    ducks_url: dict = json.loads(file.read())
 
 with open ("dicts/food.json", "r") as file:
     food: list = json.loads(file.read())
