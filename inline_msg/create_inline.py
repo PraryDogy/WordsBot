@@ -15,7 +15,7 @@ async def create_msg(inline_query: types.InlineQuery):
     need_update = bool((today - user_data['user_time']) > timedelta(hours=3))
 
     if need_update:
-        user.update_db_user_time(today)
+        user.update_db_user_time()
 
     items = [
         test(
