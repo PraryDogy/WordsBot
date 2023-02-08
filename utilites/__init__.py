@@ -11,7 +11,8 @@ import spacy
 import sqlalchemy
 from aiogram import types
 
-from database import Dbase, Users, Words, Times
+from bot_config import bot
+from database import Dbase, Times, Users, Words
 from dicts import khalisi_words, stop_words
 
 from .main import sql_unions
@@ -21,6 +22,8 @@ from .times import (dec_times_append, dec_times_update_force,
                     dec_times_update_timer)
 from .user import UserData, dec_update_user
 from .words import dec_words_update_force, words_append, words_update_timer
+from .del_messages import del_message_append, del_messages_timer
+
 
 __all__ = (
     "sql_unions",

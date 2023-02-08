@@ -1,12 +1,12 @@
 import atexit
 from datetime import datetime
 
-from aiogram import executor
+from aiogram import executor, types
 
 from bot_config import dp
 from handlers_msg import (chat_words_top, khalisi_msg, msg_catch_words,
                           my_stat, on_exit, start, top_boltunov,
-                          user_words_top, word_stat)
+                          user_words_top, word_stat, catch_delete)
 from inline_msg import create_inline
 
 # dp.register_message_handler(get_file_id,content_types='photo')
@@ -21,6 +21,8 @@ dp.register_message_handler(word_stat, commands=['word_stat'])
 
 dp.register_channel_post_handler(khalisi_msg, regexp='кхалиси')
 dp.register_message_handler(khalisi_msg, regexp='кхалиси')
+
+dp.register_message_handler(catch_delete, content_types=types.ContentType.PHOTO)
 
 dp.register_message_handler(msg_catch_words)
 
