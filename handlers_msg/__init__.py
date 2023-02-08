@@ -10,7 +10,7 @@ import sqlalchemy
 from aiogram import types
 
 from bot_config import bot
-from database import Dbase, Users, Words, sqlalchemy
+from database import Dbase, Times, Users, Words, sqlalchemy
 from utilites import (dec_times_append, dec_times_update_force,
                       dec_times_update_timer, dec_update_user,
                       dec_words_update_force, get_nouns, khalisi_convert,

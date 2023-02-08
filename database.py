@@ -1,6 +1,7 @@
 import sqlalchemy
 import sqlalchemy.ext.declarative
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text
+from sqlalchemy.orm import Session
 
 DATABASE = 'database.db'
 
@@ -19,6 +20,9 @@ class Dbase():
         )
     conn = engine.connect()
     base = sqlalchemy.ext.declarative.declarative_base()
+    metadata = base.metadata
+    session = Session(conn)
+
     sq_sum = sqlalchemy.sql.expression.func.sum
     sq_count = sqlalchemy.sql.expression.func.count
     sq_lower = sqlalchemy.func.lower
@@ -30,7 +34,14 @@ class Users(Dbase.base):
     user_id = Column(Integer)
     user_name = Column(Text)
     user_time = Column(DateTime)
-    times = Column(Text)
+
+
+class Times(Dbase.base):
+    __tablename__ = 'times'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer)
+    chat_id = Column(Integer)
+    times_list = Column(Text)
 
 
 class Words(Dbase.base):
@@ -40,25 +51,6 @@ class Words(Dbase.base):
     count = Column(Integer)
     user_id = Column(Integer, ForeignKey('users.user_id'))
     chat_id = Column(Integer)
-
-
-class TestsModel(Dbase.base):
-    __tablename__ = "inline_tests"
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer)
-    ass_value = Column(Text)
-    duck_url = Column(Text)
-    duck_number = Column(Text)
-    eat_value = Column(Text)
-    eat_list = Column(Text)
-    fat_value = Column(Text)
-    libera_value = Column(Text)
-    mobi_value = Column(Text)
-    penis_value = Column(Text)
-    pokemon_url = Column(Text)
-    pokemon_name = Column(Text)
-    puppi_url = Column(Text)
-    zarplata_value = Column(Text)
 
 
 class TestBaseModel(Dbase.base):

@@ -36,7 +36,6 @@ class UserData:
                 'user_id': self.user_id,
                 'user_name': self.user_name,
                 'user_time': self.today - timedelta(days=1),
-                'times': json.dumps([self.today], default=str)
                 }
 
         Dbase.conn.execute(
@@ -55,7 +54,7 @@ class UserData:
     def load_db_user_time(self):
         return dict(
             Dbase.conn.execute(
-                sqlalchemy.select(Users.user_id, Users.user_time)
+                sqlalchemy.select(Users.user_time)
                 .filter(Users.user_id==self.user_id)
                 ).first()
                 )

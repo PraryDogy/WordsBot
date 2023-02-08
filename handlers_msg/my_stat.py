@@ -1,6 +1,6 @@
-from . import (Counter, Dbase, Users, Words, datetime, dec_times_update_force,
-               dec_update_user, dec_words_update_force, json, sqlalchemy,
-               types, bot)
+from . import (Counter, Dbase, Times, Users, Words, bot, datetime,
+               dec_times_update_force, dec_update_user, dec_words_update_force,
+               json, sqlalchemy, types)
 
 days = {
     0: "понедельник",
@@ -25,12 +25,18 @@ hours = {
 def create_msg(message: types.Message):
 
     q = (
-        sqlalchemy.select(Users.times)
-        # .filter(Users.user_id==message)
-        .filter(Users.user_id==message.from_user.id)
+        sqlalchemy.select(Times.times_list)
+        .filter(
+            Times.user_id==message.from_user.id,
+            Times.chat_id==message.chat.id
+            )
         )
-    res = Dbase.conn.execute(q).first()[0]
-    res = json.loads(res)
+    res = Dbase.conn.execute(q).first()
+
+    if not res:
+        return f"Нет данных. Пока что."
+
+    res = json.loads(res[0])
     timed = [
         datetime.strptime(i, "%Y-%m-%d %H:%M:%S")
         for i in res
@@ -53,7 +59,6 @@ def create_msg(message: types.Message):
         sqlalchemy.select(Dbase.sq_count(Words.word))
         .filter(Words.user_id == message.from_user.id)
     )
-    words_count = Dbase.conn.execute(q).first()[0]
 
     msg = (
         f"@{message.from_user.username}, ваша статистика:",
@@ -62,8 +67,7 @@ def create_msg(message: types.Message):
         f"Cамый активный день: {max_weekday}",
         f"Пик активности в: {max_hour:02d} {hours[max_hour]}",
         f"Всего сообщений: {messages_count}",
-        f"Словарный запас: {words_count}"
-    )
+        )
 
     return "\n".join(msg)
 

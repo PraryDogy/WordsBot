@@ -1,4 +1,4 @@
-from . import (Dbase, Users, datetime, json, sql_unions, sqlalchemy, time,
+from . import (Dbase, Times, datetime, json, sql_unions, sqlalchemy, time,
                types, wraps)
 
 __all__ = (
@@ -8,55 +8,88 @@ __all__ = (
     )
 
 timer: time = time()
-users_times: dict = {}
+dict_message: dict = {}
 
 
 class UpdateTimes:
     def __init__(self) -> None:
-        self.db_times: list = self.load_times_db()
-        self.deserialized_db: dict = self.deserialize_times_db()
-        self.serialized_users: dict = self.serialize_users_times()
-        self.merged: tuple = self.merge_times()
+        self.__db_times: list = self.load_times_db()
+        self.dict_db: dict = self.times_db_from_json()
 
-        self.update_db()
+        self.merged: tuple = self.merge_times()
+        self.new: tuple = self.new_users()
+
+        self.update_db() if self.merged else False
+        self.insert_db() if self.new else False
 
     def load_times_db(self):
+        """Returns list of dicts"""
         queries = [
-            sqlalchemy.select(Users.user_id, Users.times)
-            .filter(Users.user_id==user_id)
-            for user_id in users_times
+            sqlalchemy.select(Times.user_id, Times.chat_id, Times.times_list)
+            .filter(Times.user_id==user_id, Times.chat_id==chat_id)
+            for user_id, chat_id in dict_message.keys()
             ]
         return sql_unions(queries)
 
-    def deserialize_times_db(self):
+    def times_db_from_json(self):
         return {
-            dicts["user_id"]:
-            json.loads(dicts["times"]) if dicts["times"] else []
-            for dicts in self.db_times
-            }
-
-    def serialize_users_times(self):
-        return {
-            id: [str(i) for i in times]
-            for id, times in users_times.items()
+            (x["user_id"], x["chat_id"]): json.loads(x["times_list"])
+            for x in self.__db_times
             }
 
     def merge_times(self):
-        return (
-            (id, json.dumps(self.serialized_users[id] + times))
-            for id, times in self.deserialized_db.items()
-            )
+        return [
+            {user: dict_message[user] + times_list}
+            for user, times_list in self.dict_db.items()
+            ]
+
+    def new_users(self):
+        return [
+            {user: times_list}
+            for user, times_list in dict_message.items()
+            if not self.dict_db.get(user)
+        ]
 
     def update_db(self):
         vals = [
-            {"b_user_id": user_id, "b_times": times}
-            for user_id, times in self.merged
+            {
+                "b_user_id": user_id,
+                "b_chat_id": chat_id,
+                "b_times_list": json.dumps(times_list, default=str, indent=1)
+                }
+            for x in self.merged
+            for (user_id, chat_id), times_list in x.items()
             ]
 
         q = (
-            sqlalchemy.update(Users)
-            .values({'times': sqlalchemy.bindparam("b_times")})
-            .filter(Users.user_id==sqlalchemy.bindparam("b_user_id"))
+            sqlalchemy.update(Times)
+            .values({'times_list': sqlalchemy.bindparam("b_times_list")})
+            .filter(
+                Times.user_id==sqlalchemy.bindparam("b_user_id"),
+                Times.user_id==sqlalchemy.bindparam("b_user_id")
+                )
+            )
+
+        Dbase.conn.execute(q, vals)
+
+    def insert_db(self):
+        vals = [
+            {
+                "b_user_id": user_id,
+                "b_chat_id": chat_id,
+                "b_times_list": json.dumps(times_list, default=str, indent=1)
+                }
+            for x in self.new
+            for (user_id, chat_id), times_list in x.items()
+            ]
+
+        q = (
+            sqlalchemy.insert(Times)
+            .values({
+                "user_id": sqlalchemy.bindparam("b_user_id"),
+                "chat_id": sqlalchemy.bindparam("b_chat_id"),
+                'times_list': sqlalchemy.bindparam("b_times_list")
+                })
             )
 
         Dbase.conn.execute(q, vals)
@@ -64,10 +97,12 @@ class UpdateTimes:
 
 def times_append(message: types.Message):
     today = datetime.today().replace(microsecond=0)
-    if not users_times.get(message.from_user.id):
-        users_times[message.from_user.id] = [today]
+    user = (message.from_user.id, message.chat.id)
+
+    if not dict_message.get(user):
+        dict_message[user] = [today]
     else:
-        users_times[message.from_user.id].append(today)
+        dict_message[user].append(today)
 
 
 def times_update():
@@ -77,7 +112,7 @@ def times_update():
     global timer
     UpdateTimes()
     timer = time()
-    users_times.clear()
+    dict_message.clear()
 
 
 def dec_times_append(func):
@@ -103,7 +138,7 @@ def dec_times_update_timer(func):
     @wraps(func)
     def wrapper(message: types.Message):
         if time() - timer >= 3600:
-            times_update() if users_times else False
+            times_update() if dict_message else False
         return func(message)
     
     return wrapper
@@ -117,7 +152,7 @@ def dec_times_update_force(func):
 
     @wraps(func)
     def wrapper(message: types.Message):
-        times_update() if users_times else False
+        times_update() if dict_message else False
         return func(message)
 
     return wrapper

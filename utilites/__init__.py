@@ -11,7 +11,7 @@ import spacy
 import sqlalchemy
 from aiogram import types
 
-from database import Dbase, Users, Words
+from database import Dbase, Users, Words, Times
 from dicts import khalisi_words, stop_words
 
 from .main import sql_unions
