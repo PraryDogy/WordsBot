@@ -42,6 +42,25 @@ class Words(Dbase.base):
     chat_id = Column(Integer)
 
 
+class TestsModel(Dbase.base):
+    __tablename__ = "inline_tests"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer)
+    ass_value = Column(Text)
+    duck_url = Column(Text)
+    duck_number = Column(Text)
+    eat_value = Column(Text)
+    eat_list = Column(Text)
+    fat_value = Column(Text)
+    libera_value = Column(Text)
+    mobi_value = Column(Text)
+    penis_value = Column(Text)
+    pokemon_url = Column(Text)
+    pokemon_name = Column(Text)
+    puppi_url = Column(Text)
+    zarplata_value = Column(Text)
+
+
 class TestBaseModel(Dbase.base):
     __abstract__ = True
     id = Column(Integer, primary_key=True)

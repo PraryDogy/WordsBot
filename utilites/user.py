@@ -44,13 +44,21 @@ class UserData:
             .values(new_user)
             )
 
-    def update_db_user_time(self, today: datetime):
+    def update_db_user_time(self):
         q = (
             sqlalchemy.update(Users)
             .filter(Users.user_id==self.user_id)
-            .values({'user_time': today})
+            .values({'user_time': self.today})
             )
         Dbase.conn.execute(q)
+
+    def load_db_user_time(self):
+        return dict(
+            Dbase.conn.execute(
+                sqlalchemy.select(Users.user_id, Users.user_time)
+                .filter(Users.user_id==self.user_id)
+                ).first()
+                )
 
 
 def dec_update_user(func):

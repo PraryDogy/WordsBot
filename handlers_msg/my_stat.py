@@ -56,6 +56,7 @@ def create_msg(message: types.Message):
     words_count = Dbase.conn.execute(q).first()[0]
 
     msg = (
+        f"@{message.from_user.username}, ваша статистика:",
         f"Начало статистики: {first_date.strftime('%d %B %Y')}",
         f"Больше всего писал(a): {most_active.strftime('%d %B %Y')}",
         f"Cамый активный день: {max_weekday}",
