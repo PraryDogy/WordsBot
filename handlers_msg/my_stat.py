@@ -1,43 +1,6 @@
-from time import sleep
-
-import clipboard
-import sqlalchemy
-
-import bot_config
-from database import Dbase, Users, Words
-
-
-def parse_urls():
-
-    with open('_urls.txt', 'w') as file:
-        pass
-
-    paste = '1'
-    counter = 0
-
-    while 'google' not in paste:
-        new_paste = clipboard.paste()
-
-        if new_paste != paste:
-
-            paste = new_paste
-
-            with open('_urls.txt', 'a') as file:
-                file.write(new_paste + '\n')
-
-                counter += 1
-                print(counter)
-                print('write url')
-        
-        sleep(0.1)
-
-
-import json
-import locale
-from collections import Counter
-from datetime import datetime
-
-locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
+from . import (Counter, Dbase, Users, Words, datetime, dec_times_update_force,
+               dec_update_user, dec_words_update_force, json, sqlalchemy,
+               types, bot)
 
 days = {
     0: "понедельник",
@@ -59,12 +22,12 @@ hours = {
 }
 
 
-def create_msg(message: str):
+def create_msg(message: types.Message):
 
     q = (
         sqlalchemy.select(Users.times)
-        .filter(Users.user_id==message)
-        # .filter(Users.user_id==message.from_user.id)
+        # .filter(Users.user_id==message)
+        .filter(Users.user_id==message.from_user.id)
         )
     res = Dbase.conn.execute(q).first()[0]
     res = json.loads(res)
@@ -72,7 +35,6 @@ def create_msg(message: str):
         datetime.strptime(i, "%Y-%m-%d %H:%M:%S")
         for i in res
         ]
-
 
     hours_count = Counter([i.hour for i in timed])
     max_hour = max(hours_count, key=hours_count.get)
@@ -89,9 +51,9 @@ def create_msg(message: str):
 
     q = (
         sqlalchemy.select(Dbase.sq_count(Words.word))
-        .filter(Words.user_id == message)
+        .filter(Words.user_id == message.from_user.id)
     )
-    res = Dbase.conn.execute(q).first()[0]
+    words_count = Dbase.conn.execute(q).first()[0]
 
     msg = (
         f"Начало статистики: {first_date.strftime('%d %B %Y')}",
@@ -99,7 +61,15 @@ def create_msg(message: str):
         f"Cамый активный день: {max_weekday}",
         f"Пик активности в: {max_hour:02d} {hours[max_hour]}",
         f"Всего сообщений: {messages_count}",
-        f"Словарный запас: {res}"
+        f"Словарный запас: {words_count}"
     )
 
     return "\n".join(msg)
+
+
+@dec_update_user
+@dec_words_update_force
+@dec_times_update_force
+async def send_msg(message: types.Message):
+    msg = create_msg(message)
+    await bot.send_message(message.chat.id, text=msg)
