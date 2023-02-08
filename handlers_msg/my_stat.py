@@ -69,7 +69,7 @@ def create_msg(message: types.Message):
         f"Всего сообщений: {messages_count}",
         )
 
-    return "\n".join(msg)
+    return "\n".join(msg) 
 
 
 @dec_update_user
