@@ -9,31 +9,28 @@ import humanize
 import sqlalchemy
 from aiogram import types
 
-from bot_config import bot
+from bot_config import bot, bot_name
 from database import Dbase, Times, Users, Words, sqlalchemy
 from utilites import (dec_times_append, dec_times_update_force,
                       dec_times_update_timer, dec_update_user,
-                      dec_words_update_force, del_message_append,
+                      dec_words_update_force, for_delete_append,
                       del_messages_timer, get_nouns, khalisi_convert, morph,
                       words_append, words_update_timer)
 
-from .cmd_chat_words import send_msg as chat_words_top
-from .cmd_khalisi import send_msg as khalisi_msg
-from .cmd_start import send_msg as start
-from .cmd_top_boltunov import send_msg as top_boltunov
-from .cmd_user_words import send_msg as user_words_top
-from .cmd_word_stat import send_msg as word_stat
-from .delete_catch import catch_delete
+from .chat_stat import send_msg as chat_words_top
+from .khalisi import send_msg as khalisi_msg
+from .info import send_msg as start
+from .top_boltunov import send_msg as top_boltunov
+from .user_stat import send_msg as user_words_top
+from .word_stat import send_msg as word_stat
 from .my_stat import send_msg as my_stat
 from .on_exit import on_exit_fn as on_exit
 from .photo_id import msg_file_id as get_file_id
 from .words_catch import msg_catch_words
 
 locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
-import bot_config
 
 __all__ = (
-    "catch_delete",
     "my_stat",
     "on_exit",
     "chat_words_top",

@@ -1,5 +1,5 @@
 from . import (Counter, Dbase, Words, sql_unions, sqlalchemy, time, types,
-               words_find, words_normalize, words_stopwords, wraps)
+               words_find, words_normalize, words_stopwords, wraps, words_catch_timer)
 
 __all__ = (
     "words_append",
@@ -179,7 +179,7 @@ def words_update_timer():
     """
     Updates database words every hour
     """
-    if time() - timer >= 3600:
+    if time() - timer >= words_catch_timer:
         words_update() if users_words else False
 
 

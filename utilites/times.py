@@ -1,5 +1,5 @@
 from . import (Dbase, Times, datetime, json, sql_unions, sqlalchemy, time,
-               types, wraps)
+               types, wraps, times_timer)
 
 __all__ = (
     "dec_times_update_force",
@@ -137,7 +137,7 @@ def dec_times_update_timer(func):
 
     @wraps(func)
     def wrapper(message: types.Message):
-        if time() - timer >= 3600:
+        if time() - timer >= times_timer:
             times_update() if dict_message else False
         return func(message)
     

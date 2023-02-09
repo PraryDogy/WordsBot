@@ -1,29 +1,25 @@
-from . import types, bot, time, wraps
+from . import bot, time, types, wraps, delete_msg_timer
 
 timer = time()
 for_delete = []
 
-def del_msg():
-    for chat_id, msg_id in for_delete:
-        bot.edit_message_media(
-            chat_id = chat_id,
-            message_id= msg_id,
-            media=types.InputMediaPhoto()
-        )
 
-
-def del_message_append(message: types.Message):
+def for_delete_append(message: types.Message):
     for_delete.append((message.chat.id, message.message_id))
 
 
 async def del_messages():
     for chat_id, msg_id in for_delete:
-        await bot.delete_message(chat_id, msg_id)
+        try:
+            await bot.delete_message(chat_id, msg_id)
+        except Exception:
+            print("no message")
 
 
 async def del_messages_timer():
     global timer
-    if time() - timer > 1800 and for_delete:
+    if time() - timer > delete_msg_timer and for_delete:
+        print("delete by timer")
         await del_messages()
         for_delete.clear()
         timer = time()
