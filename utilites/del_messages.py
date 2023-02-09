@@ -17,6 +17,9 @@ async def del_messages():
 
 
 async def del_messages_timer():
+    """
+    removes via bot messages every 30 mins
+    """
     global timer
     if time() - timer > delete_msg_timer and for_delete:
         print("delete by timer")

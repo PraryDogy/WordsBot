@@ -1,7 +1,5 @@
 my_stat - Ваша статистика
-my_words - Ваш топ 10 слов
-chat_words - Топ 10 слов чата
-top_boltunov - Топ 10 болтунов
+chat_stat - Статистика чата
 word_stat - Статистика выбранного слова
 
 about

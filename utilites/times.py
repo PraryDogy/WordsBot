@@ -13,6 +13,8 @@ dict_message: dict = {}
 
 class UpdateTimes:
     def __init__(self) -> None:
+        self.year = datetime.today().year
+
         self.__db_times: list = self.load_times_db()
         self.dict_db: dict = self.times_db_from_json()
 
@@ -25,8 +27,16 @@ class UpdateTimes:
     def load_times_db(self):
         """Returns list of dicts"""
         queries = [
-            sqlalchemy.select(Times.user_id, Times.chat_id, Times.times_list)
-            .filter(Times.user_id==user_id, Times.chat_id==chat_id)
+            sqlalchemy.select(
+                Times.user_id,
+                Times.chat_id,
+                Times.times_list
+                )
+            .filter(
+                Times.user_id==user_id,
+                Times.chat_id==chat_id,
+                Times.year==self.year
+                )
             for user_id, chat_id in dict_message.keys()
             ]
         return sql_unions(queries)
@@ -55,7 +65,8 @@ class UpdateTimes:
             {
                 "b_user_id": user_id,
                 "b_chat_id": chat_id,
-                "b_times_list": json.dumps(times_list, default=str, indent=1)
+                "b_times_list": json.dumps(times_list, default=str, indent=1),
+                "b_year": self.year
                 }
             for x in self.merged
             for (user_id, chat_id), times_list in x.items()
@@ -63,10 +74,13 @@ class UpdateTimes:
 
         q = (
             sqlalchemy.update(Times)
-            .values({'times_list': sqlalchemy.bindparam("b_times_list")})
+            .values({
+                'times_list': sqlalchemy.bindparam("b_times_list")
+                })
             .filter(
                 Times.user_id==sqlalchemy.bindparam("b_user_id"),
-                Times.user_id==sqlalchemy.bindparam("b_user_id")
+                Times.user_id==sqlalchemy.bindparam("b_user_id"),
+                Times.year==sqlalchemy.bindparam("b_year"),
                 )
             )
 
@@ -77,7 +91,8 @@ class UpdateTimes:
             {
                 "b_user_id": user_id,
                 "b_chat_id": chat_id,
-                "b_times_list": json.dumps(times_list, default=str, indent=1)
+                "b_times_list": json.dumps(times_list, default=str, indent=1),
+                "b_year": self.year
                 }
             for x in self.new
             for (user_id, chat_id), times_list in x.items()
@@ -88,7 +103,8 @@ class UpdateTimes:
             .values({
                 "user_id": sqlalchemy.bindparam("b_user_id"),
                 "chat_id": sqlalchemy.bindparam("b_chat_id"),
-                'times_list': sqlalchemy.bindparam("b_times_list")
+                "times_list": sqlalchemy.bindparam("b_times_list"),
+                "year": sqlalchemy.bindparam("b_year")
                 })
             )
 

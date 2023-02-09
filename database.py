@@ -42,6 +42,7 @@ class Times(Dbase.base):
     user_id = Column(Integer)
     chat_id = Column(Integer)
     times_list = Column(Text)
+    year = Column(Integer)
 
 
 class Words(Dbase.base):
@@ -49,8 +50,9 @@ class Words(Dbase.base):
     id = Column(Integer, primary_key=True)
     word = Column(Text)
     count = Column(Integer)
-    user_id = Column(Integer, ForeignKey('users.user_id'))
+    user_id = Column(Integer)
     chat_id = Column(Integer)
+    year = Column(Integer)
 
 
 class TestBaseModel(Dbase.base):

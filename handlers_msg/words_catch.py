@@ -22,6 +22,6 @@ async def msg_catch_words(message: types.Message):
         return
 
     elif message.content_type == "text":
-        print("words catch")
+
         words_append(message)
         words_update_timer()

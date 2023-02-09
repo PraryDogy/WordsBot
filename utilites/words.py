@@ -1,5 +1,5 @@
 from . import (Counter, Dbase, Words, sql_unions, sqlalchemy, time, types,
-               words_find, words_normalize, words_stopwords, wraps, words_catch_timer)
+               words_find, words_normalize, words_stopwords, wraps, words_catch_timer, datetime)
 
 __all__ = (
     "words_append",
@@ -13,6 +13,7 @@ users_words: dict = {}
 
 class UpdateWords:
     def __init__(self):
+        self.year = datetime.today().year
         db_count = self.db_words_count(self.db_words_get())
         msg_count = self.msg_words_count()
         words = self.words_filter(db_count, msg_count)
@@ -30,11 +31,16 @@ class UpdateWords:
         """
         queries = [
             sqlalchemy.select(
-                Words.user_id, Words.chat_id, Words.word, Words.count
+                Words.user_id,
+                Words.chat_id,
+                Words.word,
+                Words.count
                 )
             .filter(
-                Words.user_id == user_id, Words.chat_id == chat_id,
-                Words.word == w
+                Words.user_id == user_id,
+                Words.chat_id == chat_id,
+                Words.word == w,
+                Words.year == self.year
                 )
             for (user_id, chat_id), words in users_words.items()
             for w in set(words)
@@ -111,8 +117,11 @@ class UpdateWords:
     def db_update(self, old_words: dict):
         vals = [
             {
-            "b_user_id": user_id, "b_chat_id": chat_id,
-            "b_word": word, "b_count": count
+            "b_user_id": user_id,
+            "b_chat_id": chat_id,
+            "b_word": word,
+            "b_count": count,
+            "b_year": self.year
             }
             for (user_id, chat_id), words in old_words.items()
             for word, count in words.items()
@@ -121,10 +130,11 @@ class UpdateWords:
         q = (
             sqlalchemy.update(Words)
             .values({'count': sqlalchemy.bindparam("b_count")})
-            .where(
+            .filter(
                 Words.user_id==sqlalchemy.bindparam("b_user_id"),
                 Words.chat_id==sqlalchemy.bindparam("b_chat_id"),
-                Words.word==sqlalchemy.bindparam("b_word")
+                Words.word==sqlalchemy.bindparam("b_word"),
+                Words.year==sqlalchemy.bindparam("b_year")
                 )
                 )
 
@@ -133,8 +143,11 @@ class UpdateWords:
     def db_insert(self, new_words: dict):
         vals = [
             {
-            "b_user_id": user_id, "b_chat_id": chat_id,
-            "b_word": word, "b_count": count
+            "b_user_id": user_id,
+            "b_chat_id": chat_id,
+            "b_word": word,
+            "b_count": count,
+            "b_year": self.year
             }
             for (user_id, chat_id), words in new_words.items()
             for word, count in words.items()
@@ -146,7 +159,8 @@ class UpdateWords:
                 'word': sqlalchemy.bindparam("b_word"),
                 'count': sqlalchemy.bindparam("b_count"),
                 'user_id': sqlalchemy.bindparam("b_user_id"),
-                'chat_id': sqlalchemy.bindparam("b_chat_id")
+                'chat_id': sqlalchemy.bindparam("b_chat_id"),
+                'year': sqlalchemy.bindparam("b_year")
                 })
                 )
 
