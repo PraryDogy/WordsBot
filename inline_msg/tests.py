@@ -1,8 +1,8 @@
 from . import (AssModel, DucksModel, EatModel, FatModel, LiberaModel,
                MobiModel, PenisModel, PokemonModel, PuppyModel, ZarplataModel,
                ass_names, destiny_answers, destiny_questions, ducks_url, food,
-               gold_users, khalisi_convert, penis_names, pokemons,
-               puppies_words, puppies_url, random, words_find)
+               penis_names, pokemons, puppies_url, puppies_words, random,
+               words_find)
 from .utils import Utils
 
 __all__ = (
@@ -18,6 +18,12 @@ __all__ = (
     "Puppies",
     "Zarplata",
     )
+
+
+gold_users = [
+    240950204, #morkowik
+    431874154, #christy,
+    ]
 
 
 class Fat(Utils):

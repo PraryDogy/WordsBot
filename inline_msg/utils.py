@@ -57,14 +57,26 @@ class Utils:
             when_upd = self.user_time + timedelta(hours=3)
 
         human = humanize.precisedelta(
-            when_upd, minimum_unit="seconds", format="%0.0f")
-        human = human.split(' и ')[0].replace(',', '').replace('нута', 'нуту')
+            when_upd,
+            minimum_unit="seconds",
+            format="%0.0f"
+            )
+        human = (
+            human
+            .split(' и ')[0]
+            .replace(',', '')
+            .replace('нута', 'нуту')
+            )
 
         return f'Обновить можно через {human}'
 
     def gold_chance(self):
         chance = 0.05
-        return bool(math.floor(random.uniform(0, 1/(1-chance))))
+        return bool(
+            math.floor(
+                random.uniform(0, 1/(1-chance))
+                )
+                )
 
     def create_test(self, model: TestBaseModel, values: dict):
         """

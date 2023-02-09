@@ -1,5 +1,5 @@
 from . import (Counter, Dbase, Times, Users, Words, bot, datetime,
-               dec_times_update_force, dec_update_user, dec_words_update_force,
+               dec_times_db_update_force, dec_update_user, dec_words_update_force,
                get_nouns, json, sqlalchemy, types)
 
 days = {
@@ -183,7 +183,7 @@ def create_msg(message: types.Message, limit: int):
         ]
 
     msg = (
-        f"@{message.from_user.username}, ваша статистика:",
+        f"@{message.from_user.username}, статистика чата:",
         f"Начало статистики: {first_date.strftime('%d %B %Y')}",
         f"Больше всего сообщений было: {max_date.strftime('%d %B %Y')}",
         f"Cамый активный день: {max_weekday}",
@@ -218,7 +218,7 @@ def create_msg(message: types.Message, limit: int):
 
 @dec_update_user
 @dec_words_update_force
-@dec_times_update_force
+@dec_times_db_update_force
 
 async def send_msg(message: types.Message):
 

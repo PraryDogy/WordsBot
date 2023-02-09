@@ -1,5 +1,5 @@
 from . import (Counter, Dbase, Times, Words, bot, datetime,
-               dec_times_update_force, dec_update_user, dec_words_update_force,
+               dec_times_db_update_force, dec_update_user, dec_words_update_force,
                get_nouns, json, sqlalchemy, types)
 
 days = {
@@ -135,7 +135,7 @@ def create_msg(message: types.Message, limit: int):
 
 @dec_update_user
 @dec_words_update_force
-@dec_times_update_force
+@dec_times_db_update_force
 
 async def send_msg(message: types.Message):
 

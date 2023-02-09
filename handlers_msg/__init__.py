@@ -11,11 +11,11 @@ from aiogram import types
 
 from bot_config import bot, bot_name
 from database import Dbase, Times, Users, Words, sqlalchemy
-from utilites import (dec_times_append, dec_times_update_force,
-                      dec_times_update_timer, dec_update_user,
+from utilites import (words_update, times_dict_append,
+                      dec_times_db_update_force, dec_update_user,
                       dec_words_update_force, del_messages_timer,
-                      for_delete_append, get_nouns, khalisi_convert, morph,
-                      words_append, words_update_timer)
+                      del_messages_append, get_nouns, khalisi_convert, morph,
+                      times_db_update_force, words_append)
 
 from .chat_stat import send_msg as chat_stat
 from .info import send_msg as start

@@ -1,5 +1,5 @@
-from . import (Dbase, Words, bot, dec_update_user, dec_words_update_force, morph,
-               sqlalchemy, types)
+from . import (Dbase, Words, bot, dec_times_db_update_force, dec_update_user,
+               dec_words_update_force, morph, sqlalchemy, types)
 
 __all__ = (
     "send_msg"
@@ -60,6 +60,7 @@ def create_msg(message: types.Message):
 
 @dec_update_user
 @dec_words_update_force
+@dec_times_db_update_force
 async def send_msg(message: types.Message):
     msg = create_msg(message)
     await bot.send_message(message.chat.id, text=msg)

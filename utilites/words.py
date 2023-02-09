@@ -1,33 +1,34 @@
-from . import (Counter, Dbase, Words, sql_unions, sqlalchemy, time, types,
-               words_find, words_normalize, words_stopwords, wraps, words_catch_timer, datetime)
+from . import (Counter, Dbase, Words, datetime, sqlalchemy, types, words_find,
+               words_normalize, words_stopwords, wraps)
 
 __all__ = (
     "words_append",
-    "words_update_timer",
+    "words_update",
     "dec_words_update_force",
     )
 
-timer: time = time()
+LIMIT = 900
 users_words: dict = {}
+words_limit = []
 
 
-class UpdateWords:
+class __UpdateWords:
     def __init__(self):
         self.year = datetime.today().year
-        db_count = self.db_words_count(self.db_words_get())
-        msg_count = self.msg_words_count()
-        words = self.words_filter(db_count, msg_count)
-        words = self.words_cleaner(words["old_words"], words["new_words"])
 
-        if words['old_words']:
-            self.db_update(words['old_words'])
+        self.db_words = self.db_words_get()
 
-        if words['new_words']:
-            self.db_insert(words["new_words"])
+        self.db_count = self.db_words_count()
+        self.msg_count = self.msg_words_count()
+        self.db_count_update()
+        self.new_words_count = self.new_words()
+
+        self.db_update() if self.db_count else False
+        self.db_insert() if self.new_words_count else False
 
     def db_words_get(self):
         """
-        returns: `list`( `dict`(user_id, chat_id, word, count) )
+        returns: [ (user_id, chat_id, word, count) ]
         """
         queries = [
             sqlalchemy.select(
@@ -39,27 +40,27 @@ class UpdateWords:
             .filter(
                 Words.user_id == user_id,
                 Words.chat_id == chat_id,
-                Words.word == w,
+                Words.word.in_(words),
                 Words.year == self.year
                 )
             for (user_id, chat_id), words in users_words.items()
-            for w in set(words)
             ]
 
-        return sql_unions(queries)
+        return Dbase.conn.execute(
+            sqlalchemy.union_all(*queries)
+            ).all()
 
-    def db_words_count(self, db_words):
+    def db_words_count(self):
         """
-        *input: `list`(`dict`(user_id, chat_id, word, count))
-        *returns: `dict`( (user_id, chat_id): `dict`(word: count) )
+        *returns: { (user_id, chat_id): {word: count} }
         """
         db_count = {
-            (i["user_id"], i["chat_id"]): {}
-            for i in db_words
+            (user_id, chat_id): {}
+            for user_id, chat_id, _, _ in self.db_words
             }
 
-        for i in db_words:
-            db_count[(i["user_id"], i["chat_id"])].update({i["word"]: i["count"]})
+        for user_id, chat_id, word, count in self.db_words:
+            db_count[(user_id, chat_id)].update({word: count})
 
         return db_count
 
@@ -72,49 +73,33 @@ class UpdateWords:
             for k, v in users_words.items()
             }
 
-    def words_filter(self, db_words: dict, msg_words: dict):
-        """
-        * db_words_count: `dict`( (user_id, chat_id): `dict`(word: count) )
-        * msg_words_count: `dict`( (user_id, chat_id): `dict`(word: count) )
+    def db_count_update(self):
+        for user, words in self.db_count.items():
+            for word, _ in words.items():
+                self.db_count[user][word] += self.msg_count[user][word]
 
-        * returns: `dict` of dicts (old_words, new_words, new_users)
-        * dicts items structure: (user_id, chat_id): `dict`(word: count)
-        """
-
-        old_words = {}
+    def new_words(self):
         new_words = {}
 
-        for user, words in msg_words.items():
+        for user, words in self.msg_count.items():
+            for word, count in words.items():
+                try:
+                    self.db_count[user]
+                    self.db_count[user][word]
+                except KeyError:
+                    new_words[user] = {}
 
-            if not db_words.get(user):
-                new_words[user] = words
-            else:
-                old_words[user] = {}
-                new_words[user] = {}
+        for user, words in self.msg_count.items():
+            for word, count in words.items():
+                try:
+                    self.db_count[user]
+                    self.db_count[user][word]
+                except KeyError:
+                    new_words[user].update({word:count})
 
-                for word, count in words.items():
-                    try:
-                        old_words[user][word] = db_words[user][word] + count
-                    except KeyError:
-                        new_words[user][word] = count
-        
-        return {"old_words": old_words, "new_words": new_words}
+        return new_words
 
-    def words_cleaner(self, old_words: dict, new_words: dict):
-        clean_old = {
-            user: words
-            for user, words in old_words.items()
-            if words
-            }
-        clean_new = {
-            user: words
-            for user, words in new_words.items()
-            if words
-            }
-        
-        return {"old_words": clean_old, "new_words": clean_new}
-
-    def db_update(self, old_words: dict):
+    def db_update(self):
         vals = [
             {
             "b_user_id": user_id,
@@ -123,7 +108,7 @@ class UpdateWords:
             "b_count": count,
             "b_year": self.year
             }
-            for (user_id, chat_id), words in old_words.items()
+            for (user_id, chat_id), words in self.db_count.items()
             for word, count in words.items()
             ]
 
@@ -140,7 +125,7 @@ class UpdateWords:
 
         Dbase.conn.execute(q, vals)
 
-    def db_insert(self, new_words: dict):
+    def db_insert(self):
         vals = [
             {
             "b_user_id": user_id,
@@ -149,7 +134,7 @@ class UpdateWords:
             "b_count": count,
             "b_year": self.year
             }
-            for (user_id, chat_id), words in new_words.items()
+            for (user_id, chat_id), words in self.new_words_count.items()
             for word, count in words.items()
             ]
 
@@ -167,11 +152,10 @@ class UpdateWords:
         Dbase.conn.execute(q, vals)
 
 
-def words_update():
-    global timer
-    UpdateWords()
-    timer = time()
+def __words_update():
+    __UpdateWords()
     users_words.clear()
+    words_limit.clear()
 
 
 def words_append(message: types.Message):
@@ -183,18 +167,23 @@ def words_append(message: types.Message):
     words = words_normalize(words)
     words = list(words_stopwords(words))
 
+    words_limit.extend(words)
+
     if not users_words.get((message.from_user.id, message.chat.id)):
         users_words[(message.from_user.id, message.chat.id)] = words
     else:
         users_words[(message.from_user.id, message.chat.id)].extend(words)
 
 
-def words_update_timer():
+def words_update():
     """
-    Updates database words every hour
+    Updates words database if > 900.
+    Return true if > 900 words, else False
     """
-    if time() - timer >= words_catch_timer:
-        words_update() if users_words else False
+    if len(words_limit) >= LIMIT:
+        __words_update()
+        return True
+    return False
 
 
 def dec_words_update_force(func):
@@ -203,7 +192,7 @@ def dec_words_update_force(func):
     """
     @wraps(func)
     def wrapper(message: types.message):
-        words_update() if users_words else False
+        __words_update() if users_words else False
         return func(message)
 
     return wrapper

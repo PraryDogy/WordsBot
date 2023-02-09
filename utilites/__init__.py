@@ -11,21 +11,20 @@ import spacy
 import sqlalchemy
 from aiogram import types
 
-from bot_config import bot, times_timer, words_catch_timer, delete_msg_timer
+from bot_config import bot, delete_msg_timer
 from database import Dbase, Times, Users, Words
 from dicts import khalisi_words, stop_words
 
-from .main import sql_unions
+from .del_messages import del_messages_timer, del_messages_append
 from .text_analyser import (get_nouns, khalisi_convert, morph, words_find,
                             words_normalize, words_stopwords)
-from .times import (dec_times_append, dec_times_update_force,
-                    dec_times_update_timer)
+from .times import dec_times_db_update_force, times_dict_append, times_db_update_force
 from .user import UserData, dec_update_user
-from .words import dec_words_update_force, words_append, words_update_timer
-from .del_messages import for_delete_append, del_messages_timer
-
+from .words import dec_words_update_force, words_append, words_update
 
 __all__ = (
+    "del_messages_append",
+    "del_messages_timer",
     "sql_unions",
     "get_nouns",
     "khalisi_convert",
@@ -33,12 +32,11 @@ __all__ = (
     "words_find",
     "words_normalize",
     "words_stopwords",
-    "dec_times_append",
-    "dec_times_update_force",
-    "dec_times_update_timer",
+    "times_dict_append",
+    "dec_times_db_update_force",
     "UserData",
     "dec_update_user",
     "dec_words_update_force",
     "words_append",
-    "words_update_timer",
+    "words_update",
     )
