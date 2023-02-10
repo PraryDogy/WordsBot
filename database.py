@@ -3,6 +3,26 @@ import sqlalchemy.ext.declarative
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text
 from sqlalchemy.orm import Session
 
+__all__ = (
+    "Dbase",
+    "Users",
+    "Times",
+    "Words",
+    "TestBaseModel",
+    "AssModel",
+    "Dbase",
+    "DucksModel",
+    "EatModel",
+    "FatModel",
+    "LiberaModel",
+    "MobiModel",
+    "PenisModel",
+    "PokemonModel",
+    "PuppyModel",
+    "TestBaseModel",
+    "ZarplataModel"
+    )
+
 DATABASE = 'database.db'
 
 

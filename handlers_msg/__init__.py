@@ -9,7 +9,7 @@ import humanize
 import sqlalchemy
 from aiogram import types
 
-from bot_config import bot, bot_name
+from bot_config import bot, BOT_NAME
 from database import Dbase, Times, Users, Words, sqlalchemy
 from utilites import (words_update, times_dict_append,
                       dec_times_db_update_force, dec_update_user,

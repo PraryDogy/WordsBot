@@ -1,5 +1,5 @@
 from . import (Counter, Dbase, Words, datetime, sqlalchemy, types, words_find,
-               words_normalize, words_stopwords, wraps)
+               words_normalize, words_stopwords, wraps, SQL_LIMIT)
 
 __all__ = (
     "words_append",
@@ -7,7 +7,6 @@ __all__ = (
     "dec_words_update_force",
     )
 
-LIMIT = 300
 users_words: dict = {}
 words_limit = []
 
@@ -54,15 +53,12 @@ class __UpdateWords:
         """
         *returns: { (user_id, chat_id): {word: count} }
         """
-        db_count = {
-            (user_id, chat_id): {}
-            for user_id, chat_id, _, _ in self.db_words
-            }
+        result = {}
 
         for user_id, chat_id, word, count in self.db_words:
-            db_count[(user_id, chat_id)].update({word: count})
+            result.setdefault((user_id, chat_id), {}).update({word:count})
 
-        return db_count
+        return result
 
     def msg_words_count(self):
         """
@@ -87,15 +83,7 @@ class __UpdateWords:
                     self.db_count[user]
                     self.db_count[user][word]
                 except KeyError:
-                    new_words[user] = {}
-
-        for user, words in self.msg_count.items():
-            for word, count in words.items():
-                try:
-                    self.db_count[user]
-                    self.db_count[user][word]
-                except KeyError:
-                    new_words[user].update({word:count})
+                    new_words.setdefault(user, {}).update({word:count})
 
         return new_words
 
@@ -177,10 +165,10 @@ def words_append(message: types.Message):
 
 def words_update():
     """
-    Updates words database if > 900.
-    Return true if > 900 words, else False
+    Updates words database if word count > default limit.
+    Return true if > default limit words, else False
     """
-    if len(words_limit) >= LIMIT:
+    if len(words_limit) >= SQL_LIMIT:
         __words_update()
         return True
     return False

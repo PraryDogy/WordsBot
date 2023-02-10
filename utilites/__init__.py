@@ -11,7 +11,7 @@ import spacy
 import sqlalchemy
 from aiogram import types
 
-from bot_config import bot, delete_msg_timer
+from bot_config import bot, DELETE_MESSAGES_TIMER, SQL_LIMIT
 from database import Dbase, Times, Users, Words
 from dicts import khalisi_words, stop_words
 

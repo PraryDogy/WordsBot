@@ -1,4 +1,4 @@
-from . import bot, time, types, delete_msg_timer
+from . import bot, time, types, DELETE_MESSAGES_TIMER
 
 timer = time()
 del_messages_list = []
@@ -21,7 +21,7 @@ async def del_messages_timer():
     removes via bot messages every 30 mins
     """
     global timer
-    if time() - timer > delete_msg_timer and del_messages_list:
+    if time() - timer > DELETE_MESSAGES_TIMER and del_messages_list:
         await del_messages()
         del_messages_list.clear()
         timer = time()
