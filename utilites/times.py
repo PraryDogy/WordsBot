@@ -77,8 +77,8 @@ class __UpdateTimes:
             {
                 "b_user_id": user_id,
                 "b_chat_id": chat_id,
-                "b_times_list": json.dumps(times_list, default=str, indent=1),
-                "b_year": self.year
+                "b_year": self.year,
+                "b_times_list": json.dumps(times_list, default=str, indent=1)
                 }
             for user_id, chat_id, times_list in self.merged
             ]
@@ -90,7 +90,7 @@ class __UpdateTimes:
                 })
             .filter(
                 Times.user_id == sqlalchemy.bindparam("b_user_id"),
-                Times.user_id == sqlalchemy.bindparam("b_user_id"),
+                Times.chat_id == sqlalchemy.bindparam("b_chat_id"),
                 Times.year == sqlalchemy.bindparam("b_year"),
                 )
             )
@@ -102,8 +102,8 @@ class __UpdateTimes:
             {
                 "b_user_id": user_id,
                 "b_chat_id": chat_id,
-                "b_times_list": json.dumps(times_list, default=str, indent=1),
-                "b_year": self.year
+                "b_year": self.year,
+                "b_times_list": json.dumps(times_list, default=str, indent=1)
                 }
             for user_id, chat_id, times_list in self.new
             ]

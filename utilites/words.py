@@ -7,7 +7,7 @@ __all__ = (
     "dec_words_update_force",
     )
 
-LIMIT = 900
+LIMIT = 300
 users_words: dict = {}
 words_limit = []
 
