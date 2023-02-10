@@ -1,5 +1,5 @@
 from . import (Dbase, TestBaseModel, hashlib, math, random, sqlalchemy,
-               timedelta, types, datetime, humanize)
+               timedelta, types, types, humanize)
 
 __all__ = (
     "Utils",
@@ -14,8 +14,8 @@ class MessageButton(types.InlineKeyboardMarkup):
 
 
 class Utils:
-    def __init__(self, user_id, user_time, today, need_update, query):
-        self.user_id = user_id
+    def __init__(self, inline_query: types.InlineQuery, user_time, today, need_update):
+        self.user_id = inline_query.from_user.id
         self.user_time = user_time
         self.today = today
         self.need_update = need_update

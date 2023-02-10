@@ -9,26 +9,24 @@ __all__ = (
 @dec_update_user
 async def create_msg(inline_query: types.InlineQuery):
     user = UserData(inline_query)
-    user_data = user.get_db_user_data()
+    user_time = user.load_db_user_time()
 
     today = datetime.today().replace(microsecond=0)
-    need_update = bool((today - user_data['user_time']) > timedelta(hours=3))
+    need_update = bool((today - user_time) > timedelta(hours=3))
 
     if need_update:
         user.update_db_user_time()
 
     items = [
-        test(
-            inline_query.from_user.id, user_data['user_time'],
-            today, need_update, inline_query.query).item
-            
-            for test in (
-                Destiny, Puppies, Pokemons, Ducks,
-                Eat,
-                Fat, Penis, Ass, Zarplata, Libera,
-                Mobi
-                )
-                ]
+        test(inline_query, user_time, today, need_update).item
+
+        for test in (
+            Destiny, Puppies, Pokemons, Ducks,
+            Eat,
+            Fat, Penis, Ass, Zarplata, Libera,
+            Mobi
+            )
+            ]
 
     await bot.answer_inline_query(
         inline_query.id, results=items, is_personal=True, cache_time=0)

@@ -2,7 +2,7 @@ from . import (AssModel, DucksModel, EatModel, FatModel, LiberaModel,
                MobiModel, PenisModel, PokemonModel, PuppyModel, ZarplataModel,
                ass_names, destiny_answers, destiny_questions, ducks_url, food,
                penis_names, pokemons, puppies_url, puppies_words, random,
-               words_find)
+               types, words_find)
 from .utils import Utils
 
 __all__ = (
@@ -27,16 +27,20 @@ gold_users = [
 
 
 class Fat(Utils):
-    def __init__(self, user_id, user_time, today, need_update, query):
-        super().__init__(user_id, user_time, today, need_update, query)
+    def __init__(self, inline_query: types.InlineQuery, user_time, today, need_update):
+        super().__init__(inline_query, user_time, today, need_update)
 
-        header = 'Насколько я жирный'
-        descr = 'Тест основан на научных методиках'
-        thumb = 'https://sun9-40.userapi.com/impg/XEe4VPlF5BvuAYbjZLm3MPamjWIhLrxO66oFEw/f54lKM4s6gU.jpg?size=300x300&quality=95&sign=a347fede0405ca0ec49763ebcb68a413&type=album'
+        header = "Насколько я жирный"
+        descr = "Тест основан на научных методиках"
+        thumb = (
+            "https://sun9-40.userapi.com/impg/XEe4VPlF5BvuAYbjZLm3MPamjWI"
+            "hLrxO66oFEw/f54lKM4s6gU.jpg?size=300x300&quality=95&sign=a347"
+            "fede0405ca0ec49763ebcb68a413&type=album"
+            )
 
         values = self.create_test(FatModel, {'value': random.randint(0, 100)})
 
-        if user_id in gold_users:
+        if inline_query.from_user.id in gold_users:
             values['value'] = random.randint(0, 10)
 
         msg = '\n'.join(
@@ -50,12 +54,16 @@ class Fat(Utils):
 
 
 class Libera(Utils):
-    def __init__(self, user_id, user_time, today, need_update, query):
-        super().__init__(user_id, user_time, today, need_update, query)
+    def __init__(self, inline_query: types.InlineQuery, user_time, today, need_update):
+        super().__init__(inline_query, user_time, today, need_update)
 
-        header = 'Насколько я либерал'
-        descr = 'Анализ вашего телеграма'
-        thumb = 'https://sun1-21.userapi.com/impg/PTLggCAuUejRbw1H-GIjpGjNf73dM7IWhYrsww/x6kavkNNquI.jpg?size=300x300&quality=95&sign=9772535c2cd701e33cae3030464999a9&type=album'
+        header = "Насколько я либерал"
+        descr = "Анализ вашего телеграма"
+        thumb = (
+            "https://sun1-21.userapi.com/impg/PTLggCAuUejRbw1H-GIjpGjNf7"
+            "3dM7IWhYrsww/x6kavkNNquI.jpg?size=300x300&quality=95&sign=9772"
+            "535c2cd701e33cae3030464999a9&type=album"
+            )
 
         values = self.create_test(
             LiberaModel,
@@ -72,12 +80,16 @@ class Libera(Utils):
 
 
 class Mobi(Utils):
-    def __init__(self, user_id, user_time, today, need_update, query):
-        super().__init__(user_id, user_time, today, need_update, query)
+    def __init__(self, inline_query: types.InlineQuery, user_time, today, need_update):
+        super().__init__(inline_query, user_time, today, need_update)
 
-        header = 'Шанс моей мобилизации'
-        descr = 'Словлю ли я волну?'
-        thumb = 'https://sun9-5.userapi.com/impg/mnJv7OTLrAdMqXUA0e5RC-kBEWMEbijLphmejQ/M8LDDxUhuLQ.jpg?size=508x505&quality=95&sign=21030729d57ec5cd1184d9b83b9b4de8&type=album'
+        header = "Шанс моей мобилизации"
+        descr = "Словлю ли я волну?"
+        thumb = (
+            "https://sun9-5.userapi.com/impg/mnJv7OTLrAdMqXUA0e5RC-kBEWME"
+            "bijLphmejQ/M8LDDxUhuLQ.jpg?size=508x505&quality=95&sign=21030"
+            "729d57ec5cd1184d9b83b9b4de8&type=album"
+            )
 
         values = self.create_test(
             MobiModel,
@@ -94,19 +106,23 @@ class Mobi(Utils):
 
 
 class Penis(Utils):
-    def __init__(self, user_id, user_time, today, need_update, query):
-        super().__init__(user_id, user_time, today, need_update, query)
+    def __init__(self, inline_query: types.InlineQuery, user_time, today, need_update):
+        super().__init__(inline_query, user_time, today, need_update)
 
-        header = 'Длина моего члена'
-        descr = 'Скинь дикпик для точного замера'
-        thumb = 'https://sun9-21.userapi.com/impg/Nv7LQ95rTyFbFIaaadAGPLP1XWDQpICJedY00Q/ZxO3px1UxXA.jpg?size=320x320&quality=95&sign=f3ecf3e4d08507702a438d38cdc86472&type=album'
+        header = "Длина моего члена"
+        descr = "Скинь дикпик для точного замера"
+        thumb = (
+            "https://sun9-21.userapi.com/impg/Nv7LQ95rTyFbFIaaadAG"
+            "PLP1XWDQpICJedY00Q/ZxO3px1UxXA.jpg?size=320x320&quality=95&sign="
+            "f3ecf3e4d08507702a438d38cdc86472&type=album"
+            )
 
         values = self.create_test(
             PenisModel,
             {'value': 49.5 if self.gold_chance() else random.randint(0, 40)}
             )
 
-        if user_id in gold_users:
+        if inline_query.from_user.id in gold_users:
             values['value'] = random.randint(30, 40)
 
         msg = '\n'.join(
@@ -120,16 +136,20 @@ class Penis(Utils):
 
 
 class Ass(Utils):
-    def __init__(self, user_id, user_time, today, need_update, query):
-        super().__init__(user_id, user_time, today, need_update, query)
+    def __init__(self, inline_query: types.InlineQuery, user_time, today, need_update):
+        super().__init__(inline_query, user_time, today, need_update)
 
-        header = 'Глубина моей задницы'
-        descr = 'Насколько глубока кроличья нора?'
-        thumb = 'https://sun9-64.userapi.com/impg/v6NOR_nbHrPkn3Ca6GQFmcJ1vCKVzeW6fUCCyg/fH1oB2Aps7Y.jpg?size=321x306&quality=95&sign=b90f1e85b5acd4c58a12dc27c5115e11&type=album'
+        header = "Глубина моей задницы"
+        descr = "Насколько глубока кроличья нора?"
+        thumb = (
+            "https://sun9-64.userapi.com/impg/v6NOR_nbHrPkn3Ca6GQFmcJ1vCKVz"
+            "eW6fUCCyg/fH1oB2Aps7Y.jpg?size=321x306&quality=95&sign=b90f1e8"
+            "5b5acd4c58a12dc27c5115e11&type=album"
+            )
 
         values = self.create_test(AssModel,{'value': random.randint(0, 40)})
 
-        if user_id in gold_users:
+        if inline_query.from_user.id in gold_users:
             values['value'] = random.randint(30, 40)
 
         msg = '\n'.join([
@@ -141,23 +161,27 @@ class Ass(Utils):
 
 
 class Destiny(Utils):
-    def __init__(self, user_id, user_time, today, need_update, query):
-        super().__init__(user_id, user_time, today, need_update, query)
+    def __init__(self, inline_query: types.InlineQuery, user_time, today, need_update):
+        super().__init__(inline_query, user_time, today, need_update)
 
-        header = 'Шар судьбы'
-        descr = f'Ваш вопрос: {query}'
-        thumb = 'https://sun9-41.userapi.com/impg/YshUD09fLrhGuS2sGukKQvYT4bUxMj5Kx2zO_Q/JzxC6rT0T88.jpg?size=900x900&quality=95&sign=ce5ce688dd70583012dfb87f569ece00&type=album'
+        header = "Шар судьбы"
+        descr = f"Ваш вопрос: {inline_query.query}"
+        thumb = (
+            "https://sun9-41.userapi.com/impg/YshUD09fLrhGuS2sGukKQvYT4bU"
+            "xMj5Kx2zO_Q/JzxC6rT0T88.jpg?size=900x900&quality=95&sign=ce"
+            "5ce688dd70583012dfb87f569ece00&type=album"
+            )
 
-        if not query:
+        if not inline_query.query:
             msg = 'Вы не задали вопрос'
             self.item = self.txt_base(header, descr, thumb, msg)
             return
 
-        for word in words_find(query.split()):
+        for word in words_find(inline_query.query.split()):
             if word in destiny_questions:
 
                 msg = '\n'.join([
-                    f'Ваш вопрос: {query}',
+                    f'Ваш вопрос: {inline_query.query}',
                     'Задайте вопрос на "да" или "нет".'
                     ])
 
@@ -166,26 +190,30 @@ class Destiny(Utils):
 
         msg = '\n'.join([
             'Шар судьбы поможет вам определиться',
-            f'Ваш вопрос: {query}',
+            f'Ваш вопрос: {inline_query.query}',
             f'Ответ шара: {random.choice(destiny_answers)}',
             ])
         self.item = self.txt_base(header, descr, thumb, msg)
 
 
 class Zarplata(Utils):
-    def __init__(self, user_id, user_time, today, need_update, query):
-        super().__init__(user_id, user_time, today, need_update, query)
+    def __init__(self, inline_query: types.InlineQuery, user_time, today, need_update):
+        super().__init__(inline_query, user_time, today, need_update)
 
-        header = 'Размер моей зарплаты'
-        descr = 'Спросим у эффективных менеджеров'
-        thumb = 'https://sun9-81.userapi.com/impg/wc9Rzt3_ZtEavbQiSBgnHHwVvb8JDC-wha6QpA/Izw-RHcYd74.jpg?size=510x510&quality=95&sign=46e52939d404e97dd1ed3911f8de33e4&type=album'
+        header = "Размер моей зарплаты"
+        descr = "Спросим у эффективных менеджеров"
+        thumb = (
+            "https://sun9-81.userapi.com/impg/wc9Rzt3_ZtEavbQiSBgnHHwVv"
+            "b8JDC-wha6QpA/Izw-RHcYd74.jpg?size=510x510&quality=95&sign"
+            "=46e52939d404e97dd1ed3911f8de33e4&type=album"
+            )
 
         values = self.create_test(
             ZarplataModel,
             {'value': random.randint(16242, 180000)}
             )
         
-        if user_id in gold_users:
+        if inline_query.from_user.id in gold_users:
             values['value'] = random.randint(300000, 1000000)
 
         msg = '\n'.join(
@@ -199,11 +227,11 @@ class Zarplata(Utils):
 
 
 class Puppies(Utils):
-    def __init__(self, user_id, user_time, today, need_update, query):
-        super().__init__(user_id, user_time, today, need_update, query)
+    def __init__(self, inline_query: types.InlineQuery, user_time, today, need_update):
+        super().__init__(inline_query, user_time, today, need_update)
 
-        header = 'Какой я сегодня пупи'
-        descr = 'При поддержке Николая Дроздова'
+        header = "Какой я сегодня пупи"
+        descr = "При поддержке Николая Дроздова"
 
         values = self.create_test(
             PuppyModel,
@@ -221,11 +249,11 @@ class Puppies(Utils):
 
 
 class Pokemons(Utils):
-    def __init__(self, user_id, user_time, today, need_update, query):
-        super().__init__(user_id, user_time, today, need_update, query)
+    def __init__(self, inline_query: types.InlineQuery, user_time, today, need_update):
+        super().__init__(inline_query, user_time, today, need_update)
 
-        header = 'Какой я покемон'
-        descr = 'Тест во имя Луны'
+        header = "Какой я покемон"
+        descr = "Тест во имя Луны"
 
         values = self.create_test(
             PokemonModel,
@@ -243,12 +271,16 @@ class Pokemons(Utils):
 
 
 class Eat(Utils):
-    def __init__(self, user_id, user_time, today, need_update, query):
-        super().__init__(user_id, user_time, today, need_update, query)
+    def __init__(self, inline_query: types.InlineQuery, user_time, today, need_update):
+        super().__init__(inline_query, user_time, today, need_update)
 
-        header = 'Сколько я могу скушать?'
-        descr = 'Поможет вести диету'
-        thumb = 'https://sun9-26.userapi.com/impg/Ooe3EknSDRIJbNHEMJCFUbQDZqznzldLiSEgbw/GOAMC92C0cc.jpg?size=696x519&quality=95&sign=230aa7451455c7894615d6ad5fde065e&type=album'
+        header = "Сколько я могу скушать?"
+        descr = "Поможет вести диету"
+        thumb = (
+            "https://sun9-26.userapi.com/impg/Ooe3EknSDRIJbNHEMJCFUbQDZqzn"
+            "zldLiSEgbw/GOAMC92C0cc.jpg?size=696x519&quality=95&sign=230aa"
+            "7451455c7894615d6ad5fde065e&type=album"
+            )
 
         values = self.create_test(
             EatModel,
@@ -271,11 +303,11 @@ class Eat(Utils):
 
 
 class Ducks(Utils):
-    def __init__(self, user_id, user_time, today, need_update, query):
-        super().__init__(user_id, user_time, today, need_update, query)
+    def __init__(self, inline_query: types.InlineQuery, user_time, today, need_update):
+        super().__init__(inline_query, user_time, today, need_update)
 
-        header = 'Какая я уточка?'
-        descr = 'Узнай свою красоту'
+        header = "Какая я уточка?"
+        descr = "Узнай свою красоту"
 
         new_duck = random.choice(list(ducks_url.keys()))
         values = self.create_test(

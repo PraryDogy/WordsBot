@@ -52,11 +52,11 @@ class UserData:
         Dbase.conn.execute(q)
 
     def load_db_user_time(self):
-        return dict(
+        return (
             Dbase.conn.execute(
                 sqlalchemy.select(Users.user_time)
                 .filter(Users.user_id==self.user_id)
-                ).first()
+                ).first()[0]
                 )
 
 
