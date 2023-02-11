@@ -3,7 +3,7 @@ from . import (Counter, Dbase, Words, datetime, sqlalchemy, types, words_find,
 
 __all__ = (
     "words_append",
-    "words_update",
+    "words_update_force",
     "dec_words_update_force",
     )
 
@@ -163,7 +163,7 @@ def words_append(message: types.Message):
         users_words[(message.from_user.id, message.chat.id)].extend(words)
 
 
-def words_update():
+def words_update_force():
     """
     Updates words database if word count > default limit.
     Return true if > default limit words, else False

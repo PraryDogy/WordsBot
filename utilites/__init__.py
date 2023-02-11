@@ -22,7 +22,7 @@ from .text_analyser import (declension_n, get_lexeme, get_nouns,
 from .times import (dec_times_db_update_force, times_db_update_force,
                     times_dict_append)
 from .user import UserData, create_mention, dec_update_user, get_usernames
-from .words import dec_words_update_force, words_append, words_update
+from .words import dec_words_update_force, words_append, words_update_force
 
 
 __all__ = (
@@ -44,5 +44,5 @@ __all__ = (
     "dec_update_user",
     "dec_words_update_force",
     "words_append",
-    "words_update",
+    "words_update_force",
     )

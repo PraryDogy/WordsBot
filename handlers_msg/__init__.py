@@ -15,7 +15,7 @@ from utilites import (create_mention, dec_times_db_update_force,
                       del_messages_append, del_messages_timer, get_lexeme,
                       get_nouns, get_usernames, khalisi_convert,
                       times_db_update_force, times_dict_append, words_append,
-                      words_update)
+                      words_update_force)
 
 from .chat_stat import send_msg as chat_stat
 from .chat_stat import temp_stat

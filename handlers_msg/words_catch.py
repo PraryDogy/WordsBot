@@ -1,6 +1,6 @@
 from . import (BOT_NAME, dec_update_user, del_messages_timer,
                del_messages_append, times_dict_append, times_db_update_force, types,
-               words_update, words_append)
+               words_update_force, words_append)
 
 __all__ = (
     "msg_catch_words"
@@ -19,7 +19,7 @@ async def msg_catch_words(message: types.Message):
 
     elif message.content_type == "text":
 
-        if words_update():
+        if words_update_force():
             times_db_update_force()
 
         words_append(message)

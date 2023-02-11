@@ -84,6 +84,9 @@ def dec_update_user(func):
 
 
 def create_mention(message: types.Message):
+    """
+    Creates mention based on user_id and first_name
+    """
     return (
             f"[{str(message.from_user.first_name)}]"
             f"(tg://user?id={str(message.from_user.id)})"

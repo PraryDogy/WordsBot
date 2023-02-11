@@ -13,81 +13,79 @@ days = {
     6: "воскресенье"
     }
 
-def user_words_get(message: types.Message, limit: int):
-
+def db_words_user(message: types.Message, limit: int):
+    """
+    out: {word: count, ...}
+    """
     q = (
-        sqlalchemy.select(
-            Words.word,
-            Words.count
-            )
+        sqlalchemy.select(Words.word, Words.count)
         .filter(
             Words.user_id==message.from_user.id,
-            Words.chat_id==message.chat.id
-            )
+            Words.chat_id==message.chat.id)
         .order_by(-Words.count)
         .limit(limit)
         )
     return dict(Dbase.conn.execute(q).all())
 
 
-def user_words_stat_get(message: types.Message):
+def db_words_user_count_sum(message: types.Message):
+    """
+    out: (count of user's words, sum of counts user's words)
+    """
     return (
         Dbase.conn.execute(
             sqlalchemy.select(
-                Dbase.sq_count(Words.word),
-                Dbase.sq_sum(Words.count)
-                )
+                Dbase.sq_count(Words.word), Dbase.sq_sum(Words.count))
             .filter(
                 Words.user_id == message.from_user.id,
-                Words.chat_id == message.chat.id
-                )
+                Words.chat_id == message.chat.id)
                 ).all()
                 )
 
 
 def user_times_get(message: types.Message):
+    """
+    out: ["datetime", ...] for json.loads()
+    """
     return Dbase.conn.execute(
         sqlalchemy.select(Times.times_list)
         .filter(
-            Times.user_id==message.from_user.id,
-            Times.chat_id==message.chat.id
-            )
-            ).all()
+            Times.user_id == message.from_user.id,
+            Times.chat_id == message.chat.id)
+            ).first()
 
 
 def create_msg(message: types.Message):
-    load_times = user_times_get(message)
+    datetimes_loaded = user_times_get(message)
 
-    if not load_times:
+    if not datetimes_loaded:
         return f"Нет данных. Пока что."
 
-    deserialize = [json.loads(i[0]) for i in load_times]
-    merge_times = [x for i in deserialize for x in i]
-    str_to_datetime = [
+    datetimes = json.loads(datetimes_loaded[0])
+
+    datetimes = [
         datetime.strptime(i, "%Y-%m-%d %H:%M:%S")
-        for i in merge_times
+        for i in datetimes
         ]
 
-    hours_count = Counter([i.hour for i in str_to_datetime])
-    max_hour = max(hours_count, key=hours_count.get)
+    hours = [i.hour for i in datetimes]
+    most_pop_hour = max(hours, key=hours.count)
 
-    weekdays_count = Counter([i.weekday() for i in str_to_datetime])
-    find_max_weekday = max(weekdays_count, key=weekdays_count.get)
-    max_weekday = days[find_max_weekday]
+    weekdays = [i.weekday() for i in datetimes]
+    most_pop_weekday = max(weekdays, key=weekdays.count)
 
-    messages_count = len(str_to_datetime)
-    first_date = min(str_to_datetime).date()
+    datetimes_len = len(datetimes)
+    first_datetime = min(datetimes).date()
 
-    dates_count = Counter([i.date() for i in str_to_datetime])
+    dates_count = Counter([i.date() for i in datetimes])
     max_date = max(dates_count, key=dates_count.get)
 
-    words_stats = user_words_stat_get(message)
-    uniq_words, all_words = words_stats[0]
-    
-    msg_average = round(all_words/messages_count, 0)
+    words_count_sum = db_words_user_count_sum(message)
+    words_sum, words_counts_sum = words_count_sum[0]
 
+    msg_average_len = round(words_counts_sum/datetimes_len, 0)
 
-    user_words = user_words_get(message, 500)
+    user_words = db_words_user(message, 500)
 
     user_nouns = {
         nn: user_words[nn]
@@ -95,48 +93,35 @@ def create_msg(message: types.Message):
         }
 
     msg = (
-        f"{create_mention(message)}, ваша статистика:\n",
-
-        "• Начало статистики: "
-        f"{first_date.strftime('%d %B %Y')}",
+        f"{ create_mention(message) }, ваша статистика c "
+        f"{ first_datetime.strftime('%d %B %Y') }:",
 
         "• Самый активный день за все время: "
-        f"{max_date.strftime('%d %B %Y')}",
+        f"{ max_date.strftime('%d %B %Y') }",
 
-        f"• Cамый активный день недели: {max_weekday}",
+        f"• Cамый активный день недели: { days[most_pop_weekday] }",
 
-        "• Самый активный час: "
-        f"{max_hour} {declension_n('час', max_hour)}"
-        f"{' ночи' if max_hour in [23, 0, 1, 2, 3, 4] else ''}",
+        "• Самое активное время: "
+        f"{ most_pop_hour } { declension_n('час', most_pop_hour) }"
+        f"{ ' ночи' if most_pop_hour in [23, 0, 1, 2, 3, 4] else '' }",
 
-        "• Всего сообщений: "
-        f"{messages_count}",
+        f"• Всего сообщений: { datetimes_len }",
 
-        "• Всего слов: "
-        f"{all_words}",
+        f"• Всего слов: { words_counts_sum }",
 
         "• Словарный запас: "
-        f"{uniq_words} {declension_n('слово', all_words)}",
+        f"{ words_sum } { declension_n('слово', words_sum) }",
 
         "• Средняя длина сообщения: "
-        f"{msg_average:.0f} {declension_n('слово', msg_average)}",
-
+        f"{ msg_average_len:.0f} { declension_n('слово', msg_average_len) }",
 
         "\nТоп 10 слов:",
+        ", ".join([word for word in list(user_words)][:10]),
 
-        "\n".join([
-            f"{x}: {y}"
-            for x, y in tuple(user_words.items())[:10]
-            ]),
+        "\nТоп 10 существительных:",
+        ", ".join([word for word in list(user_nouns)][:10]),
 
-        '\nТоп 10 существительных:',
-
-        "\n".join([
-            f'{x}: {y}'
-            for x, y in tuple(user_nouns.items())[:10]
-            ]),
-            
-            )
+        )
 
     return '\n'.join(msg)
 

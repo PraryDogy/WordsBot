@@ -233,9 +233,7 @@ async def create_msg(message: types.Message):
     top_users_by_msg = top_users_by_msg_count(usernames, datetimes_converted)
 
     msg = (
-        f"{create_mention(message)}, статистика чата:\n",
-
-        "• Начало статистики: "
+        f"{create_mention(message)}, статистика чата c "
         f"{first_date.strftime('%d %B %Y')}",
 
         "• Самый обсуждаемый день: "
@@ -249,13 +247,13 @@ async def create_msg(message: types.Message):
 
 
         "\nТоп 10 слов в чате:",
-        "\n".join([
-            f"{word}: {count}" for word, count in top_words
+        ", ".join([
+            f"{word}" for word, _ in top_words
             ]),
 
         "\nТоп 10 существительных в чате:",
-        "\n".join([
-            f"{noun}: {count}" for noun, count in top_nns
+        ", ".join([
+            f"{noun}" for noun, _ in top_nns
             ]),
 
         "\nТоп 10 пользователей по кол-ву слов:",
