@@ -46,7 +46,7 @@ class Dbase():
     sq_sum = sqlalchemy.sql.expression.func.sum
     sq_count = sqlalchemy.sql.expression.func.count
     sq_lower = sqlalchemy.func.lower
-
+    sq_len = sqlalchemy.func.length
 
 class Users(Dbase.base):
     __tablename__ = 'users'

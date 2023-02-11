@@ -10,7 +10,6 @@ __all__ = (
 @dec_update_user
 
 async def msg_catch_words(message: types.Message):
-
     await del_messages_timer()
 
     if message.via_bot:

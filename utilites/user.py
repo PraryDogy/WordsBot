@@ -1,15 +1,16 @@
-from . import Dbase, Users, datetime, sqlalchemy, timedelta, types, wraps
+from . import Dbase, Users, datetime, sqlalchemy, timedelta, types, wraps, bot
 
 __all__ = (
     "UserData",
     "dec_update_user",
+    "create_mention",
     )
 
 
 class UserData:
     def __init__(self, message: types.Message):
         self.user_id = message.from_user.id
-        self.user_name = message.from_user.username
+        self.user_name = message.from_user.first_name
         self.today = datetime.today().replace(microsecond=0)
 
     def get_db_user_data(self):
@@ -82,3 +83,23 @@ def dec_update_user(func):
     return wrapper
 
 
+def create_mention(message: types.Message):
+    return (
+            f"[{str(message.from_user.first_name)}]"
+            f"(tg://user?id={str(message.from_user.id)})"
+            )
+
+
+async def get_usernames(message: types.Message, id_list: list):
+    """
+    out: {user_id: username, ...}
+    """
+    members = [
+        await bot.get_chat_member(
+            chat_id = message.chat.id,
+            user_id = i
+            )
+        for i in id_list
+        ]
+
+    return {i.user.id: i.user.first_name for i in members}

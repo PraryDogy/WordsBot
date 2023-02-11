@@ -1,6 +1,7 @@
-from . import (Counter, Dbase, Times, Words, bot, datetime,
-               dec_times_db_update_force, dec_update_user, dec_words_update_force,
-               get_nouns, json, sqlalchemy, types)
+from . import (Counter, Dbase, Times, Words, bot, create_mention, datetime,
+               dec_times_db_update_force, dec_update_user,
+               dec_words_update_force, declension_n, get_nouns, json,
+               sqlalchemy, types)
 
 days = {
     0: "понедельник",
@@ -11,16 +12,6 @@ days = {
     5: "суббота",
     6: "воскресенье"
     }
-
-hours = {
-    0: "часов",
-    1: "час",
-    **{i: "часа" for i in range(2, 5)},
-    **{i: "часов" for i in range(5, 21)},
-    21: "час",
-    **{i: "часа" for i in range(22, 25)},
-}
-
 
 def user_words_get(message: types.Message, limit: int):
 
@@ -64,7 +55,7 @@ def user_times_get(message: types.Message):
             ).all()
 
 
-def create_msg(message: types.Message, limit: int):
+def create_msg(message: types.Message):
     load_times = user_times_get(message)
 
     if not load_times:
@@ -93,10 +84,10 @@ def create_msg(message: types.Message, limit: int):
     words_stats = user_words_stat_get(message)
     uniq_words, all_words = words_stats[0]
     
-    msg_average = round(all_words/messages_count, 2)
+    msg_average = round(all_words/messages_count, 0)
 
 
-    user_words = user_words_get(message, limit)
+    user_words = user_words_get(message, 500)
 
     user_nouns = {
         nn: user_words[nn]
@@ -104,26 +95,43 @@ def create_msg(message: types.Message, limit: int):
         }
 
     msg = (
-        f"@{message.from_user.username}, ваша статистика:",
-        f"Начало статистики: {first_date.strftime('%d %B %Y')}",
-        f"Больше всего писал(a): {max_date.strftime('%d %B %Y')}",
-        f"Cамый активный день: {max_weekday}",
-        f"Самый активный час: {max_hour:02d} {hours[max_hour]}",
-        f"Всего сообщений: {messages_count}",
-        f"Всего слов: {all_words}",
-        f"Словарный запас: {uniq_words}",
-        f"Средняя длина сообщения: {msg_average}",
+        f"{create_mention(message)}, ваша статистика:\n",
+
+        "• Начало статистики: "
+        f"{first_date.strftime('%d %B %Y')}",
+
+        "• Самый активный день за все время: "
+        f"{max_date.strftime('%d %B %Y')}",
+
+        f"• Cамый активный день недели: {max_weekday}",
+
+        "• Самый активный час: "
+        f"{max_hour} {declension_n('час', max_hour)}"
+        f"{' ночи' if max_hour in [23, 0, 1, 2, 3, 4] else ''}",
+
+        "• Всего сообщений: "
+        f"{messages_count}",
+
+        "• Всего слов: "
+        f"{all_words}",
+
+        "• Словарный запас: "
+        f"{uniq_words} {declension_n('слово', all_words)}",
+
+        "• Средняя длина сообщения: "
+        f"{msg_average:.0f} {declension_n('слово', msg_average)}",
+
 
         "\nТоп 10 слов:",
 
-        ", ".join([
+        "\n".join([
             f"{x}: {y}"
             for x, y in tuple(user_words.items())[:10]
             ]),
 
         '\nТоп 10 существительных:',
 
-        ", ".join([
+        "\n".join([
             f'{x}: {y}'
             for x, y in tuple(user_nouns.items())[:10]
             ]),
@@ -141,5 +149,7 @@ async def send_msg(message: types.Message):
 
     await bot.send_message(
         message.chat.id,
-        text=create_msg(message, 500)
+        text=create_msg(message),
+        parse_mode="MARKDOWN"
         )
+

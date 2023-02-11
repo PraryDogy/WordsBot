@@ -1,5 +1,5 @@
 from . import (Dbase, TestBaseModel, hashlib, math, random, sqlalchemy,
-               timedelta, types, types, humanize)
+               timedelta, types, types, declension_n)
 
 __all__ = (
     "Utils",
@@ -52,23 +52,20 @@ class Utils:
         `Обновить можно сегодня/завтра в часов:минут`
         """
         if self.need_update:
-            when_upd = self.today + timedelta(hours=3)
+            tm = f"3 {declension_n('час', 3)}"
         else:
-            when_upd = self.user_time + timedelta(hours=3)
+            future = self.user_time + timedelta(hours=3)
 
-        human = humanize.precisedelta(
-            when_upd,
-            minimum_unit="seconds",
-            format="%0.0f"
-            )
-        human = (
-            human
-            .split(' и ')[0]
-            .replace(',', '')
-            .replace('нута', 'нуту')
-            )
+            delta = (future - self.today).total_seconds()
+            h, m = int(delta // 3600), int(delta % 3600 // 60)
 
-        return f'Обновить можно через {human}'
+            hour_word = declension_n("час", h)
+            minute_word = declension_n("минута", m)
+            str_hour = f"{h} {hour_word}" if h > 0 else ""
+
+            tm = f"{str_hour} {m} {minute_word}"
+
+        return f'Обновить можно через {tm}'
 
     def gold_chance(self):
         chance = 0.05

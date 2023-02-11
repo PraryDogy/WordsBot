@@ -21,12 +21,18 @@ async def create_msg(inline_query: types.InlineQuery):
         test(inline_query, user_time, today, need_update).item
 
         for test in (
-            Destiny, Puppies, Pokemons, Ducks,
+            Destiny,
+            Puppies,
+            Pokemons,
+            Ducks,
             Eat,
-            Fat, Penis, Ass, Zarplata, Libera,
+            Fat,
+            Penis,
+            Ass,
+            Zarplata,
+            Libera,
             Mobi
-            )
-            ]
+            )]
 
     await bot.answer_inline_query(
         inline_query.id, results=items, is_personal=True, cache_time=0)

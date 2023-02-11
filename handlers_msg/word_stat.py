@@ -1,5 +1,5 @@
 from . import (Dbase, Words, bot, dec_times_db_update_force, dec_update_user,
-               dec_words_update_force, morph, sqlalchemy, types)
+               dec_words_update_force, get_lexeme, sqlalchemy, types)
 
 __all__ = (
     "send_msg"
@@ -34,7 +34,7 @@ def create_msg(message: types.Message):
         return 'Пример команды /word_stat слово.'
 
     similars = set()
-    word_variants = (i.word for i in morph.parse(message.get_args())[0].lexeme)
+    word_variants = (i.word for i in get_lexeme(message.get_args()))
 
     for i in word_variants:
         similars.update(db_sim_words(message.chat.id, i))

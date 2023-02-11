@@ -1,6 +1,7 @@
-from . import (Counter, Dbase, Times, Users, Words, bot, datetime,
-               dec_times_db_update_force, dec_update_user, dec_words_update_force,
-               get_nouns, json, sqlalchemy, types)
+from . import (Counter, Dbase, Times, Users, Words, bot, create_mention,
+               datetime, dec_times_db_update_force, dec_update_user,
+               dec_words_update_force, declension_n, defaultdict, get_nouns,
+               get_usernames, json, sqlalchemy, types)
 
 days = {
     0: "понедельник",
@@ -12,99 +13,24 @@ days = {
     6: "воскресенье"
     }
 
-hours = {
-    0: "часов",
-    1: "час",
-    **{i: "часа" for i in range(2, 5)},
-    **{i: "часов" for i in range(5, 21)},
-    21: "час",
-    **{i: "часа" for i in range(22, 25)},
-}
 
-
-class UsersTop:
-    def __init__(self, message: types.Message):
-        self.chat_id = message.chat.id
-
-        users_ids = self.__load_users_ids()
-        word_stats = self.__load_stat(users_ids)
-        word_stats.sort(key=lambda x: x[1], reverse=1)
-
-        self.user_names = self.__load_users_names(users_ids)
-
-        self.strings_list = self.__list_stings(
-            self.user_names,
-            word_stats
-            )
-
-    def __load_users_ids(self):
-        """
-        returns: `list` of user_id filtered by chat_id
-        """
-        q = (
-            sqlalchemy.select(Words.user_id)
-            .distinct(Words.user_id)
-            .filter(Words.chat_id==self.chat_id)
-            )
-        return [i[0] for i in Dbase.conn.execute(q).all()]
-
-    def __load_users_names(self, users_ids):
-        """
-        returns: dict(user_id: user_name)
-        """
-        q = (
-            sqlalchemy.select(Users.user_id, Users.user_name)
-            .filter(Users.user_id.in_(users_ids))
-            )
-        return dict(Dbase.conn.execute(q).all())
-
-    def __load_stat(self, id_list):
-        """
-        returns: tuple((user_id, words count sum, words count))
-        """
-        queries = [
-            sqlalchemy.select(
-                Words.user_id,
-                Dbase.sq_sum(Words.count),
-                Dbase.sq_count(Words.word))
-            .filter(
-                Words.user_id==i,
-                Words.chat_id==self.chat_id)
-            for i in id_list
-            ]
-
-        return (
-            Dbase.conn.execute(sqlalchemy.union_all(*queries))
-            .all()
-            )
-
-    def __list_stings(self, usernames, word_stats):
-        return [
-            (
-                f"{usernames[user_id]}: "
-                f"{words_count}, "
-                f"{round((words_sum/words_count)*100)}%"
-                )
-            for user_id, words_count, words_sum in word_stats[:10]
-            ]
-
-
-def chat_words_get(message: types.Message, limit: int):
+def load_chat_users_ids(message: types.Message):
+    """
+    out: (user_id, ...)
+    """
     q = (
-        sqlalchemy.select(
-            Words.word,
-            Words.count
-            )
-        .filter(
-            Words.chat_id==message.chat.id
-            )
-        .order_by(-Words.count)
-        .limit(limit)
+        sqlalchemy.select(Words.user_id)
+        .distinct(Words.user_id)
+        .filter(Words.chat_id==message.chat.id)
         )
-    return Dbase.conn.execute(q).all()
+
+    return [i[0] for i in Dbase.conn.execute(q).all()]
 
 
-def chat_times_get(message: types.Message):
+def datetimes_get(message: types.Message):
+    """
+    out: [ (user_id, json list datetimes), ... ]
+    """
     return Dbase.conn.execute(
         sqlalchemy.select(
             Times.user_id,
@@ -116,100 +42,230 @@ def chat_times_get(message: types.Message):
             ).all()
 
 
-def create_msg(message: types.Message, limit: int):
-    load_times = chat_times_get(message)
+def datetimes_convert(datetimes_list):
+    """
+    * in: [ (user_id, json list datetimes), ... ]
+    * out: [(user_id, list of datetimes), ... ]
+    """
+    return [
+        (
+            user_id,
+            [
+                datetime.strptime(i, "%Y-%m-%d %H:%M:%S")
+                for i in json.loads(times_list)
+                ]
+            )
 
-    if not load_times:
-        return f"Нет данных. Пока что."
-
-    deserialized = [
-        (user_id, json.loads(times_list))
-        for user_id, times_list in load_times
+        for user_id, times_list in datetimes_list
+        
         ]
 
-    merged_times = [
+
+def datetimes_merge(db_times_list: list):
+    """
+    * in: [(user_id, list of datetimes), ... ]
+    * out: [datetime, ...]
+    """
+    return [
         x
-        for user_id, times_list in deserialized
+        for _, times_list in db_times_list
         for x in times_list
         ]
 
-    str_to_datetime = [
-        datetime.strptime(i, "%Y-%m-%d %H:%M:%S")
-        for i in merged_times
-        ]
 
-    hours_count = Counter([i.hour for i in str_to_datetime])
-    max_hour = max(hours_count, key=hours_count.get)
+def most_popular_hour_find(datetimes_list: list) -> datetime.hour:
+    hours_count = Counter([i.hour for i in datetimes_list])
+    return max(hours_count, key=hours_count.get)
 
-    weekdays_count = Counter([i.weekday() for i in str_to_datetime])
+
+def most_popular_weekday_find(datetimes_list: list):
+    weekdays_count = Counter([i.weekday() for i in datetimes_list])
     find_max_weekday = max(weekdays_count, key=weekdays_count.get)
-    max_weekday = days[find_max_weekday]
+    return days[find_max_weekday]
 
-    first_date = min(str_to_datetime).date()
 
-    dates_count = Counter([i.date() for i in str_to_datetime])
-    max_date = max(dates_count, key=dates_count.get)
+def most_popular_date_find(datetimes_list: list):
+    dates_count = Counter([i.date() for i in datetimes_list])
+    return max(dates_count, key=dates_count.get)
 
-    chat_words = chat_words_get(message, limit)
 
-    words_count = {}
+def first_date_find(datetimes_list: list):
+    return min(datetimes_list).date()
+
+
+def chat_words_get(message: types.Message):
+    q = (
+        sqlalchemy.select(
+            Words.word,
+            Words.count
+            )
+        .filter(
+            Words.chat_id==message.chat.id
+            )
+        .order_by(-Words.count)
+        .limit(500)
+        )
+    return Dbase.conn.execute(q).all()
+
+
+def words_count(chat_words: list):
+    """
+    * in: [ (word, count), ... ]
+    * out: {word: sum of counts for this word from all users, ...}
+    """
+    res = defaultdict(int)
     for word, count in chat_words:
-            words_count[word] = words_count.get(word, 0) + count
+        res[word] += count
+    return res
 
-    nouns_count = {
-        nn: words_count[nn]
-        for nn in get_nouns(words_count.keys())
-        }
 
-    words_top = sorted(
-        words_count.items(),
+def top_chat_words(words_counted: list):
+    """
+    * in: {word: count, ...}
+    * out: sorted top 10 [ (word, count), ... ]
+    """
+    return sorted(
+        words_counted.items(),
         key = lambda x: x[1],
         reverse=1
         )[:10]
 
-    nouns_top = sorted(
+
+def top_chat_nouns(words_counted: list):
+    """
+    * in: {word: count, ...}
+    * out: sorted top 10 nouns [ (word, count), ... ]
+    """
+    nouns_count = {
+        nn: words_counted[nn]
+        for nn in get_nouns(words_counted.keys())
+        }
+
+    return sorted(
         nouns_count.items(),
         key = lambda x: x[1],
         reverse=1
         )[:10]
 
-    users_data = UsersTop(message)
-    top = users_data.strings_list
-    usernames = users_data.user_names
 
-    messages_top = [
-        (usernames[user_id], len(times_list))
-        for user_id, times_list in deserialized
+def load_users_words_sum(message: types.Message, users_ids: list):
+    """
+    out: sorted by words_sum [(user_id, words_sum), ...]
+    """
+    queries = [
+        sqlalchemy.select(
+            Words.user_id,
+            Dbase.sq_sum(Words.count).label("max")
+            )
+        .filter(
+            Words.user_id==i,
+            Words.chat_id==message.chat.id)
+
+        for i in users_ids
         ]
 
+    return sorted(
+        Dbase.conn.execute(sqlalchemy.union_all(*queries)).all(),
+        key = lambda x: x[1],
+        reverse=True
+        )
+
+def top_users_by_words_sum(usernames: dict, users_words: list):
+    """
+    * in usernames: {user_id: username, ...}
+    * in datetimes_converted: [(user_id, list of datetimes), ...]
+    * out top users by times count [(username, times count), ...]
+    """
+    messages_len = [
+        (usernames[user_id], word_count)
+        for user_id, word_count in users_words
+        ]
+
+    return sorted(
+        messages_len,
+        key = lambda x: x[1],
+        reverse=1
+        )[:10]
+
+
+def top_users_by_msg_count(usernames: dict, datetimes_converted: list):
+    """
+    * in usernames: {user_id: username, ...}
+    * in datetimes_converted: [(user_id, list of datetimes), ...]
+    * out top users by times count [(username, times count), ...]
+    """
+    messages_len = [
+        (usernames[user_id], len(times_list))
+        for user_id, times_list in datetimes_converted
+        ]
+
+    return sorted(
+        messages_len,
+        key = lambda x: x[1],
+        reverse=1
+        )[:10]
+
+
+async def create_msg(message: types.Message):
+    chat_times = datetimes_get(message)
+
+    if not chat_times:
+        return "Нет данных. Пока что."
+
+    datetimes_converted = datetimes_convert(chat_times)
+    datetimes_merged = datetimes_merge(datetimes_converted)
+
+    first_date: datetime = first_date_find(datetimes_merged)
+    most_popular_hour: datetime = most_popular_hour_find(datetimes_merged)
+    most_popular_date: datetime = most_popular_date_find(datetimes_merged)
+    most_popular_weekday: datetime = most_popular_weekday_find(datetimes_merged)
+
+    words_counted = words_count(chat_words_get(message))
+    top_words = top_chat_words(words_counted)
+    top_nns = top_chat_nouns(words_counted)
+
+    users_ids = load_chat_users_ids(message)
+    usernames = await get_usernames(message, users_ids)
+
+    users_words = load_users_words_sum(message, users_ids)
+    top_users_by_words = top_users_by_words_sum(usernames, users_words)
+
+    top_users_by_msg = top_users_by_msg_count(usernames, datetimes_converted)
+
     msg = (
-        f"@{message.from_user.username}, статистика чата:",
-        f"Начало статистики: {first_date.strftime('%d %B %Y')}",
-        f"Больше всего сообщений было: {max_date.strftime('%d %B %Y')}",
-        f"Cамый активный день: {max_weekday}",
-        f"Самый активный час: {max_hour:02d} {hours[max_hour]}",
+        f"{create_mention(message)}, статистика чата:\n",
 
-        "\nТоп 10 слов:",
+        "• Начало статистики: "
+        f"{first_date.strftime('%d %B %Y')}",
 
-        ", ".join([
-            f"{x}: {y}"
-            for x, y in words_top[:10]
-            ]),
+        "• Самый обсуждаемый день: "
+        f"{most_popular_date.strftime('%d %B %Y')}",
 
-        '\nТоп 10 существительных:',
+        "• Cамый активный день недели: "
+        f"{most_popular_weekday}",
 
-        ", ".join([
-            f'{x}: {y}'
-            for x, y in nouns_top[:10]
-            ]),
+        "• Самый активный час: "
+        f"{most_popular_hour:02d} {declension_n('час', most_popular_hour)}",
 
-        "\nТоп 10 по словам (имя: кол-во слов, коэф. уникальных):",
-        '\n'.join(top),
 
-        "\nТоп 10 по сообщениям:",
+        "\nТоп 10 слов в чате:",
         "\n".join([
-            f"{x}: {y}"
-            for x, y in messages_top[:10]
+            f"{word}: {count}" for word, count in top_words
+            ]),
+
+        "\nТоп 10 существительных в чате:",
+        "\n".join([
+            f"{noun}: {count}" for noun, count in top_nns
+            ]),
+
+        "\nТоп 10 пользователей по кол-ву слов:",
+        "\n".join([
+            f"{x}: {y}" for x, y in top_users_by_words
+            ]),
+
+        "\nТоп 10 пользователей по кол-ву сообщений:",
+        "\n".join([
+            f"{x}: {y}" for x, y in top_users_by_msg
             ]),
         )
 
@@ -224,5 +280,18 @@ async def send_msg(message: types.Message):
 
     await bot.send_message(
         message.chat.id,
-        text=create_msg(message, 500)
+        text= await create_msg(message),
+        parse_mode="MARKDOWN"
         )
+
+
+# надо удалить будет ;;;;;;;;;;;;;;;;;;;
+
+
+@dec_update_user
+@dec_words_update_force
+@dec_times_db_update_force
+
+async def temp_stat(message: types.Message):
+    if message.from_user.id == 248208655:
+        ''

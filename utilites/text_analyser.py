@@ -14,6 +14,19 @@ nlp = spacy.load("ru_core_news_md")
 morph = pymorphy2.MorphAnalyzer()
 
 
+def declension_n(word: str, number: int):
+    """
+    Returns passed word in agreed with number form
+    """
+    word = morph.parse(word)[0]
+    return word.make_agree_with_number(number).word
+
+
+def get_lexeme(word: str):
+    return morph.parse(word)[0].lexeme
+
+
+
 def khalisi_convert(words_list: list):
     for word in words_list:
         for khal_word in khalisi_words:
@@ -40,7 +53,7 @@ def words_normalize(words_list: list):
 
 def words_stopwords(words_list: list):
     for i in words_list:
-        if i not in stop_words:
+        if i not in stop_words and len(i) >= 3:
             yield(i)
 
 
