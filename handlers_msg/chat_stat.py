@@ -16,7 +16,7 @@ days = {
 
 def load_chat_users_ids(message: types.Message):
     """
-    out: (user_id, ...)
+    out: (user_id, ...) get all users in current chat who writed message.
     """
     q = (
         sqlalchemy.select(Words.user_id)
@@ -55,9 +55,7 @@ def datetimes_convert(datetimes_list):
                 for i in json.loads(times_list)
                 ]
             )
-
         for user_id, times_list in datetimes_list
-        
         ]
 
 
@@ -94,14 +92,12 @@ def first_date_find(datetimes_list: list):
 
 
 def chat_words_get(message: types.Message):
+    """
+    out: ( (word, count), ... ) words by chat_id
+    """
     q = (
-        sqlalchemy.select(
-            Words.word,
-            Words.count
-            )
-        .filter(
-            Words.chat_id==message.chat.id
-            )
+        sqlalchemy.select(Words.word, Words.count)
+        .filter(Words.chat_id == message.chat.id)
         .order_by(-Words.count)
         .limit(500)
         )
@@ -212,8 +208,8 @@ async def create_msg(message: types.Message):
     if not chat_times:
         return "Нет данных. Пока что."
 
-    datetimes_converted = datetimes_convert(chat_times)
-    datetimes_merged = datetimes_merge(datetimes_converted)
+    users_datetimes = datetimes_convert(chat_times)
+    datetimes_merged = datetimes_merge(users_datetimes)
 
     first_date: datetime = first_date_find(datetimes_merged)
     most_pop_hour: datetime = most_popular_hour_find(datetimes_merged)
@@ -230,7 +226,7 @@ async def create_msg(message: types.Message):
     users_words = load_users_words_sum(message, users_ids)
     top_users_by_words = top_users_by_words_sum(usernames, users_words)
 
-    top_users_by_msg = top_users_by_msg_count(usernames, datetimes_converted)
+    top_users_by_msg = top_users_by_msg_count(usernames, users_datetimes)
 
     msg = (
         f"{create_mention(message)}, статистика чата c "
