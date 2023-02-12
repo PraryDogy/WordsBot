@@ -26,10 +26,6 @@ def db_word_people(msg_chat_id, words_list):
 
 
 def create_msg(message: types.Message):
-    """
-    word, user_id, user_name, chat_id
-    """
-
     if not message.get_args():
         return 'Пример команды /word_stat слово.'
 

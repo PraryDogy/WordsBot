@@ -11,7 +11,7 @@ from database import (AssModel, Dbase, DucksModel, EatModel, FatModel,
                       LiberaModel, MobiModel, PenisModel, PokemonModel,
                       PuppyModel, TestBaseModel, ZarplataModel)
 from dicts import *
-from utilites import UserData, declension_n, dec_update_user, words_find
+from utilites import User, declension_n, dec_update_user, words_find
 
 from .create_inline import create_msg as create_inline
 

@@ -216,9 +216,9 @@ async def create_msg(message: types.Message):
     datetimes_merged = datetimes_merge(datetimes_converted)
 
     first_date: datetime = first_date_find(datetimes_merged)
-    most_popular_hour: datetime = most_popular_hour_find(datetimes_merged)
-    most_popular_date: datetime = most_popular_date_find(datetimes_merged)
-    most_popular_weekday: datetime = most_popular_weekday_find(datetimes_merged)
+    most_pop_hour: datetime = most_popular_hour_find(datetimes_merged)
+    most_pop_date: datetime = most_popular_date_find(datetimes_merged)
+    most_pop_weekday: datetime = most_popular_weekday_find(datetimes_merged)
 
     words_counted = words_count(chat_words_get(message))
     top_words = top_chat_words(words_counted)
@@ -236,22 +236,22 @@ async def create_msg(message: types.Message):
         f"{create_mention(message)}, статистика чата c "
         f"{first_date.strftime('%d %B %Y')}",
 
-        "• Самый обсуждаемый день: "
-        f"{most_popular_date.strftime('%d %B %Y')}",
+        "• Самый активный день за все время: "
+        f"{most_pop_date.strftime('%d %B %Y')}",
 
         "• Cамый активный день недели: "
-        f"{most_popular_weekday}",
+        f"{most_pop_weekday}",
 
-        "• Самый активный час: "
-        f"{most_popular_hour:02d} {declension_n('час', most_popular_hour)}",
+        "• Самое активное время: "
+        f"{most_pop_hour:.0f} {declension_n('час', most_pop_hour)}"
+        f"{ ' ночи' if most_pop_hour in [23, 0, 1, 2, 3, 4] else '' }",
 
-
-        "\nТоп 10 слов в чате:",
+        "\nТоп 10 слов чата:",
         ", ".join([
             f"{word}" for word, _ in top_words
             ]),
 
-        "\nТоп 10 существительных в чате:",
+        "\nТоп 10 существительных чата:",
         ", ".join([
             f"{noun}" for noun, _ in top_nns
             ]),

@@ -23,7 +23,9 @@ class __UpdateTimes:
         self.insert_db() if self.new else False
 
     def load_times_db(self):
-        """Returns list of tuples (user_id, chat_id, [str times])"""
+        """
+        out: [ (user_id, chat_id, [str datetimes]), ... ]
+        """
         queries = [
             sqlalchemy.select(
                 Times.user_id,
@@ -43,12 +45,20 @@ class __UpdateTimes:
             ).all()
 
     def times_db_json_loads(self):
+        """
+        out: [ (user_id, chat_id, [json loads datetimes]), ... ]
+        """
         return [
             (user_id, chat_id, json.loads(times_list))
             for user_id, chat_id, times_list in self.__db_times
             ]
 
     def merge_times(self):
+        """
+        in: [ (user_id, chat_id, [datetimes]), ... ]
+        out: [ (user_id, chat_id,
+        [datetimes] + [datetimes from dict_message]), ... ]
+        """
         return [
             (
                 user_id,
@@ -59,6 +69,9 @@ class __UpdateTimes:
             ]
 
     def new_users(self):
+        """
+        out [ (user_id, chat_id, [datetimes]), ... ] if user not in db
+        """
         return [
             (
                 user_id,
@@ -145,6 +158,10 @@ def times_dict_append(message: types.Message):
 
 
 def times_db_update_force():
+    """
+    Force update list of times in database
+    for any user_id who send text messages
+    """
     __times_db_update() if dict_message else False
 
 

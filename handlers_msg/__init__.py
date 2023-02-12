@@ -12,7 +12,7 @@ from bot_config import BOT_NAME, bot
 from database import Dbase, Times, Users, Words, sqlalchemy
 from utilites import (create_mention, dec_times_db_update_force,
                       dec_update_user, dec_words_update_force, declension_n,
-                      del_messages_append, del_messages_timer, get_lexeme,
+                      del_messages_append, del_msg_by_timer, get_lexeme,
                       get_nouns, get_usernames, khalisi_convert,
                       times_db_update_force, times_dict_append, words_append,
                       words_update_force)

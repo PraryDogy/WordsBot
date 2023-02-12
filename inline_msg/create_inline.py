@@ -1,4 +1,4 @@
-from . import UserData, bot, datetime, dec_update_user, timedelta, types
+from . import User, bot, datetime, dec_update_user, timedelta, types
 from .tests import *
 
 __all__ = (
@@ -8,7 +8,7 @@ __all__ = (
 
 @dec_update_user
 async def create_msg(inline_query: types.InlineQuery):
-    user = UserData(inline_query)
+    user = User(inline_query)
     user_time = user.load_db_user_time()
 
     today = datetime.today().replace(microsecond=0)

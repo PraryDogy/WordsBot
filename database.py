@@ -48,11 +48,11 @@ class Dbase():
     sq_lower = sqlalchemy.func.lower
     sq_len = sqlalchemy.func.length
 
+
 class Users(Dbase.base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer)
-    user_name = Column(Text)
     user_time = Column(DateTime)
 
 
@@ -147,9 +147,7 @@ class Migration:
         create_table = f"""CREATE TABLE IF NOT EXISTS {name} (
                             "id" INTEGER NOT NULL PRIMARY KEY,
                             "user_id" INTEGER,
-                            "user_name" TEXT,
                             "user_time" DATATIME,
-                            "times" TEXT
                             )
                             """
         copy_data = f"""INSERT INTO {name} SELECT * FROM {name}_old"""
