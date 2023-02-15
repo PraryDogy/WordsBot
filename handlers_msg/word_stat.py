@@ -59,4 +59,5 @@ def create_msg(message: types.Message):
 @dec_times_db_update_force
 async def send_msg(message: types.Message):
     msg = create_msg(message)
+    # switch_inline_query_current_chat
     await bot.send_message(message.chat.id, text=msg)

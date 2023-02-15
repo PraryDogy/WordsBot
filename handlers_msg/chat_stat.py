@@ -175,6 +175,7 @@ def top_users_by_words_sum(usernames: dict, users_words: list):
     messages_len = [
         (usernames[user_id], word_count)
         for user_id, word_count in users_words
+        if usernames.get(user_id)
         ]
 
     return sorted(
@@ -193,6 +194,7 @@ def top_users_by_msg_count(usernames: dict, datetimes_converted: list):
     messages_len = [
         (usernames[user_id], len(times_list))
         for user_id, times_list in datetimes_converted
+        if usernames.get(user_id)
         ]
 
     return sorted(
