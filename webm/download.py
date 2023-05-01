@@ -27,7 +27,7 @@ async def send_msg(message: types.Message):
 
         msg = await bot.send_video(
             chat_id = message.chat.id,
-            video = "CgACAgIAAxkBAAIFUGRPiMGDQjoEGMTVViHy-eL3bRmkAAJ2KwAC0u54SqMrhR7RsUK9LwQ",
+            video = open("./webm/cat-typing.mp4", "rb"),
             reply_to_message_id = message.message_id,
             caption = "Работаю"
             )
@@ -43,7 +43,7 @@ async def send_msg(message: types.Message):
         await msg.edit_media(new_file)
 
         for i in os.listdir("./webm"):
-            if i.endswith((".mp4", ".webm")):
+            if i.endswith((".mp4", ".webm")) and i != "cat-typing.mp4":
                 os.remove(os.path.join("./webm", i))
 
     except Exception as e:
