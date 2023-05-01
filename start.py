@@ -52,8 +52,8 @@ if __name__ == '__main__':
         )
     if inp:
         print("\nstart:", datetime.today().replace(microsecond=0))
-        executor.start_polling(
-            dp,
-            skip_updates=True,
-            
-            )
+
+        try:
+            executor.start_polling(dp,skip_updates=True)
+        except Exception as e:
+            print(e)

@@ -10,7 +10,7 @@ def convert_video(file):
 
     name, ext = os.path.splitext(file)
     out_name = name + ".mp4"
-    ffmpeg.input(file).output(out_name).overwrite_output().run()
+    ffmpeg.input(file).output(out_name, loglevel = "quiet").overwrite_output().run()
 
     return out_name
 
