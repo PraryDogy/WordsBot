@@ -27,7 +27,7 @@ from .photo_id import msg_file_id as get_file_id
 from .user_stat import send_msg as user_stat
 from .word_stat import send_msg as word_stat
 from .words_catch import msg_catch_words
-
+from .chmok import send_msg as haha
 locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
 
 __all__ = (

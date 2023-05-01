@@ -1,6 +1,7 @@
 my_stat - Ваша статистика
 chat_stat - Статистика чата
 word_stat - Статистика выбранного слова
+video - webm для iPhone
 
 about
 Поддержка: evlosh

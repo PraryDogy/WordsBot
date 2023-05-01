@@ -82,12 +82,24 @@ async def get_usernames(message: types.Message, id_list: list):
     """
     out: {user_id: username, ...}
     """
-    members = [
-        await bot.get_chat_member(
-            chat_id = message.chat.id,
-            user_id = i
-            )
-        for i in id_list
-        ]
+    # members = [
+    #     await bot.get_chat_member(
+    #         chat_id = message.chat.id,
+    #         user_id = i
+    #         )
+    #     for i in id_list
+    #     ]
+
+    members = []
+    for i in id_list:
+        try:
+            members.append(
+                await bot.get_chat_member(
+                    chat_id = message.chat.id,
+                    user_id = i
+                    )
+                )
+        except Exception:
+            pass
 
     return {i.user.id: i.user.first_name for i in members}
