@@ -37,8 +37,11 @@ async def send_msg(message: types.Message):
 
         await bot.download_file(file_path, f"./webm/{file_name}")
 
-        new_name = convert_video(f"./webm/{file_name}")
-        new_file = types.InputMediaVideo(open(new_name, "rb"))
+        if not file_name.endswith(".mp4"):
+            new_name = convert_video(f"./webm/{file_name}")
+            new_file = types.InputMediaVideo(open(new_name, "rb"))
+        else:
+            new_file = types.InputMediaVideo(open(f"./webm/{file_name}", "rb"))
 
         await msg.edit_media(new_file)
 
