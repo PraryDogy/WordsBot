@@ -2,7 +2,7 @@ import os
 
 import ffmpeg
 from aiogram import types
-
+import aiogram
 from bot_config import bot
 
 
@@ -32,7 +32,17 @@ async def send_msg(message: types.Message):
             caption = "Работаю"
             )
 
-        file = await bot.get_file(file_id)
+        try:
+            file = await bot.get_file(file_id)
+        except Exception:
+            await msg.delete()
+            await bot.send_message(
+                chat_id = message.chat.id,
+                text="Файл больше 20мб",
+                reply_to_message_id = message.message_id
+                )
+            return
+
         file_path = file.file_path
 
         await bot.download_file(file_path, f"./webm/{file_name}")
