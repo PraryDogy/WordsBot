@@ -26,13 +26,21 @@ def get_lexeme(word: str):
     return morph.parse(word)[0].lexeme
 
 
-
 def khalisi_convert(words_list: list):
     for word in words_list:
+        khalisied = False
+
         for khal_word in khalisi_words:
+
             if khal_word in word:
                 yield(word.replace(khal_word, khalisi_words[khal_word]))
+                khalisied = True
                 break
+        
+        if not khalisied:
+            yield(word)
+
+        khalisied = False
 
 
 def words_find(words_list: list):

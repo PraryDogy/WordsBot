@@ -22,11 +22,8 @@ async def send_msg(message: types.Message):
             )
         return
 
-    msg = ' '.join(
-        khalisi_convert(
-            msg.lower().split()
-            )
-            ).capitalize()
+    khalisied = khalisi_convert(msg.lower().split())
+    msg = " ".join(khalisied).capitalize()
 
     await bot.send_photo(
         message.chat.id,
