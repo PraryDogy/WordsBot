@@ -61,4 +61,9 @@ async def send_msg(message: types.Message):
 
     except Exception as e:
         print(e)
+        await bot.send_message(
+            message.chat.id,
+            text = "Пришлите видео с реплаем.",
+            reply_to_message_id = message.message_id
+            )
 
