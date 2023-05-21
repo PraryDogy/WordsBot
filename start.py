@@ -41,25 +41,13 @@ dp.register_inline_handler(create_inline)
 if __name__ == '__main__':
     atexit.register(on_exit, '')
 
-    inp = input(
-            f"Запускаю бота"
+    print("\nstart:", datetime.today().replace(microsecond=0))
 
-            f"\n\n{TOKEN_DICT[bot._token]}"
-            f"\n{TOKEN_DICT[bot._token]}"
-            f"\n{TOKEN_DICT[bot._token]}"
-
-            "\n\nВвод для отмены, любая буква для старта"
-            "\n"
-            
-        )
-    if inp:
-        print("\nstart:", datetime.today().replace(microsecond=0))
-
-        try:
-            executor.start_polling(
-                dp,
-                skip_updates=True,
-                timeout=800,
-                )
-        except Exception as e:
-            print(e)
+    try:
+        executor.start_polling(
+            dp,
+            skip_updates=True,
+            timeout=800,
+            )
+    except Exception as e:
+        print(e)
