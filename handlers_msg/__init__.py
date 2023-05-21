@@ -9,7 +9,7 @@ import clipboard
 import sqlalchemy
 from aiogram import types
 
-from bot_config import BOT_NAME, bot
+from bot_config import bot
 from database import Dbase, Times, Users, Words, sqlalchemy
 from utilites import (create_mention, dec_times_db_update_force,
                       dec_update_user, dec_words_update_force, declension_n,

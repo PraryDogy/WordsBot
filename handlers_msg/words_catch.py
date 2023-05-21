@@ -1,4 +1,4 @@
-from . import (BOT_NAME, dec_update_user, times_db_update_force,
+from . import (dec_update_user, times_db_update_force,
                times_dict_append, types, words_append, words_update_force)
 
 __all__ = (
