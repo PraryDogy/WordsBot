@@ -3,12 +3,13 @@ from datetime import datetime
 
 from aiogram import executor, types
 
-from bot_config import bot, bot_token, dp
+from bot_config import bot, dp
+from bot_token import TOKEN_DICT
 from handlers_msg import (chat_stat, khalisi_msg, msg_catch_words, on_exit,
                           start, temp_stat, user_stat, word_stat, haha)
 from inline_msg import create_inline
 from webm import download
-
+from aiogram.dispatcher.filters.builtin import Command
 
 # dp.register_message_handler(get_file_id,content_types='photo')
 dp.register_message_handler(start, commands=['start'])
@@ -21,8 +22,9 @@ dp.register_message_handler(chat_stat, commands=['chat_stat'])
 
 dp.register_message_handler(word_stat, commands=['word_stat'])
 
-dp.register_channel_post_handler(khalisi_msg, regexp='кхалиси')
-dp.register_message_handler(khalisi_msg, regexp='кхалиси')
+dp.register_channel_post_handler(khalisi_msg, regexp="кхалиси")
+dp.register_channel_post_handler(khalisi_msg, regexp="khalisi")
+dp.register_message_handler(khalisi_msg, commands=['khalisi'])
 
 # dp.register_message_handler(
 #     temp_stat,
@@ -42,9 +44,9 @@ if __name__ == '__main__':
     inp = input(
             f"Запускаю бота"
 
-            f"\n\n{bot_token[bot._token]}"
-            f"\n{bot_token[bot._token]}"
-            f"\n{bot_token[bot._token]}"
+            f"\n\n{TOKEN_DICT[bot._token]}"
+            f"\n{TOKEN_DICT[bot._token]}"
+            f"\n{TOKEN_DICT[bot._token]}"
 
             "\n\nВвод для отмены, любая буква для старта"
             "\n"

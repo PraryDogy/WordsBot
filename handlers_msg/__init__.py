@@ -13,13 +13,13 @@ from bot_config import BOT_NAME, bot
 from database import Dbase, Times, Users, Words, sqlalchemy
 from utilites import (create_mention, dec_times_db_update_force,
                       dec_update_user, dec_words_update_force, declension_n,
-                      del_messages_append, del_msg_by_timer, get_lexeme,
-                      get_nouns, get_usernames, khalisi_convert,
+                      get_lexeme, get_nouns, get_usernames, khalisi_convert,
                       times_db_update_force, times_dict_append, words_append,
                       words_update_force)
 
 from .chat_stat import send_msg as chat_stat
 from .chat_stat import temp_stat
+from .chmok import send_msg as haha
 from .info import send_msg as start
 from .khalisi import send_msg as khalisi_msg
 from .on_exit import on_exit_fn as on_exit
@@ -27,7 +27,7 @@ from .photo_id import msg_file_id as get_file_id
 from .user_stat import send_msg as user_stat
 from .word_stat import send_msg as word_stat
 from .words_catch import msg_catch_words
-from .chmok import send_msg as haha
+
 locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
 
 __all__ = (
