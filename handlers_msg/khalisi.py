@@ -8,6 +8,21 @@ __all__ = (
 async def send_msg(message: types.Message):
     try:
         msg: str = message.reply_to_message.text
+
+        khalisied = khalisi_convert(msg.lower().split())
+        msg = " ".join(khalisied).capitalize()
+
+        await bot.send_photo(
+            message.chat.id,
+            photo=(
+                "https://sun9-12.userapi.com/impg/oOGXM3AEHzVrTR77mtSmGE8HzRzb9"
+                "_EN09z-0Q/OP2uh8gxsT4.jpg?size=460x300&quality=95&sign=ed7f5d437"
+                "785ea571d4d95c5762c5c1f&type=album"
+                ),
+            reply_to_message_id=message.reply_to_message.message_id,
+            caption=msg
+            )
+
     except AttributeError:
         await bot.send_photo(
             chat_id=message.chat.id,
@@ -21,17 +36,3 @@ async def send_msg(message: types.Message):
             reply_to_message_id=message.message_id
             )
         return
-
-    khalisied = khalisi_convert(msg.lower().split())
-    msg = " ".join(khalisied).capitalize()
-
-    await bot.send_photo(
-        message.chat.id,
-        photo=(
-            "https://sun9-12.userapi.com/impg/oOGXM3AEHzVrTR77mtSmGE8HzRzb9"
-            "_EN09z-0Q/OP2uh8gxsT4.jpg?size=460x300&quality=95&sign=ed7f5d437"
-            "785ea571d4d95c5762c5c1f&type=album"
-            ),
-        reply_to_message_id=message.reply_to_message.message_id,
-        caption=msg
-        )
