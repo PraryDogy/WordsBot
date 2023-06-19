@@ -1,3 +1,5 @@
+import links
+
 from . import (AssModel, DucksModel, EatModel, FatModel, LiberaModel,
                MobiModel, PenisModel, PokemonModel, PuppyModel, ZarplataModel,
                ass_names, destiny_answers, destiny_questions, ducks_url, food,
@@ -32,11 +34,7 @@ class Fat(Utils):
 
         header = "Насколько я жирный"
         descr = "Тест основан на научных методиках"
-        thumb = (
-            "https://sun9-40.userapi.com/impg/XEe4VPlF5BvuAYbjZLm3MPamjWI"
-            "hLrxO66oFEw/f54lKM4s6gU.jpg?size=300x300&quality=95&sign=a347"
-            "fede0405ca0ec49763ebcb68a413&type=album"
-            )
+        thumb = links.fat
 
         values = self.create_test(FatModel, {'value': random.randint(0, 100)})
 
@@ -59,11 +57,7 @@ class Libera(Utils):
 
         header = "Насколько я либерал"
         descr = "Анализ вашего телеграма"
-        thumb = (
-            "https://sun1-21.userapi.com/impg/PTLggCAuUejRbw1H-GIjpGjNf7"
-            "3dM7IWhYrsww/x6kavkNNquI.jpg?size=300x300&quality=95&sign=9772"
-            "535c2cd701e33cae3030464999a9&type=album"
-            )
+        thumb = links.liberal
 
         values = self.create_test(
             LiberaModel,
@@ -85,11 +79,7 @@ class Mobi(Utils):
 
         header = "Шанс моей мобилизации"
         descr = "Словлю ли я волну?"
-        thumb = (
-            "https://sun9-5.userapi.com/impg/mnJv7OTLrAdMqXUA0e5RC-kBEWME"
-            "bijLphmejQ/M8LDDxUhuLQ.jpg?size=508x505&quality=95&sign=21030"
-            "729d57ec5cd1184d9b83b9b4de8&type=album"
-            )
+        thumb = links.mobi
 
         values = self.create_test(
             MobiModel,
@@ -111,11 +101,7 @@ class Penis(Utils):
 
         header = "Длина моего члена"
         descr = "Скинь дикпик для точного замера"
-        thumb = (
-            "https://sun9-21.userapi.com/impg/Nv7LQ95rTyFbFIaaadAG"
-            "PLP1XWDQpICJedY00Q/ZxO3px1UxXA.jpg?size=320x320&quality=95&sign="
-            "f3ecf3e4d08507702a438d38cdc86472&type=album"
-            )
+        thumb = links.penis
 
         values = self.create_test(
             PenisModel,
@@ -141,11 +127,7 @@ class Ass(Utils):
 
         header = "Глубина моей задницы"
         descr = "Насколько глубока кроличья нора?"
-        thumb = (
-            "https://sun9-64.userapi.com/impg/v6NOR_nbHrPkn3Ca6GQFmcJ1vCKVz"
-            "eW6fUCCyg/fH1oB2Aps7Y.jpg?size=321x306&quality=95&sign=b90f1e8"
-            "5b5acd4c58a12dc27c5115e11&type=album"
-            )
+        thumb = links.ass
 
         values = self.create_test(AssModel,{'value': random.randint(0, 40)})
 
@@ -166,11 +148,7 @@ class Destiny(Utils):
 
         header = "Шар судьбы"
         descr = f"Ваш вопрос: {inline_query.query}"
-        thumb = (
-            "https://sun9-41.userapi.com/impg/YshUD09fLrhGuS2sGukKQvYT4bU"
-            "xMj5Kx2zO_Q/JzxC6rT0T88.jpg?size=900x900&quality=95&sign=ce"
-            "5ce688dd70583012dfb87f569ece00&type=album"
-            )
+        thumb = links.destiny
 
         if not inline_query.query:
             msg = 'Вы не задали вопрос'
@@ -202,11 +180,7 @@ class Zarplata(Utils):
 
         header = "Размер моей зарплаты"
         descr = "Спросим у эффективных менеджеров"
-        thumb = (
-            "https://sun9-81.userapi.com/impg/wc9Rzt3_ZtEavbQiSBgnHHwVv"
-            "b8JDC-wha6QpA/Izw-RHcYd74.jpg?size=510x510&quality=95&sign"
-            "=46e52939d404e97dd1ed3911f8de33e4&type=album"
-            )
+        thumb = links.zarplata
 
         values = self.create_test(
             ZarplataModel,
@@ -276,11 +250,7 @@ class Eat(Utils):
 
         header = "Сколько я могу скушать?"
         descr = "Поможет вести диету"
-        thumb = (
-            "https://sun9-26.userapi.com/impg/Ooe3EknSDRIJbNHEMJCFUbQDZqzn"
-            "zldLiSEgbw/GOAMC92C0cc.jpg?size=696x519&quality=95&sign=230aa"
-            "7451455c7894615d6ad5fde065e&type=album"
-            )
+        thumb = links.eat
 
         values = self.create_test(
             EatModel,

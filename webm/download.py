@@ -2,7 +2,8 @@ import os
 
 import ffmpeg
 from aiogram import types
-import aiogram
+
+import links
 from bot_config import bot
 
 
@@ -60,10 +61,10 @@ async def send_msg(message: types.Message):
                 os.remove(os.path.join("./webm", i))
 
     except Exception as e:
-        print(e)
-        await bot.send_message(
-            message.chat.id,
-            text = "Пришлите видео с реплаем.",
+        await bot.send_photo(
+            chat_id = message.chat.id,
+            photo=links.video_err,
+            caption = "Пришлите видео с реплаем.",
             reply_to_message_id = message.message_id
             )
 

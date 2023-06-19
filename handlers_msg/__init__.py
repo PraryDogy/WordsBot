@@ -19,7 +19,6 @@ from utilites import (create_mention, dec_times_db_update_force,
 
 from .chat_stat import send_msg as chat_stat
 from .chat_stat import temp_stat
-from .chmok import send_msg as haha
 from .info import send_msg as start
 from .khalisi import send_msg as khalisi_msg
 from .on_exit import on_exit_fn as on_exit

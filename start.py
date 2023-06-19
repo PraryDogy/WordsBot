@@ -3,13 +3,11 @@ from datetime import datetime
 
 from aiogram import executor, types
 
-from bot_config import bot, dp
-from bot_token import TOKEN_DICT
+from bot_config import dp
 from handlers_msg import (chat_stat, khalisi_msg, msg_catch_words, on_exit,
-                          start, temp_stat, user_stat, word_stat, haha)
+                          start, temp_stat, user_stat, word_stat)
 from inline_msg import create_inline
 from webm import download
-from aiogram.dispatcher.filters.builtin import Command
 
 # dp.register_message_handler(get_file_id,content_types='photo')
 dp.register_message_handler(start, commands=['start'])
