@@ -1,5 +1,6 @@
 from . import (Dbase, Words, bot, dec_times_db_update_force, dec_update_user,
                dec_words_update_force, get_lexeme, sqlalchemy, types)
+import links
 
 __all__ = (
     "send_msg"
@@ -26,11 +27,10 @@ def db_word_people(msg_chat_id, words_list):
 
 
 def create_msg(message: types.Message):
-    if not message.get_args():
-        return 'Пример команды /word_stat слово.'
+    first_word = message.reply_to_message.text.split()[0]
 
     similars = set()
-    word_variants = (i.word for i in get_lexeme(message.get_args()))
+    word_variants = (i.word for i in get_lexeme(first_word))
 
     for i in word_variants:
         similars.update(db_sim_words(message.chat.id, i))
@@ -42,7 +42,7 @@ def create_msg(message: types.Message):
     people = len(db_word_people(message.chat.id, similars))
 
     msg_list = []
-    msg_list.append(f'Статистика слова {message.get_args()}.')
+    msg_list.append(f"Статистика слова \"{first_word}\".")
 
     similar_words = ", ".join(sorted(similars))
 
@@ -58,6 +58,17 @@ def create_msg(message: types.Message):
 @dec_words_update_force
 @dec_times_db_update_force
 async def send_msg(message: types.Message):
-    msg = create_msg(message)
-    # switch_inline_query_current_chat
-    await bot.send_message(message.chat.id, text=msg)
+    try:
+
+        message.reply_to_message.text
+        msg = create_msg(message)
+        await bot.send_message(message.chat.id, text=msg)
+
+    except Exception as e:
+        await bot.send_photo(
+            chat_id = message.chat.id,
+            photo=links.wordstat_err,
+            caption = "Пришлите одно слово с реплаем.",
+            reply_to_message_id = message.message_id
+            )
+

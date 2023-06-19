@@ -9,3 +9,4 @@ ass = "https://sun9-64.userapi.com/impg/v6NOR_nbHrPkn3Ca6GQFmcJ1vCKVzeW6fUCCyg/f
 destiny = "https://sun9-41.userapi.com/impg/YshUD09fLrhGuS2sGukKQvYT4bUxMj5Kx2zO_Q/JzxC6rT0T88.jpg?size=900x900&quality=95&sign=ce5ce688dd70583012dfb87f569ece00&type=album"
 zarplata = "https://sun9-77.userapi.com/impg/wc9Rzt3_ZtEavbQiSBgnHHwVvb8JDC-wha6QpA/Izw-RHcYd74.jpg?size=510x510&quality=95&sign=46e52939d404e97dd1ed3911f8de33e4&type=album"
 eat = "https://sun9-6.userapi.com/impg/y-sQrlL4EcWV2bvBQzCfXLJEF1C-_iCgz4oxOA/U76i_b1hWCA.jpg?size=412x412&quality=95&sign=3dae1dde6aa02d11a478184455b7a79f&type=album"
+wordstat_err = "https://sun9-65.userapi.com/impg/D8nfvX_T4LbXT30NG5AALqW5TMkKuQGOqvfKdw/0dig1YmN0o0.jpg?size=590x519&quality=95&sign=94abd5a8634579a30b2d427fe6b08dd1&type=album"
