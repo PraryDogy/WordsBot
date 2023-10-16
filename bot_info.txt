@@ -1,7 +1,7 @@
 my_stat - Ваша статистика
 chat_stat - Статистика чата
 word_stat - Статистика выбранного слова
-video - webm для iPhone
+video - webp видео для iPhone
 khalisi - Вызов Дейнерис
 
 about
@@ -12,3 +12,5 @@ description
 Добавьте бота в чат и подождите некоторое время.
 Наберите /start для полной информации.
 Поддержка: evlosh
+
+'python -m spacy download ru_core_news_md'

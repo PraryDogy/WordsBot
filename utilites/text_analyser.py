@@ -1,4 +1,6 @@
-from . import spacy, pymorphy2, khalisi_words, re, stop_words
+from pymorphy_fix import pymorphy2_311_hotfix
+
+from . import khalisi_words, pymorphy2, re, spacy, stop_words
 
 __all__ = (
     "khalisi_convert",
@@ -10,6 +12,8 @@ __all__ = (
 
 
 'python -m spacy download ru_core_news_md'
+
+pymorphy2_311_hotfix()
 nlp = spacy.load("ru_core_news_md")
 morph = pymorphy2.MorphAnalyzer()
 
