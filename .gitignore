@@ -3,3 +3,4 @@ venv/
 .DS_Store
 bot_token.py
 env/
+*.MP4

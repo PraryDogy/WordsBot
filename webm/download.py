@@ -5,7 +5,7 @@ from aiogram import types
 
 import links
 from bot_config import bot
-
+import traceback
 
 def convert_video(file):
 
@@ -61,6 +61,7 @@ async def send_msg(message: types.Message):
                 os.remove(os.path.join("./webm", i))
 
     except Exception as e:
+        print(traceback.format_exc())
         await bot.send_photo(
             chat_id = message.chat.id,
             photo=links.video_err,
