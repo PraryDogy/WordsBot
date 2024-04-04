@@ -8,6 +8,8 @@ from handlers_msg import (chat_stat, khalisi_msg, msg_catch_words, on_exit,
                           start, temp_stat, user_stat, word_stat)
 from inline_msg import create_inline
 from webm import download
+from aiogram.utils.exceptions import NetworkError
+from asyncio import TimeoutError
 
 # dp.register_message_handler(get_file_id,content_types='photo')
 dp.register_message_handler(start, commands=['start'])
@@ -47,5 +49,5 @@ if __name__ == '__main__':
             skip_updates=True,
             timeout=800,
             )
-    except Exception as e:
+    except (Exception, NetworkError, TimeoutError) as e:
         print(e)
