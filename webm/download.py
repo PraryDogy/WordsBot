@@ -22,9 +22,10 @@ async def send_msg(message: types.Message):
         try:
             file_id = message.reply_to_message.document.file_id
             file_name = message.reply_to_message.document.file_name
-        except Exception as ex:
+        except (Exception, AttributeError) as ex:
             file_id = message.reply_to_message.video.file_id
             file_name = message.reply_to_message.video.file_name
+            print(ex)
 
         msg = await bot.send_video(
             chat_id = message.chat.id,
